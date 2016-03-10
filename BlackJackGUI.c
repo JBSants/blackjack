@@ -61,20 +61,22 @@ int main( int argc, char* args[] )
   int pos_house_hand = 0;
   int pos_player_hand[MAX_PLAYERS] = {0};
   int numberOfDecks = 0;
-  short check = 0;
+  short check = 1;
 
-  printf("** Welcome to BlackJack **\n\n ");
+  printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
 
-  while (!check) {
+  while (check) {
     printf("Please enter the number of decks (1 to 6) you wan't to use in your game: ");
-    scanf("%d\n", &numberOfDecks);
+    scanf("%d", &numberOfDecks);
 
     check = numberOfDecks < MIN_NUMBER_OF_DECKS || numberOfDecks > MAX_NUMBER_OF_DECKS;
 
     if (check) {
-      printf("** Sorry, you have to select between 1 to 6 decks.\n", );
+      printf("\n** Sorry, you have to select between 1 to 6 decks. **\n\n");
     }
   }
+
+  printf("Baralhos selecionados: %d\n", numberOfDecks);
 
   // initialize graphics
   InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, imgs, &window, &renderer);
