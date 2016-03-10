@@ -10,6 +10,8 @@
 #define WIDTH_WINDOW 900      // window width
 #define HEIGHT_WINDOW 525     // window height
 #define MAX_DECK_SIZE 52      // number of max cards in the deck
+#define MAX_NUMBER_OF_DECKS 6   // maximum number of decks to play
+#define MIN_NUMBER_OF_DECKS 1
 #define MAX_CARD_HAND 11      // 11 cards max. that each player can hold
 #define CARD_WIDTH 67         // card width
 #define CARD_HEIGHT 97        // card height
@@ -55,8 +57,24 @@ int main( int argc, char* args[] )
   int money[MAX_PLAYERS] = {110, 110, 110, 110};
   int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{0}};
   int house_cards[MAX_CARD_HAND] = {0};
+  int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE];
   int pos_house_hand = 0;
   int pos_player_hand[MAX_PLAYERS] = {0};
+  int numberOfDecks = 0;
+  short check = 0;
+
+  printf("** Welcome to BlackJack **\n\n ");
+
+  while (!check) {
+    printf("Please enter the number of decks (1 to 6) you wan't to use in your game: ");
+    scanf("%d\n", &numberOfDecks);
+
+    check = numberOfDecks < MIN_NUMBER_OF_DECKS || numberOfDecks > MAX_NUMBER_OF_DECKS;
+
+    if (check) {
+      printf("** Sorry, you have to select between 1 to 6 decks.\n", );
+    }
+  }
 
   // initialize graphics
   InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, imgs, &window, &renderer);
@@ -104,7 +122,7 @@ int main( int argc, char* args[] )
           // todo
           case SDLK_h:
           // hit !
-          Hit(0, player_cards, pos_player_hand);
+            Hit(0, player_cards, pos_player_hand);
           // todo
           default:
           break;
