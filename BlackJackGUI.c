@@ -20,6 +20,7 @@
 #define EXTRASPACE 150
 #define MARGIN 5
 #define MAX_PLAYERS 4         // number of maximum players
+#define MIN_INITIAL_MONEY 10  // minimum amount of initial money for each player
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
@@ -61,22 +62,34 @@ int main( int argc, char* args[] )
   int pos_house_hand = 0;
   int pos_player_hand[MAX_PLAYERS] = {0};
   int numberOfDecks = 0;
+  int initialMoney = 0;
   short check = 1;
 
   printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
 
   while (check) {
-    printf("Please enter the number of decks (1 to 6) you wan't to use in your game: ");
+    printf("Please enter the number of decks (%d to %d) you wan't to use in your game: ", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
     scanf("%d", &numberOfDecks);
 
     check = numberOfDecks < MIN_NUMBER_OF_DECKS || numberOfDecks > MAX_NUMBER_OF_DECKS;
 
     if (check) {
-      printf("\n** Sorry, you have to select between 1 to 6 decks. **\n\n");
+      printf("\n** Sorry, you have to select between %d to %d decks. **\n\n", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
     }
   }
 
-  printf("Baralhos selecionados: %d\n", numberOfDecks);
+  check = 1;
+
+  while (check) {
+    printf("Please enter the initial amount of money for each player (> %d): ", MIN_INITIAL_MONEY);
+    scanf("%d", &initialMoney);
+
+    check = initialMoney < MIN_INITIAL_MONEY;
+
+    if (check) {
+      printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
+    }
+  }
 
   // initialize graphics
   InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, imgs, &window, &renderer);
