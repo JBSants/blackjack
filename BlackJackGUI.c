@@ -21,6 +21,8 @@
 #define MARGIN 5
 #define MAX_PLAYERS 4         // number of maximum players
 #define MIN_INITIAL_MONEY 10  // minimum amount of initial money for each player
+#define MIN_BET_VALUE 1 // minimum bet amount
+#define MAX_BET_VALUE_PERCENTAGE 0.2 // maximum bet amount (% of initial money)
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
@@ -63,6 +65,7 @@ int main( int argc, char* args[] )
   int pos_player_hand[MAX_PLAYERS] = {0};
   int numberOfDecks = 0;
   int initialMoney = 0;
+  int betValue = 0;
   short check = 1;
 
   printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
@@ -88,6 +91,21 @@ int main( int argc, char* args[] )
 
     if (check) {
       printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
+    }
+  }
+
+  check = 1;
+  
+  while (check) {
+    int betMaximumValue = MAX_BET_VALUE_PERCENTAGE * initialMoney;
+
+    printf("Please enter the bet amount (%d to %d): ", MIN_BET_VALUE, betMaximumValue);
+    scanf("%d", &betValue);
+
+    check = betValue < MIN_BET_VALUE || betValue > betMaximumValue;
+
+    if (check) {
+      printf("\n** Sorry, bet amount has to be from %d to %d. **\n\n", MIN_BET_VALUE, betMaximumValue);
     }
   }
 
