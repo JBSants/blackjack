@@ -1,3 +1,18 @@
+/**
+  *
+  *   Autor: João Bernardo Almeida Santos <joao.almeida.santos@tecnico.ulisboa.pt>
+  *   Número: 84083
+  *   Curso: MEEC - Instituto Superior Técnico
+  *
+  *
+  *   Interface gráfica disponibilizada pelo Professor João Ascenso
+  *
+  *
+  *
+  *   Jogo de Blackjack
+  *
+  *
+  */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
@@ -43,7 +58,7 @@ void Hit(int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards);
 // definition of some strings: they cannot be changed when the program is executed !
 const char myName[] = "Prof. Joao Ascenso";
 const char myNumber[] = "IST11111";
-const char * playerNames[] = {"Jogador 1", "Jogador 2", "Jogador 3", "Jogador 4"};
+const char * playerNames[] = {"Player 1", "Player 2", "Player 3", "Player 4"};
 
 /**
 * main function: entry point of the program
@@ -95,7 +110,7 @@ int main( int argc, char* args[] )
   }
 
   check = 1;
-  
+
   while (check) {
     int betMaximumValue = MAX_BET_VALUE_PERCENTAGE * initialMoney;
 
