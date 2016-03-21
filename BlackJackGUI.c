@@ -37,6 +37,11 @@
 #define MIN_BET_VALUE 1 // minimum bet amount
 #define MAX_BET_VALUE_PERCENTAGE 0.2 // maximum bet amount (% of initial money)
 #define INITIAL_CARDS_AMOUNT 2 // number of cards to be initially dealt
+#define ACE_ID 12 // card id of ace
+#define ACE_VALUE_MAX 11 // maximum points of ace card
+#define ACE_VALUE_MIN 1 // minimum points of ace card
+#define MAXIMUM_POINTS 21 // maximum points
+#define FIGURE_VALUE 10 // points of figure cards
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
@@ -52,7 +57,7 @@ void RenderHouseCards(int [], int , SDL_Surface **, SDL_Renderer * );
 void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Renderer * );
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
-void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards);
+void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards, int *player_points);
 void Stand(int *currentPlayer);
 void ReadGameParameters(int *, int *, int *);
 int InitializeDeck(int *, int);
@@ -60,6 +65,12 @@ void ShuffleDeck(int *, int);
 void Swap(int *, int *);
 void DealCards(int *, int *, int [][MAX_CARD_HAND], int *, int *, int *);
 int *NextCard(int *, int *);
+void DeterminePoints(int *player_points, int *cards, int pos_player_hand);
+short IsAce(int);
+int PointsFromCardID(int id);
+short Bust(int);
+int PlayHouse(int *house_cards, int *pos_house_hand, int *, int *);
+
 
 // definition of some strings: they cannot be changed when the program is executed !
 const char myName[] = "Joao Almeida Santos";
@@ -78,8 +89,9 @@ int main( int argc, char* args[] )
   SDL_Event event;
   int delay = 300;
   int quit = 0;
-  int money[MAX_PLAYERS] = { 110, 110, 110, 110 };
+  int money[MAX_PLAYERS] = { 0 };
   int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{ 0 }};
+  int player_points[MAX_PLAYERS] = { 0 };
   int house_cards[MAX_CARD_HAND] = { 0 };
   int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE] = { 0 };
   int pos_house_hand = 0;
@@ -128,13 +140,21 @@ int main( int argc, char* args[] )
              // stand !
              Stand(&currentPlayer);
 
+             if (currentPlayer >= MAX_PLAYERS) {
+                 PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+             }
+
              break;
           case SDLK_h:
             // hit !
-            Hit(deck, &currentCard, currentPlayer, player_cards, pos_player_hand);
-
-            if (pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
+            Hit(deck, &currentCard, currentPlayer, player_cards, pos_player_hand, player_points);
+            printf("Current Points: %d\n", player_points[currentPlayer]);
+            if (Bust(player_points[currentPlayer]) || pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
                 Stand(&currentPlayer);
+
+                if (currentPlayer >= MAX_PLAYERS) {
+                    PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                }
             }
 
             break;
@@ -143,6 +163,8 @@ int main( int argc, char* args[] )
         }
       }
     }
+
+
     // render game table
     RenderTable(money, imgs, renderer);
     // render house cards
@@ -175,16 +197,45 @@ int *NextCard(int *deck, int *currentCard)
     return &deck[++*currentCard];
 }
 
-void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards)
+void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *player_points)
 {
-    if (pos_player_cards[player] <= MAX_CARD_HAND) {
-        player_cards[player][pos_player_cards[player]++] = *NextCard(deck, currentCard);
+    if (pos_player_hand[player] <= MAX_CARD_HAND) {
+        player_cards[player][pos_player_hand[player]++] = *NextCard(deck, currentCard);
+
+        DeterminePoints(&player_points[player], player_cards[player], pos_player_hand[player]);
     }
 }
 
 void Stand(int *currentPlayer)
 {
     *currentPlayer += 1;
+}
+
+short Bust(int player_points)
+{
+    if (player_points > MAXIMUM_POINTS) {
+        //TODO: Update UI
+        puts("BUST!!!!\f");
+        return 1;
+    }
+
+    return 0;
+}
+
+int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int *currentCard) {
+    int housePoints = 0;
+
+    *pos_house_hand += 1;
+
+    DeterminePoints(&housePoints, house_cards, *pos_house_hand);
+
+    while (housePoints < 16) {
+        house_cards[*pos_house_hand++] = *NextCard(deck, currentCard);
+
+        DeterminePoints(&housePoints, house_cards, *pos_house_hand);
+    }
+
+    return housePoints;
 }
 
 /**
@@ -260,6 +311,48 @@ void Swap(int *a, int *b)
     *b = auxiliary;
 }
 
+void DeterminePoints(int *player_points, int *cards, int pos_player_hand)
+{
+    int result = 0, numberOfAces = 0, i;
+
+    for (i = 0; i < pos_player_hand; i++) {
+        int cardID = cards[i];
+
+        if (IsAce(cardID)) {
+            numberOfAces++;
+        }
+
+        result += PointsFromCardID(cardID);
+    }
+
+    if (result > MAXIMUM_POINTS) {
+        for (i = 0; i < numberOfAces; i++) {
+            result -= ACE_VALUE_MAX - ACE_VALUE_MIN;
+
+            if (result <= MAXIMUM_POINTS) {
+                break;
+            }
+        }
+    }
+
+    *player_points = result;
+}
+
+short IsAce(int cardID) {
+    return (cardID % 13) == ACE_ID;
+}
+
+int PointsFromCardID(int id)
+{
+    int cardPosition = id % 13;
+
+    if (cardPosition > 8) {
+        return cardPosition == ACE_ID ? ACE_VALUE_MAX : FIGURE_VALUE;
+    }
+
+    return cardPosition + 2;
+}
+
 /**
 * ReadGameParameters: Reads the parameters for given variables.
 * \param numberOfDecks
@@ -309,7 +402,6 @@ void ReadGameParameters(int *numberOfDecks, int *initialMoney, int *betAmount)
       }
     }
 }
-
 
 /**
 * RenderTable: Draws the table where the game will be played, namely:
