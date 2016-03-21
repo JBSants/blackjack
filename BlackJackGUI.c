@@ -7,8 +7,6 @@
   *
   *   Interface gráfica disponibilizada pelo Professor João Ascenso
   *
-  *
-  *
   *   Jogo de Blackjack
   *
   *
@@ -38,6 +36,7 @@
 #define MIN_INITIAL_MONEY 10  // minimum amount of initial money for each player
 #define MIN_BET_VALUE 1 // minimum bet amount
 #define MAX_BET_VALUE_PERCENTAGE 0.2 // maximum bet amount (% of initial money)
+#define INITIAL_CARDS_AMOUNT 2 // number of cards to be initially dealt
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
@@ -54,6 +53,12 @@ void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Render
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
 void Hit(int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards);
+void ReadGameParameters(int *, int *, int *);
+int InitializeDeck(int *, int);
+void ShuffleDeck(int *, int);
+void Swap(int *, int *);
+void DealCards(int *, int *, int [][MAX_CARD_HAND], int *, int *, int *);
+int *NextCard(int *, int *);
 
 // definition of some strings: they cannot be changed when the program is executed !
 const char myName[] = "Prof. Joao Ascenso";
@@ -72,83 +77,38 @@ int main( int argc, char* args[] )
   SDL_Event event;
   int delay = 300;
   int quit = 0;
-  int money[MAX_PLAYERS] = {110, 110, 110, 110};
-  int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{0}};
-  int house_cards[MAX_CARD_HAND] = {0};
-  int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE];
+  int money[MAX_PLAYERS] = { 110, 110, 110, 110 };
+  int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{ 0 }};
+  int house_cards[MAX_CARD_HAND] = { 0 };
+  int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE] = { 0 };
   int pos_house_hand = 0;
-  int pos_player_hand[MAX_PLAYERS] = {0};
+  int pos_player_hand[MAX_PLAYERS] = { 0 };
   int numberOfDecks = 0;
   int initialMoney = 0;
   int betValue = 0;
-  short check = 1;
+  int numberOfCards = 0;
+  int currentCard = 0;
+  int currentPlayer = 0;
+  time_t t;
 
+  srand((unsigned) time(&t));
+
+  /* Prints welcome message */
   printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
 
-  while (check) {
-    printf("Please enter the number of decks (%d to %d) you wan't to use in your game: ", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
-    scanf("%d", &numberOfDecks);
-
-    check = numberOfDecks < MIN_NUMBER_OF_DECKS || numberOfDecks > MAX_NUMBER_OF_DECKS;
-
-    if (check) {
-      printf("\n** Sorry, you have to select between %d to %d decks. **\n\n", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
-    }
-  }
-
-  check = 1;
-
-  while (check) {
-    printf("Please enter the initial amount of money for each player (> %d): ", MIN_INITIAL_MONEY);
-    scanf("%d", &initialMoney);
-
-    check = initialMoney < MIN_INITIAL_MONEY;
-
-    if (check) {
-      printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
-    }
-  }
-
-  check = 1;
-
-  while (check) {
-    int betMaximumValue = MAX_BET_VALUE_PERCENTAGE * initialMoney;
-
-    printf("Please enter the bet amount (%d to %d): ", MIN_BET_VALUE, betMaximumValue);
-    scanf("%d", &betValue);
-
-    check = betValue < MIN_BET_VALUE || betValue > betMaximumValue;
-
-    if (check) {
-      printf("\n** Sorry, bet amount has to be from %d to %d. **\n\n", MIN_BET_VALUE, betMaximumValue);
-    }
-  }
+  /* Reads parameters */
+  ReadGameParameters(&numberOfDecks, &initialMoney, &betValue);
 
   // initialize graphics
   InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, imgs, &window, &renderer);
   // loads the cards images
   LoadCards(cards);
 
-  // put down some cards just for testing purposes: for you to remove !
-  player_cards[0][0] = 0;
-  player_cards[0][1] = 15;
-  player_cards[1][0] = 10;
-  player_cards[1][1] = 34;
-  player_cards[1][2] = 0;
-  player_cards[1][3] = 15;
-  player_cards[1][4] = 10;
-  player_cards[2][0] = 34;
-  player_cards[2][1] = 0;
-  player_cards[3][0] = 15;
-  player_cards[3][1] = 10;
-  pos_player_hand[0] = 2;
-  pos_player_hand[1] = 5;
-  pos_player_hand[2] = 2;
-  pos_player_hand[3] = 2;
+  numberOfCards = InitializeDeck(deck, numberOfDecks);
 
-  house_cards[0] = 0;
-  house_cards[1] = 12;
-  pos_house_hand = 1;
+  ShuffleDeck(deck, numberOfCards);
+
+  DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand);
 
   while( quit == 0 )
   {
@@ -158,14 +118,13 @@ int main( int argc, char* args[] )
       if( event.type == SDL_QUIT )
       {
         quit = 1;
-        break;
       }
       else if ( event.type == SDL_KEYDOWN )
       {
         switch ( event.key.keysym.sym )
         {
           case SDLK_s:
-            player_cards[0][0] = 50;
+            currentPlayer++;
           // stand !
           // todo
           case SDLK_h:
@@ -199,9 +158,146 @@ int main( int argc, char* args[] )
   return EXIT_SUCCESS;
 }
 
-void Hit(int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards) {
+/**
+* NextCards: Returns the deck's top card.
+* \param deck
+* \param currentCard
+*/
+int *NextCard(int *deck, int *currentCard)
+{
+    return &deck[++*currentCard];
+}
+
+void Hit(int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards)
+{
   player_cards[player][pos_player_cards[player]++] = 50;
 }
+
+/**
+* InitializeDeck: Initializes an array of card IDs, ordered ascendendly from
+* ID 0 to MAX_DECK_SIZE, repeated until numberOfDecks are used. Returns the
+* number of cards used.
+* \param deck array to be initialized
+* \param numberOfDecks number of single decks of cards to be used
+*/
+int InitializeDeck(int *deck, int numberOfDecks) {
+    int numberOfCards = numberOfDecks * MAX_DECK_SIZE;
+    int i;
+
+    for (i = 0; i < numberOfCards; i++) {
+        deck[i] = i % 52;
+    }
+
+    return numberOfCards;
+}
+
+/**
+* ShuffleDeck: Shuffles the deck of cards using the Fisher-Yates algorithm.
+* \param deck array to be shuffled
+* \param numberOfCards number of cards in the deck
+*/
+void ShuffleDeck(int *deck, int numberOfCards)
+{
+    int i;
+
+    for (i = (numberOfCards - 1); i > 0; i--) {
+        int random = rand() % numberOfCards;
+
+        //printf("Random: %d", random);
+
+        Swap(&deck[i], &deck[random]);
+    }
+}
+
+/**
+* DealCards: Performs the initial deal. Dealing 2 times 1 card for each player.
+* \param deck deck of cards
+* \param currentCard current card of deck
+* \param player_cards array with each player's hand
+* \param pos_player_hand array with the number of cards of each player
+* \param house_cards array with house cards
+* \param pos_house_hand number of house cards
+*/
+void DealCards(int *deck, int *currentCard, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *house_cards, int *pos_house_hand)
+{
+    int i, j;
+
+    for (i = 0; i < INITIAL_CARDS_AMOUNT; i++) {
+        for (j = 0; j < MAX_PLAYERS; j++) {
+            player_cards[j][pos_player_hand[j]++] = *NextCard(deck, currentCard);
+        }
+
+        house_cards[i] = *NextCard(deck, currentCard);
+    }
+
+    *pos_house_hand = 1;
+}
+
+/**
+* Swap: Swaps a to b.
+* \param a
+* \param b
+*/
+void Swap(int *a, int *b)
+{
+    int auxiliary;
+
+    auxiliary = *a;
+
+    *a = *b;
+    *b = auxiliary;
+}
+
+/**
+* ReadGameParameters: Reads the parameters for given variables.
+* \param numberOfDecks
+* \param initialMoney
+* \param betAmount
+*/
+void ReadGameParameters(int *numberOfDecks, int *initialMoney, int *betAmount)
+{
+    short check = 1;
+
+    while (check) {
+      printf("Please enter the number of decks (%d to %d) you wan't to use in your game: ", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
+      scanf("%d", numberOfDecks);
+
+      check = *numberOfDecks < MIN_NUMBER_OF_DECKS || *numberOfDecks > MAX_NUMBER_OF_DECKS;
+
+      if (check) {
+        printf("\n** Sorry, you have to select between %d to %d decks. **\n\n", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
+      }
+    }
+
+    check = 1;
+
+    while (check) {
+      printf("Please enter the initial amount of money for each player (> %d): ", MIN_INITIAL_MONEY);
+      scanf("%d", initialMoney);
+
+      check = *initialMoney < MIN_INITIAL_MONEY;
+
+      if (check) {
+        printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
+      }
+    }
+
+    check = 1;
+
+    while (check) {
+      int betMaximumValue = MAX_BET_VALUE_PERCENTAGE * (*initialMoney);
+
+      printf("Please enter the bet amount (%d to %d): ", MIN_BET_VALUE, betMaximumValue);
+      scanf("%d", betAmount);
+
+      check = *betAmount < MIN_BET_VALUE || *betAmount > betMaximumValue;
+
+      if (check) {
+        printf("\n** Sorry, bet amount has to be from %d to %d. **\n\n", MIN_BET_VALUE, betMaximumValue);
+      }
+    }
+}
+
 
 /**
 * RenderTable: Draws the table where the game will be played, namely:
@@ -293,7 +389,7 @@ void RenderHouseCards(int _house[], int _pos_house_hand, SDL_Surface **_cards, S
   int div = WIDTH_WINDOW/CARD_WIDTH;
 
   // drawing all house cards
-  for ( card = 0; card < _pos_house_hand; card++)
+  for (card = 0; card < _pos_house_hand; card++)
   {
     // calculate its position
     x = (div/2-_pos_house_hand/2+card)*CARD_WIDTH + 15;
