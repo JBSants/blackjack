@@ -70,6 +70,7 @@ short IsAce(int);
 int PointsFromCardID(int id);
 short Bust(int);
 int PlayHouse(int *house_cards, int *pos_house_hand, int *, int *);
+void UpdateMoney(int *money, int bet, int *player_points, int house_points);
 
 
 // definition of some strings: they cannot be changed when the program is executed !
@@ -98,10 +99,12 @@ int main( int argc, char* args[] )
   int pos_player_hand[MAX_PLAYERS] = { 0 };
   int numberOfDecks = 0;
   int initialMoney = 0;
-  int betValue = 0;
+  int betAmount = 0;
   int numberOfCards = 0;
   int currentCard = 0;
   int currentPlayer = 0;
+  int i;
+  int house_points = 0;
   time_t t;
 
   srand((unsigned) time(&t));
@@ -110,7 +113,11 @@ int main( int argc, char* args[] )
   printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
 
   /* Reads parameters */
-  ReadGameParameters(&numberOfDecks, &initialMoney, &betValue);
+  ReadGameParameters(&numberOfDecks, &initialMoney, &betAmount);
+
+  for (i = 0; i < MAX_PLAYERS; i++) {
+      money[i] = initialMoney;
+  }
 
   // initialize graphics
   InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, imgs, &window, &renderer);
@@ -138,10 +145,13 @@ int main( int argc, char* args[] )
         {
           case SDLK_s:
              // stand !
+             DeterminePoints(&player_points[currentPlayer], player_cards[currentPlayer], pos_player_hand[currentPlayer]);
+
              Stand(&currentPlayer);
 
              if (currentPlayer >= MAX_PLAYERS) {
-                 PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                 house_points = PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                 UpdateMoney(money, betAmount, player_points, house_points);
              }
 
              break;
@@ -153,7 +163,8 @@ int main( int argc, char* args[] )
                 Stand(&currentPlayer);
 
                 if (currentPlayer >= MAX_PLAYERS) {
-                    PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                    house_points = PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                    UpdateMoney(money, betAmount, player_points, house_points);
                 }
             }
 
@@ -225,12 +236,12 @@ short Bust(int player_points)
 int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int *currentCard) {
     int housePoints = 0;
 
-    *pos_house_hand += 1;
+    *pos_house_hand = 2;
 
     DeterminePoints(&housePoints, house_cards, *pos_house_hand);
 
     while (housePoints < 16) {
-        house_cards[*pos_house_hand++] = *NextCard(deck, currentCard);
+        house_cards[(*pos_house_hand)++] = *NextCard(deck, currentCard);
 
         DeterminePoints(&housePoints, house_cards, *pos_house_hand);
     }
@@ -338,7 +349,8 @@ void DeterminePoints(int *player_points, int *cards, int pos_player_hand)
     *player_points = result;
 }
 
-short IsAce(int cardID) {
+short IsAce(int cardID)
+{
     return (cardID % 13) == ACE_ID;
 }
 
@@ -351,6 +363,20 @@ int PointsFromCardID(int id)
     }
 
     return cardPosition + 2;
+}
+
+void UpdateMoney(int *money, int bet, int *player_points, int house_points)
+{
+    int i;
+    for (i = 0; i < MAX_PLAYERS; i++) {
+        if (house_points > MAXIMUM_POINTS && player_points[i] <= MAXIMUM_POINTS) {
+            money[i] += bet * 0.5;
+        } else if (player_points[i] > MAXIMUM_POINTS || player_points[i] < house_points) {
+            money[i] -= bet;
+        } else if (player_points[i] > house_points) {
+            money[i] += bet;
+        }
+    }
 }
 
 /**
