@@ -52,7 +52,8 @@ void RenderHouseCards(int [], int , SDL_Surface **, SDL_Renderer * );
 void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Renderer * );
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
-void Hit(int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards);
+void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards);
+void Stand(int *currentPlayer);
 void ReadGameParameters(int *, int *, int *);
 int InitializeDeck(int *, int);
 void ShuffleDeck(int *, int);
@@ -61,8 +62,8 @@ void DealCards(int *, int *, int [][MAX_CARD_HAND], int *, int *, int *);
 int *NextCard(int *, int *);
 
 // definition of some strings: they cannot be changed when the program is executed !
-const char myName[] = "Prof. Joao Ascenso";
-const char myNumber[] = "IST11111";
+const char myName[] = "Joao Almeida Santos";
+const char myNumber[] = "84083";
 const char * playerNames[] = {"Player 1", "Player 2", "Player 3", "Player 4"};
 
 /**
@@ -124,15 +125,21 @@ int main( int argc, char* args[] )
         switch ( event.key.keysym.sym )
         {
           case SDLK_s:
-            currentPlayer++;
-          // stand !
-          // todo
+             // stand !
+             Stand(&currentPlayer);
+
+             break;
           case SDLK_h:
-          // hit !
-            Hit(0, player_cards, pos_player_hand);
-          // todo
+            // hit !
+            Hit(deck, &currentCard, currentPlayer, player_cards, pos_player_hand);
+
+            if (pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
+                Stand(&currentPlayer);
+            }
+
+            break;
           default:
-          break;
+            break;
         }
       }
     }
@@ -168,9 +175,16 @@ int *NextCard(int *deck, int *currentCard)
     return &deck[++*currentCard];
 }
 
-void Hit(int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards)
+void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards)
 {
-  player_cards[player][pos_player_cards[player]++] = 50;
+    if (pos_player_cards[player] <= MAX_CARD_HAND) {
+        player_cards[player][pos_player_cards[player]++] = *NextCard(deck, currentCard);
+    }
+}
+
+void Stand(int *currentPlayer)
+{
+    *currentPlayer += 1;
 }
 
 /**
@@ -202,8 +216,6 @@ void ShuffleDeck(int *deck, int numberOfCards)
 
     for (i = (numberOfCards - 1); i > 0; i--) {
         int random = rand() % numberOfCards;
-
-        //printf("Random: %d", random);
 
         Swap(&deck[i], &deck[random]);
     }
