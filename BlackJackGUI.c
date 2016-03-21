@@ -58,12 +58,12 @@ void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Render
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
 void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HAND], int *pos_player_cards, int *player_points);
-void Stand(int *currentPlayer);
+void Stand(int *currentPlayer, int, int *);
 void ReadGameParameters(int *, int *, int *);
 int InitializeDeck(int *, int);
 void ShuffleDeck(int *, int);
 void Swap(int *, int *);
-void DealCards(int *, int *, int [][MAX_CARD_HAND], int *, int *, int *);
+short DealCards(int *, int *, int [][MAX_CARD_HAND], int *, int *, int *, int *, int);
 int *NextCard(int *, int *);
 void DeterminePoints(int *player_points, int *cards, int pos_player_hand);
 short IsAce(int);
@@ -105,6 +105,7 @@ int main( int argc, char* args[] )
   int currentPlayer = 0;
   int i;
   int house_points = 0;
+  short game_ended = 0;
   time_t t;
 
   srand((unsigned) time(&t));
@@ -128,7 +129,7 @@ int main( int argc, char* args[] )
 
   ShuffleDeck(deck, numberOfCards);
 
-  DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand);
+  DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand, money, betAmount);
 
   while( quit == 0 )
   {
@@ -145,29 +146,55 @@ int main( int argc, char* args[] )
         {
           case SDLK_s:
              // stand !
-             DeterminePoints(&player_points[currentPlayer], player_cards[currentPlayer], pos_player_hand[currentPlayer]);
+             if (!game_ended) {
+                 DeterminePoints(&player_points[currentPlayer], player_cards[currentPlayer], pos_player_hand[currentPlayer]);
 
-             Stand(&currentPlayer);
+                 Stand(&currentPlayer, betAmount, money);
 
-             if (currentPlayer >= MAX_PLAYERS) {
-                 house_points = PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
-                 UpdateMoney(money, betAmount, player_points, house_points);
+                 if (currentPlayer >= MAX_PLAYERS) {
+                     house_points = PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                     UpdateMoney(money, betAmount, player_points, house_points);
+                     game_ended = 1;
+                 }
              }
 
              break;
           case SDLK_h:
             // hit !
-            Hit(deck, &currentCard, currentPlayer, player_cards, pos_player_hand, player_points);
-            printf("Current Points: %d\n", player_points[currentPlayer]);
-            if (Bust(player_points[currentPlayer]) || pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
-                Stand(&currentPlayer);
+            if (!game_ended) {
+                Hit(deck, &currentCard, currentPlayer, player_cards, pos_player_hand, player_points);
+                printf("Current Points: %d\n", player_points[currentPlayer]);
+                if (Bust(player_points[currentPlayer]) || pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
+                    Stand(&currentPlayer, betAmount, money);
 
-                if (currentPlayer >= MAX_PLAYERS) {
-                    house_points = PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
-                    UpdateMoney(money, betAmount, player_points, house_points);
+                    if (currentPlayer >= MAX_PLAYERS) {
+                        house_points = PlayHouse(house_cards, &pos_house_hand, deck, &currentCard);
+                        UpdateMoney(money, betAmount, player_points, house_points);
+                        game_ended = 1;
+                    }
                 }
             }
 
+            break;
+          case SDLK_n:
+            if (game_ended) {
+                if (!DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand, money, betAmount)) {
+                    printf("No more players! Thank you for playing Blackjack!\n");
+                    quit = 1;
+                    break;
+                }
+                currentPlayer = -1;
+
+                Stand(&currentPlayer, betAmount, money);
+
+                for (i = 0; i < MAX_PLAYERS; i++) {
+                    player_points[i] = 0;
+                }
+
+                house_points = 0;
+
+                game_ended = 0;
+            }
             break;
           default:
             break;
@@ -217,9 +244,13 @@ void Hit(int *deck, int *currentCard, int player, int player_cards[][MAX_CARD_HA
     }
 }
 
-void Stand(int *currentPlayer)
+void Stand(int *currentPlayer, int bet, int *money)
 {
     *currentPlayer += 1;
+
+    while (money[*currentPlayer] < bet && *currentPlayer <= MAX_PLAYERS) {
+        *currentPlayer += 1;
+    }
 }
 
 short Bust(int player_points)
@@ -285,6 +316,7 @@ void ShuffleDeck(int *deck, int numberOfCards)
 
 /**
 * DealCards: Performs the initial deal. Dealing 2 times 1 card for each player.
+* Return player dealt cards.
 * \param deck deck of cards
 * \param currentCard current card of deck
 * \param player_cards array with each player's hand
@@ -292,19 +324,27 @@ void ShuffleDeck(int *deck, int numberOfCards)
 * \param house_cards array with house cards
 * \param pos_house_hand number of house cards
 */
-void DealCards(int *deck, int *currentCard, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *house_cards, int *pos_house_hand)
+short DealCards(int *deck, int *currentCard, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *house_cards, int *pos_house_hand, int *money, int bet)
 {
-    int i, j;
+    int i, j, cardsDealt = 0;
 
     for (i = 0; i < INITIAL_CARDS_AMOUNT; i++) {
         for (j = 0; j < MAX_PLAYERS; j++) {
-            player_cards[j][pos_player_hand[j]++] = *NextCard(deck, currentCard);
+            if (money[j] < bet) {
+                pos_player_hand[j] = 0;
+                continue;
+            }
+            player_cards[j][i] = *NextCard(deck, currentCard);
+            pos_player_hand[j] = i+1;
+            cardsDealt++;
         }
 
         house_cards[i] = *NextCard(deck, currentCard);
     }
 
     *pos_house_hand = 1;
+
+    return cardsDealt;
 }
 
 /**
@@ -369,6 +409,10 @@ void UpdateMoney(int *money, int bet, int *player_points, int house_points)
 {
     int i;
     for (i = 0; i < MAX_PLAYERS; i++) {
+        if (money[i] < bet) {
+            continue;
+        }
+        
         if (house_points > MAXIMUM_POINTS && player_points[i] <= MAXIMUM_POINTS) {
             money[i] += bet * 0.5;
         } else if (player_points[i] > MAXIMUM_POINTS || player_points[i] < house_points) {
