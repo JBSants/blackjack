@@ -51,7 +51,7 @@ SDL_Window* CreateWindow(int , int );
 SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
 int RenderText(int , int , const char* , TTF_Font *, SDL_Color *, SDL_Renderer * );
 int RenderLogo(int , int , SDL_Surface *, SDL_Renderer * );
-void RenderTable(int [], SDL_Surface **, SDL_Renderer * );
+void RenderTable(int [], SDL_Surface **, SDL_Renderer *, int);
 void RenderCard(int , int , int , SDL_Surface **, SDL_Renderer * );
 void RenderHouseCards(int [], int , SDL_Surface **, SDL_Renderer * );
 void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Renderer * );
@@ -106,9 +106,8 @@ int main( int argc, char* args[] )
   int i;
   int house_points = 0;
   short game_ended = 0;
-  time_t t;
 
-  srand((unsigned) time(&t));
+  srand((unsigned) time(NULL));
 
   /* Prints welcome message */
   printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
@@ -144,6 +143,9 @@ int main( int argc, char* args[] )
       {
         switch ( event.key.keysym.sym )
         {
+          case SDLK_q:
+            quit = 1;
+            break;
           case SDLK_s:
              // stand !
              if (!game_ended) {
@@ -204,7 +206,7 @@ int main( int argc, char* args[] )
 
 
     // render game table
-    RenderTable(money, imgs, renderer);
+    RenderTable(money, imgs, renderer, currentPlayer);
     // render house cards
     RenderHouseCards(house_cards, pos_house_hand, cards, renderer);
     // render player cards
@@ -412,7 +414,7 @@ void UpdateMoney(int *money, int bet, int *player_points, int house_points)
         if (money[i] < bet) {
             continue;
         }
-        
+
         if (house_points > MAXIMUM_POINTS && player_points[i] <= MAXIMUM_POINTS) {
             money[i] += bet * 0.5;
         } else if (player_points[i] > MAXIMUM_POINTS || player_points[i] < house_points) {
@@ -483,10 +485,11 @@ void ReadGameParameters(int *numberOfDecks, int *initialMoney, int *betAmount)
 * \param _img surfaces where the table background and IST logo were loaded
 * \param _renderer renderer to handle all rendering in a window
 */
-void RenderTable(int _money[], SDL_Surface *_img[], SDL_Renderer* _renderer)
+void RenderTable(int _money[], SDL_Surface *_img[], SDL_Renderer* _renderer, int currentPlayer)
 {
   SDL_Color black = { 0, 0, 0 }; // black
   SDL_Color white = { 255, 255, 255 }; // white
+  SDL_Color currentPlayerAreaColor = { 255, 0, 0 } // red;
   char name_money_str[STRING_SIZE];
   TTF_Font *serif = NULL;
   SDL_Texture *table_texture;
@@ -534,12 +537,14 @@ void RenderTable(int _money[], SDL_Surface *_img[], SDL_Renderer* _renderer)
   // renders the areas for each player: names and money too !
   for ( int i = 0; i < MAX_PLAYERS; i++)
   {
+    SDL_Color *areaColor = i == currentPlayer ? &currentPlayerAreaColor : &white;
+
     playerRect.x = i*(separatorPos/4-5)+10;
     playerRect.y = (int) (0.55f*HEIGHT_WINDOW);
     playerRect.w = separatorPos/4-5;
     playerRect.h = (int) (0.42f*HEIGHT_WINDOW);
     sprintf(name_money_str,"%s -- %d euros", playerNames[i], _money[i]);
-    RenderText(playerRect.x+20, playerRect.y-30, name_money_str, serif, &white, _renderer);
+    RenderText(playerRect.x+20, playerRect.y-30, name_money_str, serif, areaColor, _renderer);
     SDL_RenderDrawRect(_renderer, &playerRect);
   }
 
