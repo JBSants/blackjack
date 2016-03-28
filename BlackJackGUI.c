@@ -58,7 +58,7 @@ void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Render
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
 void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_hand, int *points);
-void Stand(int *currentPlayer, int, int *);
+void Stand(int *currentPlayer, int bet, int *money, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *player_points);
 void ReadGameParameters(int *, int *, int *);
 int InitializeDeck(int *, int);
 void ShuffleDeck(int *, int);
@@ -71,6 +71,7 @@ int PointsFromCardID(int id);
 short Bust(int);
 int PlayHouse(int *house_cards, int *pos_house_hand, int *, int, int *);
 void UpdateMoney(int *money, int bet, int *player_points, int house_points);
+void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int betAmount, int *house_cards, int *pos_house_hand, int *player_points);
 
 
 // definition of some strings: they cannot be changed when the program is executed !
@@ -105,7 +106,7 @@ int main( int argc, char* args[] )
   int currentPlayer = 0;
   int i;
   int house_points = 0;
-  short game_ended = 0;
+  short turn_ended = 0;
 
   srand((unsigned) time(NULL)); // initializes the random number generator with current time seed
 
@@ -149,38 +150,36 @@ int main( int argc, char* args[] )
             break;
           case SDLK_s:
              // stand !
-             if (!game_ended) {
-                 DeterminePoints(&player_points[currentPlayer], player_cards[currentPlayer], pos_player_hand[currentPlayer]);
-
-                 Stand(&currentPlayer, betAmount, money);
+             if (!turn_ended) {
+                 Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
                  if (currentPlayer >= MAX_PLAYERS) {
-                     house_points = PlayHouse(house_cards, &pos_house_hand, deck, numberOfCards, &currentCard);
-                     UpdateMoney(money, betAmount, player_points, house_points);
-                     game_ended = 1;
+                     FinishTurn(deck, numberOfCards, &currentCard, money, betAmount, house_cards, &pos_house_hand, player_points);
+
+                     turn_ended = 1;
                  }
              }
 
              break;
           case SDLK_h:
             // hit !
-            if (!game_ended) {
+            if (!turn_ended) {
                 Hit(deck, numberOfCards, &currentCard, player_cards[currentPlayer], &pos_player_hand[currentPlayer], &player_points[currentPlayer]);
                 printf("Current Points: %d\n", player_points[currentPlayer]);
                 if (Bust(player_points[currentPlayer]) || pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
-                    Stand(&currentPlayer, betAmount, money);
+                    Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
                     if (currentPlayer >= MAX_PLAYERS) {
-                        house_points = PlayHouse(house_cards, &pos_house_hand, deck, numberOfCards, &currentCard);
-                        UpdateMoney(money, betAmount, player_points, house_points);
-                        game_ended = 1;
+                        FinishTurn(deck, numberOfCards, &currentCard, money, betAmount, house_cards, &pos_house_hand, player_points);
+
+                        turn_ended = 1;
                     }
                 }
             }
 
             break;
           case SDLK_n:
-            if (game_ended) {
+            if (turn_ended) {
                 if (!DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand, money, betAmount)) {
                     printf("No more players! Thank you for playing Blackjack!\n");
                     quit = 1;
@@ -188,7 +187,7 @@ int main( int argc, char* args[] )
                 }
                 currentPlayer = -1;
 
-                Stand(&currentPlayer, betAmount, money);
+                Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
                 for (i = 0; i < MAX_PLAYERS; i++) {
                     player_points[i] = 0;
@@ -196,7 +195,7 @@ int main( int argc, char* args[] )
 
                 house_points = 0;
 
-                game_ended = 0;
+                turn_ended = 0;
             }
             break;
           default:
@@ -255,13 +254,13 @@ void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_ha
     }
 }
 
-void Stand(int *currentPlayer, int bet, int *money)
+void Stand(int *currentPlayer, int bet, int *money, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *player_points)
 {
-    *currentPlayer += 1;
-
-    while (money[*currentPlayer] < bet && *currentPlayer <= MAX_PLAYERS) {
-        *currentPlayer += 1;
-    }
+    do {
+        if (++(*currentPlayer) < MAX_PLAYERS) {
+            DeterminePoints(&player_points[*currentPlayer], player_cards[*currentPlayer], pos_player_hand[*currentPlayer]);
+        }
+    } while ((money[*currentPlayer] < bet || player_points[*currentPlayer] >= MAXIMUM_POINTS) && *currentPlayer <= MAX_PLAYERS);
 }
 
 short Bust(int player_points)
@@ -274,6 +273,13 @@ short Bust(int player_points)
 
     return 0;
 }
+
+void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int betAmount, int *house_cards, int *pos_house_hand, int *player_points) {
+    int house_points = PlayHouse(house_cards, pos_house_hand, deck, numberOfCards, currentCard);
+
+    UpdateMoney(money, betAmount, player_points, house_points);
+}
+
 
 int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCards, int *currentCard) {
     int housePoints = 0;
