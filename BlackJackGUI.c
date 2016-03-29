@@ -43,6 +43,10 @@
 #define ACE_VALUE_MIN 1 // minimum points of ace card
 #define MAXIMUM_POINTS 21 // maximum points
 #define FIGURE_VALUE 10 // points of figure cards
+#define NUMBER_OF_STATS 3 // number of stats
+#define STAT_WON 0 // index for won games stats
+#define STAT_TIED 1 // index for tied games stats
+#define STAT_LOST 2 // index for lost games stats
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
@@ -71,8 +75,10 @@ short IsAce(int);
 int PointsFromCardID(int id);
 short Bust(int);
 int PlayHouse(int *house_cards, int *pos_house_hand, int *, int, int *);
-void UpdateMoney(int *money, int bet, int *player_points, int house_points);
-void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int betAmount, int *house_cards, int *pos_house_hand, int *player_points);
+void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int *player_points, int house_points, int *pos_player_hand, int pos_house_hand);
+void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int stats[][NUMBER_OF_STATS], int betAmount, int *house_cards, int *pos_player_hand, int *pos_house_hand, int *player_points);
+void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS]);
+short Blackjack(int numberOfCards, int points);
 
 
 // definition of some strings: they cannot be changed when the program is executed !
@@ -92,9 +98,10 @@ int main( int argc, char* args[] )
   SDL_Event event;
   int delay = 300;
   int quit = 0;
-  int money[MAX_PLAYERS] = { 0 };
+  int money[MAX_PLAYERS + 1] = { 0 };
   int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{ 0 }};
   int player_points[MAX_PLAYERS] = { 0 };
+  int player_stats[MAX_PLAYERS][NUMBER_OF_STATS] = {{ 0 }};
   int house_cards[MAX_CARD_HAND] = { 0 };
   int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE] = { 0 };
   int pos_house_hand = 0;
@@ -104,7 +111,7 @@ int main( int argc, char* args[] )
   int betAmount = 0;
   int numberOfCards = 0;
   int currentCard = 0;
-  int currentPlayer = 0;
+  int currentPlayer = -1;
   int i;
   int house_points = 0;
   short turn_ended = 0;
@@ -133,6 +140,8 @@ int main( int argc, char* args[] )
 
   DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand, money, betAmount, player_points);
 
+  Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
+
   while( quit == 0 )
   {
     // while there's events to handle
@@ -155,7 +164,7 @@ int main( int argc, char* args[] )
                  Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
                  if (currentPlayer >= MAX_PLAYERS) {
-                     FinishTurn(deck, numberOfCards, &currentCard, money, betAmount, house_cards, &pos_house_hand, player_points);
+                     FinishTurn(deck, numberOfCards, &currentCard, money, player_stats, betAmount, house_cards, pos_player_hand, &pos_house_hand, player_points);
 
                      turn_ended = 1;
                  }
@@ -166,12 +175,11 @@ int main( int argc, char* args[] )
             // hit !
             if (!turn_ended) {
                 Hit(deck, numberOfCards, &currentCard, player_cards[currentPlayer], &pos_player_hand[currentPlayer], &player_points[currentPlayer]);
-                printf("Current Points: %d\n", player_points[currentPlayer]);
                 if (Bust(player_points[currentPlayer]) || pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
                     Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
                     if (currentPlayer >= MAX_PLAYERS) {
-                        FinishTurn(deck, numberOfCards, &currentCard, money, betAmount, house_cards, &pos_house_hand, player_points);
+                        FinishTurn(deck, numberOfCards, &currentCard, money, player_stats, betAmount, house_cards, pos_player_hand, &pos_house_hand, player_points);
 
                         turn_ended = 1;
                     }
@@ -225,6 +233,9 @@ int main( int argc, char* args[] )
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
+
+  WriteMoneyAndStatsToFile(money, player_stats);
+
   return EXIT_SUCCESS;
 }
 
@@ -241,7 +252,7 @@ int *NextCard(int *deck, int *currentCard)
 void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_hand, int *points)
 {
     /* If there are no more cards initializes the deck again */
-    if (*currentCard >= numberOfCards) {
+    if (*currentCard >= (numberOfCards - 1)) {
         InitializeDeck(deck, (numberOfCards / MAX_DECK_SIZE));
         ShuffleDeck(deck, numberOfCards);
 
@@ -271,10 +282,10 @@ short Bust(int player_points)
     return player_points > MAXIMUM_POINTS;
 }
 
-void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int betAmount, int *house_cards, int *pos_house_hand, int *player_points) {
+void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int stats[][NUMBER_OF_STATS], int betAmount, int *house_cards, int *pos_player_hand, int *pos_house_hand, int *player_points) {
     int house_points = PlayHouse(house_cards, pos_house_hand, deck, numberOfCards, currentCard);
 
-    UpdateMoney(money, betAmount, player_points, house_points);
+    UpdateMoneyAndStats(money, stats, betAmount, player_points, house_points, pos_player_hand, *pos_house_hand);
 }
 
 
@@ -324,6 +335,25 @@ void ShuffleDeck(int *deck, int numberOfCards)
 
         Swap(&deck[i], &deck[random]);
     }
+}
+
+void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS])
+{
+    FILE *statsFile;
+    int i;
+
+    statsFile = fopen("stats.txt", "w");
+
+    fprintf(statsFile, "-- Statistics -- \n\n");
+    fprintf(statsFile, "[Player Name]: [Games Won] - [Games Tied] - [Games Lost] (Money: [Final Money])\n\n");
+
+    for (i = 0; i < MAX_PLAYERS; i++) {
+        fprintf(statsFile, "%s: %d - %d - %d (Money: %d)\n", playerNames[i], stats[i][STAT_WON], stats[i][STAT_TIED], stats[i][STAT_LOST], money[i]);
+    }
+
+    fprintf(statsFile, "House Money: %d", money[MAX_PLAYERS]);
+
+    fclose(statsFile);
 }
 
 /**
@@ -421,7 +451,7 @@ int PointsFromCardID(int id)
     return cardPosition + 2;
 }
 
-void UpdateMoney(int *money, int bet, int *player_points, int house_points)
+void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int *player_points, int house_points, int *pos_player_hand, int pos_house_hand)
 {
     int i;
     for (i = 0; i < MAX_PLAYERS; i++) {
@@ -430,13 +460,29 @@ void UpdateMoney(int *money, int bet, int *player_points, int house_points)
         }
 
         if (Bust(house_points) && !Bust(player_points[i])) {
-            money[i] += bet * 0.5;
+            money[i] += bet * 2;
+            money[MAX_PLAYERS] -= bet * 2;
+            stats[i][STAT_WON] += 1;
         } else if (Bust(player_points[i]) || player_points[i] < house_points) {
             money[i] -= bet;
+            money[MAX_PLAYERS] += bet;
+            stats[i][STAT_LOST] += 1;
         } else if (player_points[i] > house_points) {
             money[i] += bet;
+            money[MAX_PLAYERS] -= bet;
+            stats[i][STAT_WON] += 1;
+        } else if (Blackjack(pos_player_hand[i], player_points[i]) && !Blackjack(pos_house_hand, house_points)) {
+            money[i] += bet * 0.5;
+            money[MAX_PLAYERS] -= bet * 0.5;
+            stats[i][STAT_WON] += 1;
+        } else {
+            stats[i][STAT_TIED] += 1;
         }
     }
+}
+
+short Blackjack(int numberOfCards, int points) {
+    return points == MAXIMUM_POINTS && numberOfCards == 2;
 }
 
 /**
