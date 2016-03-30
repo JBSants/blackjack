@@ -292,14 +292,25 @@ void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int 
 
 int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCards, int *currentCard) {
     int housePoints = 0;
+    int numberOfAces = 0;
+    int i = 0;
 
     *pos_house_hand = 2;
 
     DeterminePoints(&housePoints, house_cards, *pos_house_hand);
 
-    while (housePoints < 16) {
-        Hit(deck, numberOfCards, currentCard, house_cards, pos_house_hand, &housePoints);
-    }
+    do {
+        numberOfAces = 0;
+        for (i = 0; i < (*pos_house_hand); i++) {
+            if (IsAce(house_cards[i])) {
+                numberOfAces += 1;
+            }
+        }
+
+        if (housePoints < 16 || (numberOfAces == 1 && housePoints == 17)) {
+            Hit(deck, numberOfCards, currentCard, house_cards, pos_house_hand, &housePoints);
+        }
+    } while (housePoints < 16);
 
     return housePoints;
 }
@@ -594,13 +605,15 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
   // this renders the student number
   RenderText(separatorPos+3*MARGIN, height, myNumber, serif, &black, _renderer);
 
-  // renders the squares + name for each player
-  SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255 );
-
   // renders the areas for each player: names and money too !
   for ( int i = 0; i < MAX_PLAYERS; i++)
   {
     SDL_Color *areaColor = i == currentPlayer ? &currentPlayerAreaColor : &white;
+    if (i == currentPlayer) {
+        SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255 );
+    } else {
+        SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255 );
+    }
 
     playerRect.x = i*(separatorPos/4-5)+10;
     playerRect.y = (int) (0.55f*HEIGHT_WINDOW);
