@@ -85,6 +85,7 @@ short Blackjack(int numberOfCards, int points);
 const char myName[] = "Joao Almeida Santos";
 const char myNumber[] = "84083";
 const char * playerNames[] = {"Player 1", "Player 2", "Player 3", "Player 4"};
+const char STATISTICS_FILE_NAME = "stats.txt";
 
 /**
 * main function: entry point of the program
@@ -140,8 +141,10 @@ int main( int argc, char* args[] )
 
   DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand, money, betAmount, player_points);
 
+  /* Stands until the current player hasn't a blackjack */
   Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
+  /* Main loop. Window remains open until quit == 1 */
   while( quit == 0 )
   {
     // while there's events to handle
@@ -156,14 +159,21 @@ int main( int argc, char* args[] )
         switch ( event.key.keysym.sym )
         {
           case SDLK_q:
-            quit = 1;
+            quit = 1; // Quits
             break;
           case SDLK_s:
              // stand !
+             /* Verifies the turn hasn't end */
              if (!turn_ended) {
                  Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
+                 /* If there are no more players after this stand */
                  if (currentPlayer >= MAX_PLAYERS) {
+                     /**
+                       * Finishes the turn. The house plays and the money is updated.
+                       * After this function, it's possible to press the 'n' key
+                       * to begin a new turn.
+                       */
                      FinishTurn(deck, numberOfCards, &currentCard, money, player_stats, betAmount, house_cards, pos_player_hand, &pos_house_hand, player_points, &house_points);
 
                      turn_ended = 1;
@@ -173,11 +183,16 @@ int main( int argc, char* args[] )
              break;
           case SDLK_h:
             // hit !
+            /* Verifies the turn hasn't end */
             if (!turn_ended) {
+                /* The current player requests a card. */
                 Hit(deck, numberOfCards, &currentCard, player_cards[currentPlayer], &pos_player_hand[currentPlayer], &player_points[currentPlayer]);
+
+                /* Verifies bust or full hand. If so, stands. */
                 if (Bust(player_points[currentPlayer]) || pos_player_hand[currentPlayer] > MAX_CARD_HAND) {
                     Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
 
+                    /* If there are no more players after this stand */
                     if (currentPlayer >= MAX_PLAYERS) {
                         FinishTurn(deck, numberOfCards, &currentCard, money, player_stats, betAmount, house_cards, pos_player_hand, &pos_house_hand, player_points, &house_points);
 
@@ -188,22 +203,28 @@ int main( int argc, char* args[] )
 
             break;
           case SDLK_n:
+            /* Verifies if the turn has ended. If so, begins a new turn. */
             if (turn_ended) {
+                /* Resets player points to 0 */
                 for (i = 0; i < MAX_PLAYERS; i++) {
                     player_points[i] = 0;
                 }
+                /* Resets house points to 0 */
                 house_points = 0;
 
+                /* Verfies if there are any dealt cards. If not, quits the game
+                 * diplaying a message.
+                 */
                 if (!DealCards(deck, &currentCard, player_cards, pos_player_hand, house_cards, &pos_house_hand, money, betAmount, player_points)) {
                     printf("No more players! Thank you for playing Blackjack!\n");
                     quit = 1;
                     break;
                 }
+
                 currentPlayer = -1;
 
+                /* Stands until the current player hasn't a blackjack */
                 Stand(&currentPlayer, betAmount, money, player_cards, pos_player_hand, player_points);
-
-                house_points = 0;
 
                 turn_ended = 0;
             }
@@ -235,6 +256,7 @@ int main( int argc, char* args[] )
   SDL_DestroyWindow(window);
   SDL_Quit();
 
+  /* Writes stats file */
   WriteMoneyAndStatsToFile(money, player_stats);
 
   return EXIT_SUCCESS;
@@ -250,6 +272,15 @@ int *NextCard(int *deck, int *currentCard)
     return &deck[++*currentCard];
 }
 
+/**
+* Hit: Hits a card and determines player points.
+* \param deck the deck of cards
+* \param numberOfCards number of cards in the deck
+* \param currentCard position of the top card of the deck
+* \param cards array with the player's cards
+* \param pos_hand number of cards of the player
+* \param points array with each player's points
+*/
 void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_hand, int *points)
 {
     /* If there are no more cards initializes the deck again */
@@ -267,6 +298,15 @@ void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_ha
     }
 }
 
+/**
+* Stand: Stands until a player with enough money and also without a blackjack or a bust is reached.
+* \param currentPlayer
+* \param bet bet amount
+* \param money array with each player and house's money
+* \param player_cards array with each player's cards
+* \param pos_player_hand array with the number of cards of each player
+* \param player_points array with each player's points
+*/
 void Stand(int *currentPlayer, int bet, int *money, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *player_points)
 {
     do {
@@ -278,19 +318,45 @@ void Stand(int *currentPlayer, int bet, int *money, int player_cards[][MAX_CARD_
     } while (money[*currentPlayer] < bet || player_points[*currentPlayer] >= MAXIMUM_POINTS);
 }
 
+/**
+* Bust: Checks bust.
+* \param player_points
+*/
 short Bust(int player_points)
 {
     return player_points > MAXIMUM_POINTS;
 }
 
-void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int stats[][NUMBER_OF_STATS], int betAmount, int *house_cards, int *pos_player_hand, int *pos_house_hand, int *player_points, int *house_points) {
+/**
+* FinishTurn: Finishes current turn. Plays the house and updates money and stats.
+* \param deck the deck of cards
+* \param currentCard deck top card position
+* \param money array with each player and house's money
+* \param stats array with stats for each player
+* \param betAmount
+* \param house_cards array with house cards
+* \param pos_house_hand number of house cards
+* \param player_points array with each player's points
+* \param house_points
+*/
+void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int stats[][NUMBER_OF_STATS], int betAmount, int *house_cards, int *pos_player_hand, int *pos_house_hand, int *player_points, int *house_points)
+{
     *house_points = PlayHouse(house_cards, pos_house_hand, deck, numberOfCards, currentCard);
 
     UpdateMoneyAndStats(money, stats, betAmount, player_points, *house_points, pos_player_hand, *pos_house_hand);
 }
 
-
-int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCards, int *currentCard) {
+/**
+* PlayHouse: Plays the house.
+* Returns house points.
+* \param house_cards array with house cards
+* \param pos_house_hand number of house cards
+* \param deck the deck of cards
+* \param numberOfCards number of cards in the deck
+* \param currentCard deck top card position
+*/
+int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCards, int *currentCard)
+{
     int housePoints = 0;
     int numberOfAces = 0;
     int i = 0;
@@ -322,7 +388,8 @@ int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCard
 * \param deck array to be initialized
 * \param numberOfDecks number of single decks of cards to be used
 */
-int InitializeDeck(int *deck, int numberOfDecks) {
+int InitializeDeck(int *deck, int numberOfDecks)
+{
     int numberOfCards = numberOfDecks * MAX_DECK_SIZE;
     int i;
 
@@ -349,12 +416,17 @@ void ShuffleDeck(int *deck, int numberOfCards)
     }
 }
 
+/**
+* WriteMoneyAndStatsToFile: Writes the statistics file
+* \param money array with player and house's money
+* \param stats array with stats for each player
+*/
 void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS])
 {
     FILE *statsFile;
     int i;
 
-    statsFile = fopen("stats.txt", "w");
+    statsFile = fopen(STATISTICS_FILE_NAME, "w");
 
     fprintf(statsFile, "-- Statistics -- \n\n");
     fprintf(statsFile, "[Player Name]: [Games Won] - [Games Tied] - [Games Lost] (Money: [Final Money])\n\n");
@@ -370,7 +442,7 @@ void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS])
 
 /**
 * DealCards: Performs the initial deal. Dealing 2 times 1 card for each player.
-* Return player dealt cards.
+* Returns the number of dealt cards.
 * \param deck deck of cards
 * \param currentCard current card of deck
 * \param player_cards array with each player's hand
@@ -420,6 +492,13 @@ void Swap(int *a, int *b)
     *b = auxiliary;
 }
 
+/**
+* DeterminePoints: Determines one player's points.
+* It can also be used to determine house points.
+* \param player_points pointer to store the result
+* \param cards array with player's cards
+* \param pos_player_hand number of player cards.
+*/
 void DeterminePoints(int *player_points, int *cards, int pos_player_hand)
 {
     int result = 0, numberOfAces = 0, i;
@@ -447,11 +526,19 @@ void DeterminePoints(int *player_points, int *cards, int pos_player_hand)
     *player_points = result;
 }
 
+/**
+* IsAce: Determines wheter a card is an Ace.
+* \param cardID
+*/
 short IsAce(int cardID)
 {
     return (cardID % 13) == ACE_ID;
 }
 
+/**
+* PointsFromCardID: Determines the value of a card.
+* \param id
+*/
 int PointsFromCardID(int id)
 {
     int cardPosition = id % 13;
@@ -463,6 +550,15 @@ int PointsFromCardID(int id)
     return cardPosition + 2;
 }
 
+/**
+* UpdateMoneyAndStats: Updates each player's money and stats, including the house balance.
+* \param money array with each player and house's money
+* \param stats array with each player's stats
+* \param bet bet amount
+* \param player_points array with each player's points
+* \param pos_player_hand array with the number of cards of each player
+* \param pos_house_hand number of house's cards
+*/
 void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int *player_points, int house_points, int *pos_player_hand, int pos_house_hand)
 {
     int i;
@@ -493,12 +589,18 @@ void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int 
     }
 }
 
-short Blackjack(int numberOfCards, int points) {
+/**
+* Blackjack: Returns a true value if given parameters represent a Blackjack.
+* \param numberOfCards
+* \param points player's points
+*/
+short Blackjack(int numberOfCards, int points)
+{
     return points == MAXIMUM_POINTS && numberOfCards == 2;
 }
 
 /**
-* ReadGameParameters: Reads the parameters for given variables.
+* ReadGameParameters: Reads the parameters and stores in the given variables.
 * \param numberOfDecks
 * \param initialMoney
 * \param betAmount
@@ -556,6 +658,8 @@ void ReadGameParameters(int *numberOfDecks, int *initialMoney, int *betAmount)
 * \param _money amount of money of each player
 * \param _img surfaces where the table background and IST logo were loaded
 * \param _renderer renderer to handle all rendering in a window
+* \param currentPlayer
+* \param house_points
 */
 void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _renderer, int currentPlayer, int house_points)
 {
