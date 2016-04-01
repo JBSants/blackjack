@@ -62,30 +62,30 @@ void RenderHouseCards(int [], int , SDL_Surface **, SDL_Renderer * );
 void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Renderer * );
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
-void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_hand, int *points);
-void Stand(int *currentPlayer, int bet, int *money, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *player_points);
+void Hit(int *, int, int *, int *, int *, int *);
+void Stand(int *, int, int *, int [][MAX_CARD_HAND], int *, int *);
 void ReadGameParameters(int *, int *, int *);
 int InitializeDeck(int *, int);
 void ShuffleDeck(int *, int);
 void Swap(int *, int *);
 short DealCards(int *, int *, int [][MAX_CARD_HAND], int *, int *, int *, int *, int, int *);
 int *NextCard(int *, int *);
-void DeterminePoints(int *player_points, int *cards, int pos_player_hand);
+void DeterminePoints(int *, int *, int);
 short IsAce(int);
-int PointsFromCardID(int id);
+int PointsFromCardID(int);
 short Bust(int);
-int PlayHouse(int *house_cards, int *pos_house_hand, int *, int, int *);
-void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int *player_points, int house_points, int *pos_player_hand, int pos_house_hand);
-void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int stats[][NUMBER_OF_STATS], int betAmount, int *house_cards, int *pos_player_hand, int *pos_house_hand, int *player_points, int *);
-void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS]);
-short Blackjack(int numberOfCards, int points);
+int PlayHouse(int *, int *, int *, int, int *);
+void UpdateMoneyAndStats(int *, int [][NUMBER_OF_STATS], int bet, int *, int, int *, int);
+void FinishTurn(int *, int, int *, int *, int [][NUMBER_OF_STATS], int, int *, int *, int *, int *, int *);
+void WriteMoneyAndStatsToFile(int *, int [][NUMBER_OF_STATS]);
+short Blackjack(int, int);
 
 
 // definition of some strings: they cannot be changed when the program is executed !
 const char myName[] = "Joao Almeida Santos";
 const char myNumber[] = "84083";
 const char * playerNames[] = {"Player 1", "Player 2", "Player 3", "Player 4"};
-const char STATISTICS_FILE_NAME = "stats.txt";
+const char STATISTICS_FILE_NAME[] = "stats.txt"; // statistics file location
 
 /**
 * main function: entry point of the program
@@ -93,29 +93,29 @@ const char STATISTICS_FILE_NAME = "stats.txt";
 */
 int main( int argc, char* args[] )
 {
-  SDL_Window* window;
-  SDL_Renderer* renderer;
+  SDL_Window* window = NULL;
+  SDL_Renderer* renderer = NULL;
   SDL_Surface *cards[MAX_DECK_SIZE+1], *imgs[2];
   SDL_Event event;
-  int delay = 300;
-  int quit = 0;
-  int money[MAX_PLAYERS + 1] = { 0 };
-  int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{ 0 }};
-  int player_points[MAX_PLAYERS] = { 0 };
-  int player_stats[MAX_PLAYERS][NUMBER_OF_STATS] = {{ 0 }};
-  int house_cards[MAX_CARD_HAND] = { 0 };
-  int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE] = { 0 };
-  int pos_house_hand = 0;
-  int pos_player_hand[MAX_PLAYERS] = { 0 };
-  int numberOfDecks = 0;
-  int initialMoney = 0;
-  int betAmount = 0;
-  int numberOfCards = 0;
-  int currentCard = 0;
-  int currentPlayer = -1;
-  int i;
-  int house_points = 0;
-  short turn_ended = 0;
+  int delay = 300; // interface refresh delay
+  int quit = 0; // quit variable
+  int money[MAX_PLAYERS + 1] = { 0 }; // money for each player. last position is house current balance
+  int player_cards[MAX_PLAYERS][MAX_CARD_HAND] = {{ 0 }}; // cards of each player
+  int player_points[MAX_PLAYERS] = { 0 }; // points of each player
+  int player_stats[MAX_PLAYERS][NUMBER_OF_STATS] = {{ 0 }}; // statistics for each player
+  int house_cards[MAX_CARD_HAND] = { 0 }; // house hand
+  int deck[MAX_NUMBER_OF_DECKS * MAX_DECK_SIZE] = { 0 }; // set of decks
+  int pos_house_hand = 0; // number of cards in the house hand
+  int pos_player_hand[MAX_PLAYERS] = { 0 }; // array with the number of cards of each player
+  int numberOfDecks = 0; // number of decks used in the game
+  int initialMoney = 0; // initial money
+  int betAmount = 0; // bet amount
+  int numberOfCards = 0; // total number of cards in the deck
+  int currentCard = 0; // position of deck's top card
+  int currentPlayer = -1; // current selected player
+  int i = 0; // iterator
+  int house_points = 0; // house points
+  short turn_ended = 0; // true value if turn has ended
 
   srand(456); // initializes the random number generator with current time seed
 
@@ -221,6 +221,8 @@ int main( int argc, char* args[] )
                     break;
                 }
 
+                /* Selects current player to imaginary so that we can stand to the first
+                 * without blackjack */
                 currentPlayer = -1;
 
                 /* Stands until the current player hasn't a blackjack */
@@ -291,10 +293,11 @@ void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_ha
         *currentCard = 0;
     }
 
+    /* If player has less than max cards */
     if (*pos_hand <= MAX_CARD_HAND) {
-        cards[(*pos_hand)++] = *NextCard(deck, currentCard);
+        cards[(*pos_hand)++] = *NextCard(deck, currentCard); // Hit!
 
-        DeterminePoints(points, cards, *pos_hand);
+        DeterminePoints(points, cards, *pos_hand); // Determines points
     }
 }
 
@@ -309,11 +312,13 @@ void Hit(int *deck, int numberOfCards, int *currentCard, int *cards, int *pos_ha
 */
 void Stand(int *currentPlayer, int bet, int *money, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *player_points)
 {
+    /* At least once and until current player has money, isn't bust or hasn't a blackjack, stands */
     do {
+            /* Stands if there are any more players */
         if (++(*currentPlayer) < MAX_PLAYERS) {
             DeterminePoints(&player_points[*currentPlayer], player_cards[*currentPlayer], pos_player_hand[*currentPlayer]);
         } else {
-            break;
+            break; // Else exits loop -> Turn ended!
         }
     } while (money[*currentPlayer] < bet || player_points[*currentPlayer] >= MAXIMUM_POINTS);
 }
@@ -341,9 +346,9 @@ short Bust(int player_points)
 */
 void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int stats[][NUMBER_OF_STATS], int betAmount, int *house_cards, int *pos_player_hand, int *pos_house_hand, int *player_points, int *house_points)
 {
-    *house_points = PlayHouse(house_cards, pos_house_hand, deck, numberOfCards, currentCard);
+    *house_points = PlayHouse(house_cards, pos_house_hand, deck, numberOfCards, currentCard); // plays house
 
-    UpdateMoneyAndStats(money, stats, betAmount, player_points, *house_points, pos_player_hand, *pos_house_hand);
+    UpdateMoneyAndStats(money, stats, betAmount, player_points, *house_points, pos_player_hand, *pos_house_hand); // updates money
 }
 
 /**
@@ -357,24 +362,31 @@ void FinishTurn(int *deck, int numberOfCards, int *currentCard, int *money, int 
 */
 int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCards, int *currentCard)
 {
-    int housePoints = 0;
-    int numberOfAces = 0;
-    int i = 0;
+    int housePoints = 0; // house points
+    int numberOfAces = 0; // number of aces in house hand
+    int i = 0; // iterator
 
-    *pos_house_hand = 2;
+    *pos_house_hand = 2; // shows the card face down
 
     DeterminePoints(&housePoints, house_cards, *pos_house_hand);
 
+    /* At least once and while house has less than 16 points
+     * hits a card only if house points is less than 16, or is 17
+     * and house has one ace
+     */
     do {
         numberOfAces = 0;
+
+        /* Determines the number of aces in house hand */
         for (i = 0; i < (*pos_house_hand); i++) {
             if (IsAce(house_cards[i])) {
                 numberOfAces += 1;
             }
         }
 
+        /* If house points is less than 16, or is 17 and house has one ace */
         if (housePoints < 16 || (numberOfAces == 1 && housePoints == 17)) {
-            Hit(deck, numberOfCards, currentCard, house_cards, pos_house_hand, &housePoints);
+            Hit(deck, numberOfCards, currentCard, house_cards, pos_house_hand, &housePoints); // House Hits!
         }
     } while (housePoints < 16);
 
@@ -390,9 +402,10 @@ int PlayHouse(int *house_cards, int *pos_house_hand, int *deck, int numberOfCard
 */
 int InitializeDeck(int *deck, int numberOfDecks)
 {
-    int numberOfCards = numberOfDecks * MAX_DECK_SIZE;
-    int i;
+    int numberOfCards = numberOfDecks * MAX_DECK_SIZE; // total number of cards in the deck
+    int i = 0; // iterator
 
+    /* Assigns a card to each position of deck by order */
     for (i = 0; i < numberOfCards; i++) {
         deck[i] = i % MAX_DECK_SIZE;
     }
@@ -407,7 +420,7 @@ int InitializeDeck(int *deck, int numberOfDecks)
 */
 void ShuffleDeck(int *deck, int numberOfCards)
 {
-    int i;
+    int i = 0; // iterator
 
     for (i = (numberOfCards - 1); i > 0; i--) {
         int random = rand() % numberOfCards;
@@ -423,20 +436,25 @@ void ShuffleDeck(int *deck, int numberOfCards)
 */
 void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS])
 {
-    FILE *statsFile;
-    int i;
+    FILE *statsFile; // pointer to be used for stats file access
+    int i; // iterator
 
+    /* Opens the statistics file */
     statsFile = fopen(STATISTICS_FILE_NAME, "w");
 
+    /* Prints some information */
     fprintf(statsFile, "-- Statistics -- \n\n");
     fprintf(statsFile, "[Player Name]: [Games Won] - [Games Tied] - [Games Lost] (Money: [Final Money])\n\n");
 
+    /* Writes statstics for each player */
     for (i = 0; i < MAX_PLAYERS; i++) {
         fprintf(statsFile, "%s: %d - %d - %d (Money: %d)\n", playerNames[i], stats[i][STAT_WON], stats[i][STAT_TIED], stats[i][STAT_LOST], money[i]);
     }
 
+    /* Writes the house final balance */
     fprintf(statsFile, "House Money: %d", money[MAX_PLAYERS]);
 
+    /* Closes the statistics file */
     fclose(statsFile);
 }
 
@@ -452,26 +470,32 @@ void WriteMoneyAndStatsToFile(int *money, int stats[][NUMBER_OF_STATS])
 */
 short DealCards(int *deck, int *currentCard, int player_cards[][MAX_CARD_HAND], int *pos_player_hand, int *house_cards, int *pos_house_hand, int *money, int bet, int *points)
 {
-    int i, j, cardsDealt = 0;
+    int i = 0, j = 0; // iterators
+    int cardsDealt = 0; // number of cards dealt
 
+    /* Deals INITIAL_CARDS_AMOUNT times... */
     for (i = 0; i < INITIAL_CARDS_AMOUNT; i++) {
+        /* ...a card for each player */
         for (j = 0; j < MAX_PLAYERS; j++) {
+            /* Check if the player has enough money. If not skips it. */
             if (money[j] < bet) {
-                pos_player_hand[j] = 0;
+                pos_player_hand[j] = 0; // in this case player has 0 cards
                 continue;
             }
-            player_cards[j][i] = *NextCard(deck, currentCard);
-            pos_player_hand[j] = i+1;
-            cardsDealt++;
-        }
 
+            player_cards[j][i] = *NextCard(deck, currentCard); // Deals the card
+            pos_player_hand[j] = i+1; // Updates the number of cards
+            cardsDealt++;             // and cards dealt.
+        }
+        /* ...a card for the house */
         house_cards[i] = *NextCard(deck, currentCard);
     }
-
+    /* Determines each player points */
     for (i = 0; i < MAX_PLAYERS; i++) {
         DeterminePoints(&points[i], player_cards[i], pos_player_hand[i]);
     }
 
+    /* Since we want to display only a card face up, set pos_house_hand to 1 */
     *pos_house_hand = 1;
 
     return cardsDealt;
@@ -484,7 +508,7 @@ short DealCards(int *deck, int *currentCard, int player_cards[][MAX_CARD_HAND], 
 */
 void Swap(int *a, int *b)
 {
-    int auxiliary;
+    int auxiliary = 0;
 
     auxiliary = *a;
 
@@ -501,29 +525,40 @@ void Swap(int *a, int *b)
 */
 void DeterminePoints(int *player_points, int *cards, int pos_player_hand)
 {
-    int result = 0, numberOfAces = 0, i;
+    int result = 0; // final result
+    int numberOfAces = 0; // number of aces in cards array
+    int i = 0; // iterator
 
+    /* Sums up points for each card in cards, incrementing numberOfAces when
+     * an ace if found.
+     */
     for (i = 0; i < pos_player_hand; i++) {
-        int cardID = cards[i];
+        int cardID = cards[i]; // current card id
 
+        /* Verifies if cardID is an ace */
         if (IsAce(cardID)) {
-            numberOfAces++;
+            numberOfAces++; // if so increments numberOfAces
         }
 
+        /* Sums current card points */
         result += PointsFromCardID(cardID);
     }
 
+    /* If we have a bust, one at a time, the aces value becomes its minimum.
+     * So, we have to subtract the maximum - minimum diference for each ace until we don't have a bust.  */
     if (Bust(result)) {
+        /* Subtracts ACE_VALUE_MAX - ACE_VALUE_MIN for each ace. */
         for (i = 0; i < numberOfAces; i++) {
             result -= ACE_VALUE_MAX - ACE_VALUE_MIN;
 
+            /* If we no longer have a bust exit loop. */
             if (!Bust(result)) {
                 break;
             }
         }
     }
 
-    *player_points = result;
+    *player_points = result; // updates player points
 }
 
 /**
@@ -536,17 +571,20 @@ short IsAce(int cardID)
 }
 
 /**
-* PointsFromCardID: Determines the value of a card.
+* PointsFromCardID: Returns the value of a card.
 * \param id
 */
 int PointsFromCardID(int id)
 {
     int cardPosition = id % 13;
 
+    /* If card is a figure */
     if (cardPosition > 8) {
+        /* returns ACE_VALUE_MAX if it's an ace or FIGURE_VALUE if it isn't */
         return cardPosition == ACE_ID ? ACE_VALUE_MAX : FIGURE_VALUE;
     }
 
+    /* [ELSE] */
     return cardPosition + 2;
 }
 
@@ -561,28 +599,42 @@ int PointsFromCardID(int id)
 */
 void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int *player_points, int house_points, int *pos_player_hand, int pos_house_hand)
 {
-    int i;
+    int i = 0; // iterator
+
+    /* For each player, updates it's money and stats */
     for (i = 0; i < MAX_PLAYERS; i++) {
+        /* If current player no longer has money skip it */
         if (money[i] < bet) {
             continue;
         }
 
+        /* If the house is bust and the player isn't */
         if (Bust(house_points) && !Bust(player_points[i])) {
-            money[i] += bet * 2;
+            money[i] += bet * 2; // Player wins 2 times bet amount
             money[MAX_PLAYERS] -= bet * 2;
             stats[i][STAT_WON] += 1;
+
+        /* Else, if player is bust or has less points than house then it looses */
         } else if (Bust(player_points[i]) || player_points[i] < house_points) {
             money[i] -= bet;
             money[MAX_PLAYERS] += bet;
             stats[i][STAT_LOST] += 1;
+
+        /* Else, if player has a greater hand than house's then it wins */
         } else if (player_points[i] > house_points) {
             money[i] += bet;
             money[MAX_PLAYERS] -= bet;
             stats[i][STAT_WON] += 1;
+
+        /* Else, if player has blackjack and house doens't then player wins the game
+         * but only half of it's bet
+         */
         } else if (Blackjack(pos_player_hand[i], player_points[i]) && !Blackjack(pos_house_hand, house_points)) {
             money[i] += bet * 0.5;
             money[MAX_PLAYERS] -= bet * 0.5;
             stats[i][STAT_WON] += 1;
+
+        /* If none of the above verifies it's a tie! */
         } else {
             stats[i][STAT_TIED] += 1;
         }
@@ -607,45 +659,59 @@ short Blackjack(int numberOfCards, int points)
 */
 void ReadGameParameters(int *numberOfDecks, int *initialMoney, int *betAmount)
 {
-    short check = 1;
+    short notValid = 1; // used for parameter value check
+    char buffer[STRING_SIZE] = { 0 }; // buffer for fgets
 
-    while (check) {
-      printf("Please enter the number of decks (%d to %d) you wan't to use in your game: ", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
-      scanf("%d", numberOfDecks);
+    /* While the parameter entered is not valid prompt for it */
+    while (notValid) {
+        /* Prompts the parameter */
+        printf("Please enter the number of decks (%d to %d) you wan't to use in your game: ", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
+        fgets(buffer, STRING_SIZE, stdin);
+        sscanf(buffer, "%d", numberOfDecks);
 
-      check = *numberOfDecks < MIN_NUMBER_OF_DECKS || *numberOfDecks > MAX_NUMBER_OF_DECKS;
+        notValid = *numberOfDecks < MIN_NUMBER_OF_DECKS || *numberOfDecks > MAX_NUMBER_OF_DECKS;
 
-      if (check) {
-        printf("\n** Sorry, you have to select between %d to %d decks. **\n\n", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
-      }
+        /* If not valid show error */
+        if (notValid) {
+            printf("\n** Sorry, you have to select between %d to %d decks. **\n\n", MIN_NUMBER_OF_DECKS, MAX_NUMBER_OF_DECKS);
+        }
     }
 
-    check = 1;
+    notValid = 1; // resets not valid
 
-    while (check) {
-      printf("Please enter the initial amount of money for each player (> %d): ", MIN_INITIAL_MONEY);
-      scanf("%d", initialMoney);
+    /* While the parameter entered is not valid prompt for it */
+    while (notValid) {
+        /* Prompts the parameter */
+        printf("Please enter the initial amount of money for each player (> %d): ", MIN_INITIAL_MONEY);
+        fgets(buffer, STRING_SIZE, stdin);
+        sscanf(buffer, "%d", initialMoney);
 
-      check = *initialMoney < MIN_INITIAL_MONEY;
+        notValid = *initialMoney < MIN_INITIAL_MONEY;
 
-      if (check) {
-        printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
-      }
+        /* If not valid show error */
+        if (notValid) {
+            printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
+        }
     }
 
-    check = 1;
+    notValid = 1; // resets not valid
 
-    while (check) {
-      int betMaximumValue = MAX_BET_VALUE_PERCENTAGE * (*initialMoney);
+    /* While the parameter entered is not valid prompt for it */
+    while (notValid) {
+        /* Determines maximum bet value */
+        int betMaximumValue = MAX_BET_VALUE_PERCENTAGE * (*initialMoney);
 
-      printf("Please enter the bet amount (%d to %d): ", MIN_BET_VALUE, betMaximumValue);
-      scanf("%d", betAmount);
+        /* Prompts the parameter */
+        printf("Please enter the bet amount (%d to %d): ", MIN_BET_VALUE, betMaximumValue);
+        fgets(buffer, STRING_SIZE, stdin);
+        sscanf(buffer, "%d", betAmount);
 
-      check = *betAmount < MIN_BET_VALUE || *betAmount > betMaximumValue;
+        notValid = *betAmount < MIN_BET_VALUE || *betAmount > betMaximumValue;
 
-      if (check) {
-        printf("\n** Sorry, bet amount has to be from %d to %d. **\n\n", MIN_BET_VALUE, betMaximumValue);
-      }
+        /* If not valid show error */
+        if (notValid) {
+            printf("\n** Sorry, bet amount has to be from %d to %d. **\n\n", MIN_BET_VALUE, betMaximumValue);
+        }
     }
 }
 
@@ -666,14 +732,15 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
   SDL_Color black = { 0, 0, 0 }; // black
   SDL_Color white = { 255, 255, 255 }; // white
   SDL_Color currentPlayerAreaColor = { 255, 0, 0 }; // red
-  char name_money_str[STRING_SIZE];
-  char points_str[STRING_SIZE];
-  char house_points_str[STRING_SIZE];
+  char name_money_str[STRING_SIZE] = { 0 };
+  char points_str[STRING_SIZE] = { 0 };
+  char house_points_str[STRING_SIZE] = { 0 };
   TTF_Font *serif = NULL;
-  SDL_Texture *table_texture;
-  SDL_Rect tableSrc, tableDest, playerRect;
+  SDL_Texture *table_texture = NULL;
+  SDL_Rect tableSrc = {0, 0, 0, 0}, tableDest = {0, 0, 0, 0}, playerRect = {0, 0, 0, 0};
   int separatorPos = (int)(0.95f*WIDTH_WINDOW); // seperates the left from the right part of the window
-  int height;
+  int height = 0;
+  SDL_Color *playerColor = NULL; // used for storing player color
 
   // set color of renderer to some color
   SDL_SetRenderDrawColor( _renderer, 255, 255, 255, 255 );
@@ -712,7 +779,10 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
   // renders the areas for each player: names and money too !
   for ( int i = 0; i < MAX_PLAYERS; i++)
   {
-    SDL_Color *areaColor = i == currentPlayer ? &currentPlayerAreaColor : &white;
+    /* Determines this player color. If this player is current player player color is red. */
+    playerColor = i == currentPlayer ? &currentPlayerAreaColor : &white;
+
+    /* If this is the current player, show red rect */
     if (i == currentPlayer) {
         SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255 );
     } else {
@@ -723,17 +793,26 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
     playerRect.y = (int) (0.55f*HEIGHT_WINDOW);
     playerRect.w = separatorPos/4-5;
     playerRect.h = (int) (0.42f*HEIGHT_WINDOW);
+
     sprintf(name_money_str,"%s -- %d euros", playerNames[i], _money[i]);
+
     sprintf(points_str, "%d points", points[i]);
+    /* If player is bust */
     if (Bust(points[i])) {
-        strcat(points_str, " (BUST)");
+        strcat(points_str, " (BUST)"); // if bust concatnate BUST to string
     }
-    RenderText(playerRect.x+20, playerRect.y-50, name_money_str, serif, areaColor, _renderer);
-    RenderText(playerRect.x+20, playerRect.y-30, points_str, serif, areaColor, _renderer);
+
+    RenderText(playerRect.x+20, playerRect.y-50, name_money_str, serif, playerColor, _renderer);
+    RenderText(playerRect.x+20, playerRect.y-30, points_str, serif, playerColor, _renderer); // renders points
+
+    /* Checks if house_points is not 0. If so, renders, above the first player,
+     * the house points
+     */
     if (i == 0 && house_points > 0) {
         sprintf(house_points_str, "House points: %d", house_points);
         RenderText(playerRect.x+40, playerRect.y-125, house_points_str, serif, &white, _renderer);
     }
+
     SDL_RenderDrawRect(_renderer, &playerRect);
   }
 
@@ -753,7 +832,7 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
 */
 void RenderHouseCards(int _house[], int _pos_house_hand, SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
-  int card, x, y;
+  int card = 0, x = 0, y = 0;
   int div = WIDTH_WINDOW/CARD_WIDTH;
 
   // drawing all house cards
@@ -786,7 +865,7 @@ void RenderHouseCards(int _house[], int _pos_house_hand, SDL_Surface **_cards, S
 */
 void RenderPlayerCards(int _player_cards[][MAX_CARD_HAND], int _pos_player_hand[], SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
-  int pos, x, y, num_player, card;
+  int pos = 0, x = 0, y = 0, num_player = 0, card = 0;
 
   // for every card of every player
   for ( num_player = 0; num_player < MAX_PLAYERS; num_player++)
@@ -815,8 +894,8 @@ void RenderPlayerCards(int _player_cards[][MAX_CARD_HAND], int _pos_player_hand[
 */
 void RenderCard(int _x, int _y, int _num_card, SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
-  SDL_Texture *card_text;
-  SDL_Rect boardPos;
+  SDL_Texture *card_text = NULL;
+  SDL_Rect boardPos = {0, 0, 0, 0};
 
   // area that will be occupied by each card
   boardPos.x = _x;
@@ -835,8 +914,8 @@ void RenderCard(int _x, int _y, int _num_card, SDL_Surface **_cards, SDL_Rendere
 */
 void LoadCards(SDL_Surface **_cards)
 {
-  int i;
-  char filename[STRING_SIZE];
+  int i = 0;
+  char filename[STRING_SIZE] = { 0 };
 
   // loads all cards to an array
   for (i = 0 ; i < MAX_DECK_SIZE; i++ )
@@ -884,8 +963,8 @@ void UnLoadCards(SDL_Surface **_array_of_cards)
 */
 int RenderLogo(int x, int y, SDL_Surface *_logoIST, SDL_Renderer* _renderer)
 {
-  SDL_Texture *text_IST;
-  SDL_Rect boardPos;
+  SDL_Texture *text_IST = NULL;
+  SDL_Rect boardPos  = {0, 0, 0, 0};
 
   // space occupied by the logo
   boardPos.x = x;
@@ -912,9 +991,9 @@ int RenderLogo(int x, int y, SDL_Surface *_logoIST, SDL_Renderer* _renderer)
 */
 int RenderText(int x, int y, const char *text, TTF_Font *_font, SDL_Color *_color, SDL_Renderer* _renderer)
 {
-  SDL_Surface *text_surface;
-  SDL_Texture *text_texture;
-  SDL_Rect solidRect;
+  SDL_Surface *text_surface = NULL;
+  SDL_Texture *text_texture = NULL;
+  SDL_Rect solidRect = {0, 0, 0, 0};
 
   solidRect.x = x;
   solidRect.y = y;
@@ -1004,7 +1083,7 @@ void InitFont()
 */
 SDL_Window* CreateWindow(int width, int height)
 {
-  SDL_Window *window;
+  SDL_Window *window = NULL;
   // init window
   window = SDL_CreateWindow( "BlackJack", WINDOW_POSX, WINDOW_POSY, width+EXTRASPACE, height, 0 );
   // check for error !
@@ -1025,7 +1104,7 @@ SDL_Window* CreateWindow(int width, int height)
 */
 SDL_Renderer* CreateRenderer(int width, int height, SDL_Window *_window)
 {
-  SDL_Renderer *renderer;
+  SDL_Renderer *renderer = NULL;
   // init renderer
   renderer = SDL_CreateRenderer( _window, -1, 0 );
 
