@@ -1,0 +1,35 @@
+typedef enum { Diamonds, Hearts, Clubs, Spades } Suit;
+typedef enum { Yes, No = 0 } BOOL;
+
+typedef struct {
+    short id;
+    Suit suit;
+} Card;
+
+typedef struct node_card {
+    Card payload;
+    struct node_card *next;
+} Node_Card;
+
+typedef struct {
+    int won;
+    int lost;
+    int tied;
+} Results;
+
+typedef struct {
+    char nome[];
+    float money;
+    float bet;
+    stack *cards;
+    Results games_result;
+    BOOL ai; // computador ou humano
+    BOOL active;
+    int score;
+    (...)
+} Player;
+
+typedef struct node_player {
+    Player payload;
+    struct node_player *next;
+} Node_Player;
