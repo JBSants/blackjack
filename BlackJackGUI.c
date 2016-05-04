@@ -1,13 +1,13 @@
 /**
   *
-  *   Autor: João Bernardo Almeida Santos <joao.almeida.santos@tecnico.ulisboa.pt>
-  *   Número: 84083
-  *   Curso: MEEC - Instituto Superior Técnico
+  *   Author: Joao Bernardo Almeida Santos <joao.almeida.santos@tecnico.ulisboa.pt>
+  *   Number: 84083
+  *   MEEC - Instituto Superior Técnico
   *
   *
-  *   Interface gráfica disponibilizada pelo Professor João Ascenso
+  *   Graphical Interface provided by Professor João Ascenso
   *
-  *   Jogo de Blackjack
+  *   Blackjack Game
   *
   *
   */
@@ -117,7 +117,7 @@ int main( int argc, char* args[] )
   int house_points = 0; // house points
   short turn_ended = 0; // true value if turn has ended
 
-  srand(456); // initializes the random number generator with current time seed
+  srand(456); // initializes the random number generator
 
   /* Prints welcome message */
   printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
@@ -508,7 +508,7 @@ short DealCards(int *deck, int *currentCard, int player_cards[][MAX_CARD_HAND], 
 */
 void Swap(int *a, int *b)
 {
-    int auxiliary = 0;
+    int aux = 0;
 
     auxiliary = *a;
 
@@ -620,18 +620,18 @@ void UpdateMoneyAndStats(int *money, int stats[][NUMBER_OF_STATS], int bet, int 
             money[MAX_PLAYERS] += bet;
             stats[i][STAT_LOST] += 1;
 
-        /* Else, if player has a greater hand than house's then it wins */
-        } else if (player_points[i] > house_points) {
-            money[i] += bet;
-            money[MAX_PLAYERS] -= bet;
-            stats[i][STAT_WON] += 1;
-
         /* Else, if player has blackjack and house doens't then player wins the game
          * but only half of it's bet
          */
         } else if (Blackjack(pos_player_hand[i], player_points[i]) && !Blackjack(pos_house_hand, house_points)) {
-            money[i] += bet * 0.5;
-            money[MAX_PLAYERS] -= bet * 0.5;
+            money[i] += bet * 1.5;
+            money[MAX_PLAYERS] -= bet * 1.5;
+            stats[i][STAT_WON] += 1;
+
+        /* Else, if player has a greater hand than house's then it wins */
+        } else if (player_points[i] > house_points) {
+            money[i] += bet;
+            money[MAX_PLAYERS] -= bet;
             stats[i][STAT_WON] += 1;
 
         /* If none of the above verifies it's a tie! */
