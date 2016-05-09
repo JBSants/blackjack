@@ -54,7 +54,7 @@ Node_player* Hit(Card_node** deck_head, Player* house, int decks, Node_player* c
 
 	//DealCards(deck_head, current_player, house, decks, 1, option);
 
-	//GetScore(current_player);
+	GetScore(&(current_player->player));
 
 	if (current_player->player.score > 21){
 		//Bust
