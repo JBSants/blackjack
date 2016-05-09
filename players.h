@@ -2,7 +2,7 @@
 #define PLAYERS_H
 
 #include <stdbool.h>
-#include <cards.h>
+#include "cards.h"
 
 #define MAX_NOME 9
 
@@ -27,5 +27,6 @@ typedef struct node_player {
     struct node_player *next;
 } Node_player;
 
+void GetScore(Player* player);
 
 #endif
