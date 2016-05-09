@@ -4,10 +4,10 @@
 void GetBankroll_GameResults(Player* house, Node_player* head, int bet) {
     while(head != NULL) {
 
-        if (head->player.score>21) {
-            head->player.games_result.tied+=(house->score>21);
-            head->player.games_result.lost+=(house->score<=21);
-        } else if (house->score>21) {
+        if (head->player.score > 21) {
+            head->player.games_result.tied += (house->score>21);
+            head->player.games_result.lost += (house->score<=21);
+        } else if (house->score > 21) {
             head->player.money += 2 * bet + 0.5 * bet * (head->player.score == 21 && head->player.cards->size == 2);
             head->player.games_result.won += 1;
         } else if (house->score == head->player.score) {
