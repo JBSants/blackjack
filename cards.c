@@ -8,6 +8,10 @@ stat add_card(Card_node** head, Card data) {
 		return NOP_STAT;
 
 	Card_node* new_node = create_node_card(data);
+	if(new_node == NULL) {
+        	ERROR_MESSAGE
+        	exit(EXIT_FAILURE);
+    	}
 
 	if(new_node == NULL)
 		return NOP_STAT;
@@ -27,6 +31,10 @@ stat insert_card(Card_node** head,Card data, int position) {
             return NOP_STAT;
 
         Card_node* new_node = create_node_card(data);
+        if(new_node == NULL) {
+		ERROR_MESSAGE
+        	exit(EXIT_FAILURE);
+    	}
 
         if(position == 0) {
             new_node->card=data;
@@ -121,7 +129,7 @@ Card_node* create_node_card(Card data) {
     Card_node* new_node = malloc(sizeof(Card_node));
 
     if(new_node == NULL) {
-        printf("Memory allocation failed! Bye.");
+        ERROR_MESSAGE
         exit(EXIT_FAILURE);
     }
 
@@ -136,56 +144,40 @@ void erase_card_list(Card_node* head) {
     }
 }
 
-void push_card(CardStack* stack, Card data) {
-    if(stack->size > 0) {
-        CardStack_node* old_node = malloc(sizeof(CardStack_node));
-        old_node->card = stack->top->card;
-        old_node->prev = stack->top->prev;
-        stack->top->prev = old_node->prev;
-    }
-
-    stack->top->card = data;
-    stack->size++;
+void push_card(CardStack_node** head, Card data) {
+        CardStack_node* new_node = malloc(sizeof(CardStack_node));
+        if(empty_stack(head)){
+        	ERROR_MESSAGE
+        	exit(EXIT_FAILURE);
+        }
+        new_node->card = data;
+        new_node->prev = *head;
+        *head=new_node;
 }
 
-Card pop_card(CardStack* stack) {
+Card pop_card(CardStack_node** head) {
 	CardStack_node* tmp;
 
-	Card data = stack->top->card;
-	stack->top->card = stack->top->prev->card;
-	tmp = stack->top->prev;
-	stack->top->prev = stack->top->prev->prev;
-	stack->size--;
-
+	Card data=(*head)->card;
+	tmp=*head, (*head)=(*head)->prev;
 	free(tmp);
-
+	
 	return data;
 }
 
-Card card_stack_top(CardStack* stack) {
-    return stack->top->card;
+Card card_stack_top(CardStack_node* head) {
+    return head->card;
 }
 
-int card_stack_size(CardStack* stack) {
-    return stack->size;
+void card_stack_erase(CardStack_node** head) {
+	CardStack_node* tmp;
+	
+	while((tmp=*head)!=NULL){
+		*head=(*head)->prev;
+		free(tmp);
+    	}
 }
 
-void card_stack_erase(CardStack* stack) {
-    CardStack_node* curr, *tmp;
-    int stack_size = card_stack_size(stack);
-
-
-    Card* data = malloc((stack_size) * sizeof(Card));
-    curr = stack->top->prev;
-    data[stack_size - 1] = stack->top->card;
-    stack_size -= 2;
-    free(stack);
-
-    for(; 0 <= stack_size; stack_size--){
-        tmp = curr;
-        data[stack_size] = curr->card;
-        curr = curr->prev;
-
-        free(tmp);
-    }
+bool empty_stack(CardStack_node* head){
+	return head==NULL;
 }
