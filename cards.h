@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define MAX_DECK_SIZE 52
+#define ERROR_MESSAGE printf("Memory allocation failed! Bye.");
 
 typedef enum { Diamonds, Hearts, Clubs, Spades } Suit;
 typedef enum { NOP_STAT=-1, EMPTY_STAT, ACT_STAT, WARN_STAT } stat;
@@ -23,11 +24,6 @@ typedef struct cardstack_node{
 	struct cardstack_node* prev;
 } CardStack_node;
 
-typedef struct cardstack {
-	int size;
-	CardStack_node* top;
-} CardStack;
-
 
 stat add_card(Card_node** head, Card data);
 stat insert_card(Card_node** head,Card data, int position);
@@ -37,10 +33,10 @@ bool card_list_empty(Card_node* head);
 Card_node* create_node_card(Card data);
 void erase_card_list(Card_node* head);
 
-void push_card(CardStack* stack, Card data);
-Card pop_card(CardStack* stack);
-Card card_stack_top(CardStack* stack);
-int card_stack_size(CardStack* stack);
-void card_stack_erase(CardStack* stack);
+void push_card(CardStack_node** head, Card data);
+Card pop_card(CardStack_node** head);
+Card card_stack_top(CardStack_node* head);
+void card_stack_erase(CardStack_node** head);
+bool empty_stack(CardStack_node* head);
 
 #endif
