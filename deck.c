@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-Card_node* CreateDeck(int decks) {
+Card_node* DeckMaker(int decks) {
 	Card_node* head = malloc(decks * 52 * sizeof(Card_node));
 	Card_node* tmp = head;
 	if(empty(head)){
