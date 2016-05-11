@@ -93,6 +93,7 @@ stat join_node_card(Card_node** head, Card_node* jointo, int position) {
 		} else if(position == 0){
 			jointo->next = *head;
 			*head = jointo;
+			return ACT_STAT;
 		}
 
 		for(int i=1; i < position && curr != NULL; i++)
