@@ -4,12 +4,12 @@
 
 stat add_card(Card_node** head, Card data) {
 
-	if(card_list_empty(*head))
+	if(empty(*head))
 		return NOP_STAT;
 
 	Card_node* new_node = create_node_card(data);
 	if(new_node == NULL) {
-        	ERROR_MESSAGE
+        	ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
     	}
 
@@ -26,13 +26,13 @@ stat add_card(Card_node** head, Card data) {
 stat insert_card(Card_node** head,Card data, int position) {
     Card_node* curr = *head;
 
-    if(!card_list_empty(curr)) {
+    if(!empty(curr)) {
         if(position < 0)
             return NOP_STAT;
 
         Card_node* new_node = create_node_card(data);
-        if(new_node == NULL) {
-		ERROR_MESSAGE
+        if(empty(new_node)) {
+		ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
     	}
 
@@ -46,7 +46,7 @@ stat insert_card(Card_node** head,Card data, int position) {
             curr=curr->next;
         }
 
-        if(curr == NULL) {
+        if(empty(curr)) {
             free(new_node);
             return NOP_STAT;
         }
@@ -65,7 +65,7 @@ Card_node* take_node_card(Card_node** head, int position) {
     Card_node* tmp;
     Card_node* curr = *head;
 
-    if(!card_list_empty(curr)) {
+    if(!empty(curr)) {
         if(position < 0)
             return NULL;
         else if(position == 0) {
@@ -77,7 +77,7 @@ Card_node* take_node_card(Card_node** head, int position) {
         for(int i=1; i < position && curr != NULL; i++)
             curr=curr->next;
 
-        if(curr == NULL) {
+        if(empty(curr)) {
             return NULL;
         }
 
@@ -94,7 +94,7 @@ Card_node* take_node_card(Card_node** head, int position) {
 stat join_node_card(Card_node** head, Card_node* jointo, int position) {
     Card_node* curr = *head;
 
-	if(!card_list_empty(curr)) {
+	if(!empty(curr)) {
 
 		if(position < 0) {
 			return NOP_STAT;
@@ -107,7 +107,7 @@ stat join_node_card(Card_node** head, Card_node* jointo, int position) {
 		for(int i=1; i < position && curr != NULL; i++)
 			curr=curr->next;
 
-		if(curr == NULL) {
+		if(empty(curr)) {
 			return NOP_STAT;
 		}
 
@@ -121,15 +121,11 @@ stat join_node_card(Card_node** head, Card_node* jointo, int position) {
 	return WARN_STAT;
 }
 
-bool card_list_empty(Card_node* head){
-	return head == NULL;
-}
-
 Card_node* create_node_card(Card data) {
     Card_node* new_node = malloc(sizeof(Card_node));
 
-    if(new_node == NULL) {
-        ERROR_MESSAGE
+    if(empty(new_node)) {
+        ERROR_MESSAGE;
         exit(EXIT_FAILURE);
     }
 
@@ -146,8 +142,8 @@ void erase_card_list(Card_node* head) {
 
 void push_card(CardStack_node** head, Card data) {
         CardStack_node* new_node = malloc(sizeof(CardStack_node));
-        if(empty_stack(head)){
-        	ERROR_MESSAGE
+        if(empty(head)){
+        	ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
         }
         new_node->card = data;
@@ -157,11 +153,15 @@ void push_card(CardStack_node** head, Card data) {
 
 Card pop_card(CardStack_node** head) {
 	CardStack_node* tmp;
-
-	Card data=(*head)->card;
-	tmp=*head, (*head)=(*head)->prev;
-	free(tmp);
+	Card data;
 	
+	data.id=-1,data.suit=0;
+	if(!empty(*head)){
+		data=(*head)->card;
+		tmp=*head, (*head)=(*head)->prev;
+		free(tmp);
+		return data;
+	}
 	return data;
 }
 
@@ -178,6 +178,3 @@ void card_stack_erase(CardStack_node** head) {
     	}
 }
 
-bool empty_stack(CardStack_node* head){
-	return head==NULL;
-}
