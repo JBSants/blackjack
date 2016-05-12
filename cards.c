@@ -144,7 +144,7 @@ void erase_card_list(Card_node* head) {
 
 void push_card(Card_node** head, Card data) {
         Card_node* new_node = malloc(sizeof(Card_node));
-        if(empty(head)){
+        if(empty(new_node)){
         	ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
         }
@@ -152,6 +152,14 @@ void push_card(Card_node** head, Card data) {
         new_node->prev = *head;
         *head=new_node;
 }
+
+void push_existing_card(Card_node** head, Card_node* node){
+	if(!empty(node)){
+		node->prev = *head;
+        	*head=node;	
+	}
+}
+
 
 Card pop_card(Card_node** head) {
 	Card_node* tmp;
