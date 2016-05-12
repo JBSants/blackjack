@@ -140,8 +140,10 @@ void erase_card_list(Card_node* head) {
     }
 }
 
-void push_card(CardStack_node** head, Card data) {
-        CardStack_node* new_node = malloc(sizeof(CardStack_node));
+///Stack
+
+void push_card(Card_node** head, Card data) {
+        Card_node* new_node = malloc(sizeof(Card_node));
         if(empty(head)){
         	ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
@@ -151,8 +153,8 @@ void push_card(CardStack_node** head, Card data) {
         *head=new_node;
 }
 
-Card pop_card(CardStack_node** head) {
-	CardStack_node* tmp;
+Card pop_card(Card_node** head) {
+	Card_node* tmp;
 	Card data;
 	
 	data.id=-1,data.suit=0;
@@ -165,12 +167,12 @@ Card pop_card(CardStack_node** head) {
 	return data;
 }
 
-Card card_stack_top(CardStack_node* head) {
+Card card_stack_top(Card_node* head) {
     return head->card;
 }
 
-void card_stack_erase(CardStack_node** head) {
-	CardStack_node* tmp;
+void card_stack_erase(Card_node** head) {
+	Card_node* tmp;
 	
 	while((tmp=*head)!=NULL){
 		*head=(*head)->prev;
