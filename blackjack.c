@@ -54,7 +54,7 @@ void GetBankroll_GameResults(Player* house, Node_player* head, int bet) {
 
 Node_player* Hit(Card_node** deck_head, Player* house, int decks, Node_player* current_player, int option) {
 	DealCards(deck_head, current_player, house, decks, 1, option);
-	GetScore(&(current_player->player));
+	GetScore(current_player);
 
 	if (current_player->player.score > 21){
 		//Bust
