@@ -28,6 +28,7 @@ Card_node* create_node_card(Card data);
 void erase_card_list(Card_node* head);
 
 void push_card(Card_node** head, Card data);
+void push_existing_card(Card_node** head, Card_node* node);
 Card pop_card(Card_node** head);
 Card card_stack_top(Card_node* head);
 void card_stack_erase(Card_node** head);
