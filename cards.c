@@ -19,7 +19,7 @@ stat add_card(Card_node** head, Card data) {
 	return ACT_STAT;
 }
 
-stat insert_card(Card_node** head,Card data, int position) {
+stat insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
 
     if(!card_list_empty(curr)) {
