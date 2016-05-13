@@ -16,7 +16,7 @@ typedef struct {
     char name[MAX_NAME];
     float money;
     float bet;
-    CardStack_node *cards;
+    Card_node *cards;
     int hand_size;
     Results games_result;
     bool ai; // computer or artificial inteligence
@@ -27,8 +27,8 @@ typedef struct {
 typedef struct node_player {
     Player player;
     struct node_player *next;
-} Node_player;
+} Player_node;
 
-void GetScore(Node_player* current_player);
+void GetScore(Player_node* current_player);
 
 #endif

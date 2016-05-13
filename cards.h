@@ -22,13 +22,13 @@ typedef struct card_node {
 
 stat add_card(Card_node** head, Card data);
 stat insert_card(Card_node** head,Card data, int position);
-Card_node* take_node_card(Card_node** head, int position);
+Card_node* take_card_node(Card_node** head, int position);
 stat join_node_card(Card_node** head, Card_node* jointo, int position);
-Card_node* create_node_card(Card data);
+Card_node* create_card_node(Card data);
 void erase_card_list(Card_node* head);
 
 void push_card(Card_node** head, Card data);
-void push_existing_card(Card_node** head, Card_node* node);
+void push_card_node(Card_node** head, Card_node* node);
 Card pop_card(Card_node** head);
 Card card_stack_top(Card_node* head);
 void card_stack_erase(Card_node** head);

@@ -4,17 +4,17 @@
 #include "cards.h"
 #include "blackjack.h"
 
-void GetBankroll_GameResults(Player* house, Node_player* head, int bet) {
+void GetBankroll_GameResults(Player* house, Player_node* head, int bet) {
     while(head != NULL) {
 
         if(head->player.surrender==true)
         	head->player.surrender==false;
-        else if (head->player.score > 21) 
+        else if (head->player.score > 21)
             head->player.games_result.lost ++;
         else if (house->score > 21) {
             head->player.money += 2 * bet + 0.5 * bet * (head->player.score == 21 && head->player.hand_size == 2);
             head->player.games_result.won += 1;
-        } 
+        }
         else if (house->score == head->player.score) {
 
             if (house->score == 21) {
@@ -52,26 +52,24 @@ void GetBankroll_GameResults(Player* house, Node_player* head, int bet) {
     }
 }
 
-Node_player* Hit(Card_node** deck_head, Player* house, int decks, Node_player* current_player, int option) {
-	DealCards(deck_head, current_player, house, decks, 1, option);
+Player_node* Hit(Card_node** deck_head, Player_node* current_player) {
+    push_card_node(current_player->cards, NextCard(deck_head));
+    current_player->hand_size += 1;
+
 	GetScore(current_player);
 
-	if (current_player->player.score > 21){
-		//Bust
+	if (Bust(*current_player)) {
 		return current_player->next;
 	}
+
 	return current_player;
 }
 
-Node_player* Stand(Player* house, int decks, Node_player* current_player, int option) {
-	if ((option % 5) != 0) {
-		return current_player->next;
-	} else {
-		return NULL;
-    }
+Player_node* Stand(Player* house, Player_node* current_player) {
+	return current_player->next;
 }
 
-Node_player* Double(Card_node **deckhead, int decks, Player *house, Node_player *current_player) {
+Player_node* Double(Card_node **deckhead, int decks, Player *house, Player_node *current_player) {
 	(current_player->player).money -= (current_player->player).bet;
 	(current_player->player).bet *= 2;
 	DealCards(deckhead, current_player, house, decks, 1, 1);
@@ -79,15 +77,15 @@ Node_player* Double(Card_node **deckhead, int decks, Player *house, Node_player 
 	return current_player->next;
 }
 
-Node_player* Surrender(Node_player *current_player) {
+Player_node* Surrender(Player_node *current_player) {
 	current_player->player.surrender = true;
 	current_player->player.money += 0.5 * (current_player->player.bet);
 	current_player->player.games_result.lost += 1;
 	return current_player->next;
 }
 
-void Bet(Node_player *head) {
-	Node_player *tmp;
+void Bet(Player_node *head) {
+	Player_node *tmp;
 	char buf[8], buf2[8];
 	float bet;
 	short id=0;
@@ -126,4 +124,38 @@ void Bet(Node_player *head) {
 
 	tmp->player.bet = bet;
 
+}
+
+int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal) {
+    int cardsDealt = 0;
+
+    if(house != NULL) {
+        Player_node *walk = head;
+
+		for(int i=0; i < numberOfCardsToDeal; i++) {
+
+			while (walk != NULL) {
+				push_card_node(walk->player.cards, NextCard(deck_head));
+				walk->player.hand_size += 1;
+                cardsDealt += 1;
+
+				walk = walk->next;
+			}
+
+			push_existing_card(house->cards, NextCard(deck_head));
+			house->hand_size++;
+            cardsDealt += 1;
+		}
+	}
+
+    return cardsDealt;
+}
+
+Card_node *NextCard(Card_node **deck_head) {
+    if(empty(*deck_head)){
+        *deck_head = DeckMaker(numberOfDecks);
+        ShuffleCards(deck_head, numberOfDecks, 1); //TODO: Times really needed??
+    }
+
+    return take_card_node(deck_head, 0);
 }

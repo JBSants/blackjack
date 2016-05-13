@@ -34,3 +34,14 @@ void ShuffleCards(Card_node** deck_head, int decks,int times) {
 		times--;
 	}
 }
+
+void EraseDeck(Card_node* deck_head) {
+	Card_node *aux = NULL;
+
+	while (deck_head != NULL) {
+		aux = deck_head;
+		deck_head = deck_head->next;
+		
+		free(aux);
+	}
+}

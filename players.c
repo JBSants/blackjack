@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include "players.h"
 
-void GetScore(Node_player* current_player) {
+void GetScore(Player_node* current_player) {
     const short card_points[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
     short score = 0, aces = 0;
-    CardStack_node* cardnode_ptr;
+    Card_node* cardnode_ptr;
 
 
     cardnode_ptr = current_player->player.cards;

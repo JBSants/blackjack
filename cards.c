@@ -61,7 +61,7 @@ stat insert_card(Card_node** head, Card data, int position) {
     return EMPTY_STAT;
 }
 
-Card_node* take_node_card(Card_node** head, int position) {
+Card_node* take_card_node(Card_node** head, int position) {
     Card_node* tmp;
     Card_node* curr = *head;
 
@@ -91,7 +91,7 @@ Card_node* take_node_card(Card_node** head, int position) {
     return NULL;
 }
 
-stat join_node_card(Card_node** head, Card_node* jointo, int position) {
+stat join_card_node(Card_node** head, Card_node* jointo, int position) {
     Card_node* curr = *head;
 
 	if(!empty(curr)) {
@@ -121,7 +121,7 @@ stat join_node_card(Card_node** head, Card_node* jointo, int position) {
 	return WARN_STAT;
 }
 
-Card_node* create_node_card(Card data) {
+Card_node* create_card_node(Card data) {
     Card_node* new_node = malloc(sizeof(Card_node));
 
     if(empty(new_node)) {
@@ -144,19 +144,21 @@ void erase_card_list(Card_node* head) {
 
 void push_card(Card_node** head, Card data) {
         Card_node* new_node = malloc(sizeof(Card_node));
+
         if(empty(new_node)){
         	ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
         }
+
         new_node->card = data;
         new_node->prev = *head;
-        *head=new_node;
+        *head = new_node;
 }
 
-void push_existing_card(Card_node** head, Card_node* node){
+void push_card_node(Card_node** head, Card_node* node){
 	if(!empty(node)){
 		node->prev = *head;
-        	*head=node;	
+        *head = node;
 	}
 }
 
@@ -164,14 +166,18 @@ void push_existing_card(Card_node** head, Card_node* node){
 Card pop_card(Card_node** head) {
 	Card_node* tmp;
 	Card data;
-	
-	data.id=-1,data.suit=0;
+
+	data.id = -1;
+	data.suit = 0;
+
 	if(!empty(*head)){
-		data=(*head)->card;
-		tmp=*head, (*head)=(*head)->prev;
+		data = (*head)->card;
+		tmp = *head;
+		(*head) = (*head)->prev;
 		free(tmp);
 		return data;
 	}
+
 	return data;
 }
 
@@ -181,10 +187,9 @@ Card card_stack_top(Card_node* head) {
 
 void card_stack_erase(Card_node** head) {
 	Card_node* tmp;
-	
-	while((tmp=*head)!=NULL){
-		*head=(*head)->prev;
-		free(tmp);
-    	}
-}
 
+	while((tmp=*head)!=NULL){
+		*head = (*head)->prev;
+		free(tmp);
+    }
+}
