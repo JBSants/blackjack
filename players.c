@@ -1,15 +1,14 @@
 #include <stdlib.h>
 #include "players.h"
 
-void GetScore(Player* player) {
+void GetScore(Node_player* current_player) {
     const short card_points[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
     short score = 0, aces = 0;
     CardStack_node* cardnode_ptr;
 
 
-    cardnode_ptr->card = player->cards->top->card;
-    cardnode_ptr->prev = player->cards->top->prev;
+    cardnode_ptr = current_player->player.cards;
 
     // calculate the score excluding the aces
     while(cardnode_ptr != NULL) {
@@ -30,5 +29,5 @@ void GetScore(Player* player) {
             score += 1;
         }
     }
-    player->score = score;
+    current_player->player.score = score;
 }

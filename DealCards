@@ -1,0 +1,30 @@
+//Option 0:House | Option1: Player 1 | Option 2: Player 2 | Option3: Player 3 | Option4: Player 4 | Option 5 : All |
+//Player 1 actually means the first player given by head
+void DealCards(card_node** deckhead,node_player* head,Player* house, int decks,int num_cardstodeal, int option){
+	card_node* card_taken;
+    if(house!=NULL && head!=NULL && option>=0 && option<6){
+		for(int i=0;i<num_cardstodeal;i++){
+			for(int i=1;i<=option && head!=NULL;i++){
+				if((i==option || option==5 )&& i!=5){
+					card_taken=take_node(deckhead,0);
+					push_existing_card(head->player.cards,card_taken);
+					head->player.hand_size++;
+					if(empty(*deckhead)){
+						*deckhead=CreateDeck(decks);
+						ShuffleCards(deckhead,decks,1);
+					}
+				}
+				head=head->next;
+			}
+			if(option%5==0){
+				card_taken=take_node(deckhead,0);
+				push_existing_card(house->cards,card_taken);
+				house->hand_size++;
+				if(empty(*deckhead)){
+						*deckhead=CreateDeck(decks);
+						ShuffleCards(deckhead,decks,1);
+				}
+			}
+		}
+	}
+}

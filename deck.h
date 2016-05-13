@@ -3,7 +3,7 @@
 
 #include "cards.h"
 
-Card_node* CreateDeck(int decks);
+Card_node* DeckMaker(int decks);
 void ShuffleCards(Card_node** deck_head, int decks, int times);
 
 #endif
