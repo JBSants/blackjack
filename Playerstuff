@@ -1,0 +1,120 @@
+typedef struct Node_player {
+    Player player;
+    struct Node_player *next;
+} node_player;
+
+add(node_player** head, Player data){
+	if(empty(*head))
+		return NOP_STAT;	
+	
+	new_node=create_node(data);
+	if(empty(new_node)){
+		ERROR_MESSAGE;
+		exit(EXIT_FAILURE);
+	}
+	
+	new_node->next=*head;
+	new_node->payload=data;
+	*head=new_node;
+	return ACT_STAT;
+}
+
+
+insert_anywhere(node_player** head,Player data,int position){
+	node_player* curr=*head;
+	if( !empty(curr)){
+		if(position<0)
+			return NOP_STAT;
+		
+		new_node=create_node(data);
+		if(empty(new_node)) {
+		  ERROR_MESSAGE;
+      exit(EXIT_FAILURE);
+    }
+
+		if(position==0){
+			new_node->payload=data;
+			new_node->next=*head;
+			*head=new_node;
+		}
+		for(int i=1;i<position && curr!=NULL;i++){
+			curr=curr->next;
+		}
+		if(empty(curr)){
+			free(new_node);
+			return NOP_STAT;
+		}
+		
+		new_node->next=curr->next;
+		new_node->payload=data;
+		curr->next=new_node;
+		return ACT_STAT;	
+	}
+	return EMPTY_STAT
+}
+
+take_node(node_player** head,int position){
+	curr=*head;
+	if( !empty(curr)){
+		if(position<0)
+			return NULL;
+		elseif(position==0){
+			*head=curr->next;
+			curr->next=NULL;
+			return curr;
+		}
+		for(int i=1;i<position &&  curr!=NULL;i++)
+			curr=curr->next;
+		if(empty(curr)){
+			return NULL;
+		}
+		tmp=curr->next;
+		curr->next=curr->next->next;
+		tmp->next=NULL;
+		return tmp;
+	}
+	return NULL
+}
+
+join_node(node_player** head,node_player* jointo,int position){
+	curr=*head;
+	if( !empty(curr)){
+		if(position<0)
+			return NOP_STAT;
+		elseif(position==0){
+			jointo->next=*head;
+			*head=jointo;
+		}
+		for(int i=1;i<position && curr!=NULL;i++)
+			curr=curr->next;
+		if(empty(curr)){
+			return NULL;
+		}
+		jointo->next=curr->next;
+		curr->next=jointo;
+	}
+	else{
+		*head=jointo;
+		return ACT_STAT;
+	}
+}
+
+empty(node_player* head){
+	return head==NULL;
+}
+
+create_node(Player data){
+	new_node=malloc(sizeof(node_player));
+		if(empty(new_node))
+			exit(EXIT_FAILURE);
+	return new_node;
+}
+
+eraselist(node_player* head){
+	node_player* tmp
+	while((tmp=head)!=NULL){
+		head=head->next;
+		free(tmp);
+	}
+}
+
