@@ -12,7 +12,7 @@ SDL_Window* CreateWindow(int , int );
 SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
 int RenderText(int , int , const char* , TTF_Font *, SDL_Color *, SDL_Renderer * );
 int RenderLogo(int , int , SDL_Surface *, SDL_Renderer * );
-void RenderTable(int [], int *, SDL_Surface **, SDL_Renderer *, int, int);
+void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house, SDL_Surface *_img[], SDL_Renderer* _renderer);
 void RenderCard(int , int , int , SDL_Surface **, SDL_Renderer * );
 void RenderHouseCards(int [], int , SDL_Surface **, SDL_Renderer * );
 void RenderPlayerCards(int [][MAX_CARD_HAND], int [], SDL_Surface **, SDL_Renderer * );

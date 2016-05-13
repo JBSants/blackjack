@@ -12,7 +12,7 @@
 * \param currentPlayer
 * \param house_points
 */
-void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _renderer, int currentPlayer, int house_points)
+void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house, SDL_Surface *_img[], SDL_Renderer* _renderer)
 {
   SDL_Color black = { 0, 0, 0 }; // black
   SDL_Color white = { 255, 255, 255 }; // white
@@ -26,6 +26,7 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
   int separatorPos = (int)(0.95f*WIDTH_WINDOW); // seperates the left from the right part of the window
   int height = 0;
   SDL_Color *playerColor = NULL; // used for storing player color
+  Player_node *player = NULL;
 
   // set color of renderer to some color
   SDL_SetRenderDrawColor( _renderer, 255, 255, 255, 255 );
@@ -62,13 +63,13 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
   RenderText(separatorPos+3*MARGIN, height, myNumber, serif, &black, _renderer);
 
   // renders the areas for each player: names and money too !
-  for ( int i = 0; i < MAX_PLAYERS; i++)
+  while (player != NULL)
   {
     /* Determines this player color. If this player is current player player color is red. */
-    playerColor = i == currentPlayer ? &currentPlayerAreaColor : &white;
+    playerColor = player == currentPlayer ? &currentPlayerAreaColor : &white;
 
     /* If this is the current player, show red rect */
-    if (i == currentPlayer) {
+    if (player == currentPlayer) {
         SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255 );
     } else {
         SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255 );
@@ -79,11 +80,12 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
     playerRect.w = separatorPos/4-5;
     playerRect.h = (int) (0.42f*HEIGHT_WINDOW);
 
-    sprintf(name_money_str,"%s -- %d euros", playerNames[i], _money[i]);
+    sprintf(name_money_str,"%s -- %d euros", player->name, player->money);
 
-    sprintf(points_str, "%d points", points[i]);
+    sprintf(points_str, "%d points", player->score);
+
     /* If player is bust */
-    if (Bust(points[i])) {
+    if (Bust(player)) {
         strcat(points_str, " (BUST)"); // if bust concatnate BUST to string
     }
 
@@ -93,8 +95,8 @@ void RenderTable(int _money[], int *points, SDL_Surface *_img[], SDL_Renderer* _
     /* Checks if house_points is not 0. If so, renders, above the first player,
      * the house points
      */
-    if (i == 0 && house_points > 0) {
-        sprintf(house_points_str, "House points: %d", house_points);
+    if (player == currentPlayer && house->score > 0) {
+        sprintf(house_points_str, "House score: %d", house->score);
         RenderText(playerRect.x+40, playerRect.y-125, house_points_str, serif, &white, _renderer);
     }
 
@@ -148,24 +150,26 @@ void RenderHouseCards(int _house[], int _pos_house_hand, SDL_Surface **_cards, S
 * \param _cards vector with all loaded card images
 * \param _renderer renderer to handle all rendering in a window
 */
-void RenderPlayerCards(int _player_cards[][MAX_CARD_HAND], int _pos_player_hand[], SDL_Surface **_cards, SDL_Renderer* _renderer)
+void RenderPlayerCards(Player_node *players, SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
   int pos = 0, x = 0, y = 0, num_player = 0, card = 0;
+  Player_node *player_node = players;
 
   // for every card of every player
-  for ( num_player = 0; num_player < MAX_PLAYERS; num_player++)
+  while (player_node != NULL)
   {
-    for ( card = 0; card < _pos_player_hand[num_player]; card++)
+    for ( card = 0; card < player_node->player.hand_size; card++)
     {
-      // draw all cards of the player: calculate its position: only 4 positions are available !
-      pos = card % 4;
-      x = (int) num_player*((0.95f*WIDTH_WINDOW)/4-5)+(card/4)*12+15;
-      y = (int) (0.55f*HEIGHT_WINDOW)+10;
-      if ( pos == 1 || pos == 3) x += CARD_WIDTH + 30;
-      if ( pos == 2 || pos == 3) y += CARD_HEIGHT+ 10;
-      // render it !
-      RenderCard(x, y, _player_cards[num_player][card], _cards, _renderer);
+        // draw all cards of the player: calculate its position: only 4 positions are available !
+        pos = card % 4;
+        x = (int) num_player*((0.95f*WIDTH_WINDOW)/4-5)+(card/4)*12+15;
+        y = (int) (0.55f*HEIGHT_WINDOW)+10;
+        if ( pos == 1 || pos == 3) x += CARD_WIDTH + 30;
+        if ( pos == 2 || pos == 3) y += CARD_HEIGHT+ 10;
+        // render it !
+        RenderCard(x, y, _player_cards[num_player][card], _cards, _renderer);
     }
+    player_node = player_node->next;
   }
 }
 
