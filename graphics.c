@@ -18,7 +18,7 @@ const char myNumber2[] = "84183";
 * \param currentPlayer
 * \param house_points
 */
-void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house, SDL_Surface *_img[], SDL_Renderer* _renderer)
+void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house, TTF_Font *_font, SDL_Surface *_img[], SDL_Renderer* _renderer)
 {
   SDL_Color black = { 0, 0, 0 }; // black
   SDL_Color white = { 255, 255, 255 }; // white
@@ -26,7 +26,6 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
   char name_money_str[STRING_SIZE] = { 0 };
   char points_str[STRING_SIZE] = { 0 };
   char house_points_str[STRING_SIZE] = { 0 };
-  TTF_Font *serif = NULL;
   SDL_Texture *table_texture = NULL;
   SDL_Rect tableSrc = {0, 0, 0, 0}, tableDest = {0, 0, 0, 0}, playerRect = {0, 0, 0, 0};
   int separatorPos = (int)(0.95f*WIDTH_WINDOW); // seperates the left from the right part of the window
@@ -39,14 +38,6 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
 
   // clear the window
   SDL_RenderClear( _renderer );
-
-  // this opens a font style and sets a size
-  serif = TTF_OpenFont("FreeSerif.ttf", 16);
-  if(!serif)
-  {
-    printf("TTF_OpenFont: %s\n", TTF_GetError());
-    exit(EXIT_FAILURE);
-  }
 
   tableDest.x = tableSrc.x = 0;
   tableDest.y = tableSrc.y = 0;
@@ -63,16 +54,16 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
   height = RenderLogo(separatorPos, 0, _img[1], _renderer);
 
   // render one student name
-  height += RenderText(separatorPos+3*MARGIN, height, myName1, serif, &black, _renderer);
+  height += RenderText(separatorPos+3*MARGIN, height, myName1, _font, &black, _renderer);
 
   // this renders one student number
-  height += RenderText(separatorPos+3*MARGIN, height, myNumber1, serif, &black, _renderer);
+  height += RenderText(separatorPos+3*MARGIN, height, myNumber1, _font, &black, _renderer);
 
   // render another student name
-  height += RenderText(separatorPos+3*MARGIN, height, myName2, serif, &black, _renderer);
+  height += RenderText(separatorPos+3*MARGIN, height, myName2, _font, &black, _renderer);
 
   // this renders another student number
-  RenderText(separatorPos+3*MARGIN, height, myNumber2, serif, &black, _renderer);
+  RenderText(separatorPos+3*MARGIN, height, myNumber2, _font, &black, _renderer);
 
   // renders the areas for each player: names and money too !
   while (player != NULL)
@@ -101,15 +92,15 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
         strcat(points_str, " (BUST)"); // if bust concatnate BUST to string
     }
 
-    RenderText(playerRect.x+20, playerRect.y-50, name_money_str, serif, playerColor, _renderer);
-    RenderText(playerRect.x+20, playerRect.y-30, points_str, serif, playerColor, _renderer); // renders points
+    RenderText(playerRect.x+20, playerRect.y-50, name_money_str, _font, playerColor, _renderer);
+    RenderText(playerRect.x+20, playerRect.y-30, points_str, _font, playerColor, _renderer); // renders points
 
     /* Checks if house_points is not 0. If so, renders, above the first player,
      * the house points
      */
     if (player == currentPlayer && house->score > 0) {
         sprintf(house_points_str, "House score: %d", house->score);
-        RenderText(playerRect.x+40, playerRect.y-125, house_points_str, serif, &white, _renderer);
+        RenderText(playerRect.x+40, playerRect.y-125, house_points_str, _font, &white, _renderer);
     }
 
     SDL_RenderDrawRect(_renderer, &playerRect);
@@ -120,9 +111,6 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
 
   // destroy everything
   SDL_DestroyTexture(table_texture);
-
-  // close font
-  TTF_CloseFont(serif);
 }
 
 /**
@@ -144,8 +132,10 @@ void RenderHouseCards(Player *house, Card_node *cards_head, int cardNumber, SDL_
 
         x = (div/2-(house->hand_size)/2+(cardNumber - 1))*CARD_WIDTH + 15;
         y = (int) (0.26f*HEIGHT_WINDOW);
+        
         // render it !
         RenderCard(x, y, CardID(cards_head->card), _cards, _renderer);
+        
         // just one card ?: draw a card face down
         if (house->hand_size == 1)
         {
@@ -217,6 +207,8 @@ void RenderCard(int x, int y, int card_id, SDL_Surface **_cards, SDL_Renderer* _
     // render it !
     card_text = SDL_CreateTextureFromSurface(_renderer, _cards[card_id]);
     SDL_RenderCopy(_renderer, card_text, NULL, &boardPos);
+    
+    SDL_DestroyTexture(card_text);
 }
 
 /**
@@ -335,7 +327,7 @@ int RenderText(int x, int y, const char *text, TTF_Font *_font, SDL_Color *_colo
 * \param _window represents the window of the application
 * \param _renderer renderer to handle all rendering in a window
 */
-void InitEverything(int width, int height, SDL_Surface *_img[], SDL_Window** _window, SDL_Renderer** _renderer)
+void InitEverything(int width, int height, TTF_Font **_font, SDL_Surface *_img[], SDL_Window** _window, SDL_Renderer** _renderer)
 {
   InitSDL();
   InitFont();
@@ -357,6 +349,14 @@ void InitEverything(int width, int height, SDL_Surface *_img[], SDL_Window** _wi
     printf("Unable to load bitmap: %s\n", SDL_GetError());
     exit(EXIT_FAILURE);
   }
+    
+    // this opens (loads) a font file and sets a size
+    *_font = TTF_OpenFont("FreeSerif.ttf", 16);
+    if(!*_font)
+    {
+        printf("TTF_OpenFont: %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
+    }
 
 }
 

@@ -21,14 +21,14 @@
 #define EXTRASPACE 150
 #define MARGIN 5
 
-void InitEverything(int , int , SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
+void InitEverything(int , int, TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
 void InitSDL();
 void InitFont();
 SDL_Window* CreateWindow(int , int );
 SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
 int RenderText(int , int , const char* , TTF_Font *, SDL_Color *, SDL_Renderer * );
 int RenderLogo(int , int , SDL_Surface *, SDL_Renderer * );
-void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house, SDL_Surface *_img[], SDL_Renderer* _renderer);
+void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house, TTF_Font *_font, SDL_Surface *_img[], SDL_Renderer* _renderer);
 void RenderCards(int cardNumber, int playerNumber, Card_node *cards_head, SDL_Surface **_cards, SDL_Renderer* _renderer);
 void RenderCard(int x, int y, int card_id, SDL_Surface **_cards, SDL_Renderer* _renderer);
 void RenderHouseCards(Player *house, Card_node *cards_head, int cardNumber, SDL_Surface **_cards, SDL_Renderer* _renderer);
