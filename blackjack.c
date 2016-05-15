@@ -173,18 +173,17 @@ int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numbe
 			while (walk != NULL) {
 				push_card_node(&(walk->player.cards), NextCard(deck_head, numberOfDecks));
 				walk->player.hand_size += 1;
-                cardsDealt += 1;
-
+                		cardsDealt += 1;
+                		
 				walk = walk->next;
 			}
 
 			push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks));
-
-            walk = head;
+			house->hand_size += 1;
+            		
+            		walk = head;
 		}
 	}
-
-	house->hand_size = 1;
 
     GetPlayerListScore(head);
 
