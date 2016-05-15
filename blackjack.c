@@ -1,9 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "cards.h"
 #include "blackjack.h"
 #include "deck.h"
+
+void reads(char *buffer, int max) {
+    fgets(buffer, max, stdin);
+    buffer[strlen(buffer) - 1] = '\0';
+}
 
 void GetBankroll_GameResults(Player* house, Player_node* head) {
     while(head != NULL) {
@@ -126,45 +132,50 @@ Player_node* Surrender(Player_node *current_player) {
 }
 
 void Bet(Player_node *head) {
-	Player_node *tmp;
-	char buf[8], buf2[8];
+	Player_node *tmp = NULL;
+    char *buf = (char *) malloc((MAX_NAME + 1) * sizeof(char));
+    char *buf2 = (char *) malloc((MAX_NAME + 1) * sizeof(char));
 	float bet = 0;
-	short id=0;
-    	int err = 0;
+    int err = 0;
+    bool playerSelected = false;
 
 	do {
 		tmp = head;
-		printf("Name of the player: ");
-		if (fgets(buf, sizeof(buf), stdin) != NULL) {
-			id = 0;
+        
+		printf("Player name: ");
+        
+        reads(buf, MAX_NAME + 1);
+        
+        while(tmp != NULL) {
+            if (strcmp(tmp->player.name, buf) == 0) {
+                playerSelected = true;
+                
+                do {
+                    printf("New bet value: ");
 
-			for(int i=0; i < 8; i++)
-				id += tmp->player.name[i] == buf[i];
+                    fgets(buf2, MAX_NAME + 1, stdin);
+                    err = sscanf(buf2, "%f", &bet);
 
-			do {
-				if(id == 8) {
-					do {
-						printf("New bet value: ");
+                    if(err != 1 || bet < MIN_BET_VALUE || bet > tmp->player.money)
+                        printf("Bet value not valid!\n");
+                    
+                } while(err != 1 || bet < MIN_BET_VALUE || bet > tmp->player.money);
 
-						fgets(buf2, sizeof(buf2), stdin);
-						err = sscanf(buf2, "%f", &bet);
-
-						if(err != 1 || bet < 2 || bet > head->player.money)
-							printf("Bet value not valid!\n");
-					} while(err != 1 || bet < 2 || bet > head->player.money);
-
-					break;
-				} else if((tmp = tmp->next) == NULL) {
-					printf("There's no player with such name.\n");
-                }
-			} while(tmp != NULL);
-		} else {
-			printf("Not valid!\n");
-        	}
-	} while(id != 8);
+                break;
+            }
+            
+            tmp = tmp->next;
+        }
+        
+        if (!playerSelected) {
+            printf("There's no player with such name.\n");
+        }
+	} while(!playerSelected);
 
 	tmp->player.bet = bet;
-
+    
+    free(buf);
+    free(buf2);
 }
 
 int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal) {

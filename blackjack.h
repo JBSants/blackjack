@@ -5,6 +5,7 @@
 #include "cards.h"
 
 #define BLACKJACK_INITIAL_CARDS 2
+#define MIN_BET_VALUE 2
 #define Bust(player) player.score > 21
 
 void GetBankroll_GameResults(Player* house, Player_node* head);
