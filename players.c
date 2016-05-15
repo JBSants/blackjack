@@ -1,14 +1,26 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "players.h"
 
-void GetScore(Player_node* current_player) {
+void GetPlayerListScore(Player_node *head) {
+    Player_node *walk = head;
+
+    while (walk != NULL) {
+
+        GetScore(&(walk->player));
+
+        walk = walk->next;
+    }
+}
+
+void GetScore(Player* player) {
     const short card_points[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
     short score = 0, aces = 0;
     Card_node* cardnode_ptr;
 
 
-    cardnode_ptr = current_player->player.cards;
+    cardnode_ptr = player->cards;
 
     // calculate the score excluding the aces
     while(cardnode_ptr != NULL) {
@@ -18,7 +30,7 @@ void GetScore(Player_node* current_player) {
         } else {
             aces++;
         }
-        cardnode_ptr = cardnode_ptr->prev;
+        cardnode_ptr = cardnode_ptr->next;
     }
 
     // calculates the aces' points and sums it to the rest of the score
@@ -29,5 +41,41 @@ void GetScore(Player_node* current_player) {
             score += 1;
         }
     }
-    current_player->player.score = score;
+    player->score = score;
+}
+
+Stat add_player(Player_node** head, Player data) {
+    Player_node *new_node = NULL;
+
+	new_node = create_player_node(data);
+
+	if(empty(new_node)){
+		ERROR_MESSAGE;
+		exit(EXIT_FAILURE);
+	}
+
+    new_node->next = *head;
+    new_node->player = data;
+    *head = new_node;
+
+	return ACT_STAT;
+}
+
+Player_node *create_player_node(Player data) {
+	Player_node *new_node = malloc(sizeof(Player_node));
+
+	if(empty(new_node)) {
+    	ERROR_MESSAGE;
+    	exit(EXIT_FAILURE);
+    }
+
+    return new_node;
+}
+void erase_player_list(Player_node* head) {
+	Player_node* tmp;
+
+	while((tmp = head) != NULL){
+		head = head->next;
+		free(tmp);
+	}
 }

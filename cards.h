@@ -6,9 +6,10 @@
 #define MAX_DECK_SIZE 52
 #define ERROR_MESSAGE printf("Memory allocation failed! Bye.")
 #define empty(head) (head==NULL)
+#define IsAce(card) card.id == 13
 
-typedef enum { Diamonds, Hearts, Clubs, Spades } Suit;
-typedef enum { NOP_STAT=-1, EMPTY_STAT, ACT_STAT, WARN_STAT } stat;
+typedef enum { Clubs = 0, Diamonds = 1, Hearts = 2, Spades = 3 } Suit;
+typedef enum { NOP_STAT=-1, EMPTY_STAT, ACT_STAT, WARN_STAT } Stat;
 
 typedef struct {
     short id;
@@ -20,16 +21,18 @@ typedef struct card_node {
 	struct card_node* next;
 } Card_node;
 
-stat add_card(Card_node** head, Card data);
-stat insert_card(Card_node** head,Card data, int position);
+int CardID(Card card);
+
+Stat add_card(Card_node** head, Card data);
+Stat insert_card(Card_node** head,Card data, int position);
 Card_node* take_card_node(Card_node** head, int position);
-stat join_node_card(Card_node** head, Card_node* jointo, int position);
+Stat join_node_card(Card_node** head, Card_node* jointo, int position);
 Card_node* create_card_node(Card data);
 void erase_card_list(Card_node* head);
 
 void push_card(Card_node** head, Card data);
 void push_card_node(Card_node** head, Card_node* node);
-Card pop_card(Card_node** head);
+Card_node *pop_card(Card_node** head);
 Card card_stack_top(Card_node* head);
 void card_stack_erase(Card_node** head);
 

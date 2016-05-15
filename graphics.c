@@ -1,4 +1,10 @@
 #include "graphics.h"
+#include "blackjack.h"
+
+const char myName1[] = "Joao Almeida Santos";
+const char myNumber1[] = "84083";
+const char myName2[] = "Simao Goncalves Eusebio";
+const char myNumber2[] = "84183";
 
 /**
 * RenderTable: Draws the table where the game will be played, namely:
@@ -24,9 +30,9 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
   SDL_Texture *table_texture = NULL;
   SDL_Rect tableSrc = {0, 0, 0, 0}, tableDest = {0, 0, 0, 0}, playerRect = {0, 0, 0, 0};
   int separatorPos = (int)(0.95f*WIDTH_WINDOW); // seperates the left from the right part of the window
-  int height = 0;
+  int height = 0, i = 0;
   SDL_Color *playerColor = NULL; // used for storing player color
-  Player_node *player = NULL;
+  Player_node *player = players;
 
   // set color of renderer to some color
   SDL_SetRenderDrawColor( _renderer, 255, 255, 255, 255 );
@@ -56,11 +62,17 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
   // render the IST Logo
   height = RenderLogo(separatorPos, 0, _img[1], _renderer);
 
-  // render the student name
-  height += RenderText(separatorPos+3*MARGIN, height, myName, serif, &black, _renderer);
+  // render one student name
+  height += RenderText(separatorPos+3*MARGIN, height, myName1, serif, &black, _renderer);
 
-  // this renders the student number
-  RenderText(separatorPos+3*MARGIN, height, myNumber, serif, &black, _renderer);
+  // this renders one student number
+  height += RenderText(separatorPos+3*MARGIN, height, myNumber1, serif, &black, _renderer);
+
+  // render another student name
+  height += RenderText(separatorPos+3*MARGIN, height, myName2, serif, &black, _renderer);
+
+  // this renders another student number
+  RenderText(separatorPos+3*MARGIN, height, myNumber2, serif, &black, _renderer);
 
   // renders the areas for each player: names and money too !
   while (player != NULL)
@@ -80,12 +92,12 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
     playerRect.w = separatorPos/4-5;
     playerRect.h = (int) (0.42f*HEIGHT_WINDOW);
 
-    sprintf(name_money_str,"%s -- %d euros", player->name, player->money);
+    sprintf(name_money_str,"%s -- %.2f euros", player->player.name, player->player.money);
 
-    sprintf(points_str, "%d points", player->score);
+    sprintf(points_str, "%d points", player->player.score);
 
     /* If player is bust */
-    if (Bust(player)) {
+    if (Bust(player->player)) {
         strcat(points_str, " (BUST)"); // if bust concatnate BUST to string
     }
 
@@ -101,6 +113,9 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
     }
 
     SDL_RenderDrawRect(_renderer, &playerRect);
+    i++;
+
+    player = player->next;
   }
 
   // destroy everything
@@ -117,30 +132,28 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
 * \param _cards vector with all loaded card images
 * \param _renderer renderer to handle all rendering in a window
 */
-void RenderHouseCards(int _house[], int _pos_house_hand, SDL_Surface **_cards, SDL_Renderer* _renderer)
+void RenderHouseCards(Player *house, Card_node *cards_head, int cardNumber, SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
-  int card = 0, x = 0, y = 0;
-  int div = WIDTH_WINDOW/CARD_WIDTH;
+    if (cards_head != NULL) {
+        int x = 0, y = 0;
+        int div = WIDTH_WINDOW/CARD_WIDTH;
 
-  // drawing all house cards
-  for (card = 0; card < _pos_house_hand; card++)
-  {
-    // calculate its position
-    x = (div/2-_pos_house_hand/2+card)*CARD_WIDTH + 15;
-    y = (int) (0.26f*HEIGHT_WINDOW);
-    // render it !
-    RenderCard(x, y, _house[card], _cards, _renderer);
-  }
-  // just one card ?: draw a card face down
-  if (_pos_house_hand == 1)
-  {
-    x = (div/2-_pos_house_hand/2+1)*CARD_WIDTH + 15;
-    y = (int) (0.26f*HEIGHT_WINDOW);
-    RenderCard(x, y, MAX_DECK_SIZE, _cards, _renderer);
-  } else if (_pos_house_hand > 1) {
+        if (house->hand_size > 1) {
+            RenderHouseCards(house, cards_head->next, cardNumber - 1, _cards, _renderer);
+        }
 
-  }
-
+        x = (div/2-(house->hand_size)/2+(cardNumber - 1))*CARD_WIDTH + 15;
+        y = (int) (0.26f*HEIGHT_WINDOW);
+        // render it !
+        RenderCard(x, y, CardID(cards_head->card), _cards, _renderer);
+        // just one card ?: draw a card face down
+        if (house->hand_size == 1)
+        {
+            x = (div/2-(house->hand_size)/2+1)*CARD_WIDTH + 15;
+            y = (int) (0.26f*HEIGHT_WINDOW);
+            RenderCard(x, y, 52, _cards, _renderer);
+        }
+    }
 }
 
 /**
@@ -152,23 +165,16 @@ void RenderHouseCards(int _house[], int _pos_house_hand, SDL_Surface **_cards, S
 */
 void RenderPlayerCards(Player_node *players, SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
-  int pos = 0, x = 0, y = 0, num_player = 0, card = 0;
+  int num_player = 0;
   Player_node *player_node = players;
 
   // for every card of every player
   while (player_node != NULL)
   {
-    for ( card = 0; card < player_node->player.hand_size; card++)
-    {
-        // draw all cards of the player: calculate its position: only 4 positions are available !
-        pos = card % 4;
-        x = (int) num_player*((0.95f*WIDTH_WINDOW)/4-5)+(card/4)*12+15;
-        y = (int) (0.55f*HEIGHT_WINDOW)+10;
-        if ( pos == 1 || pos == 3) x += CARD_WIDTH + 30;
-        if ( pos == 2 || pos == 3) y += CARD_HEIGHT+ 10;
-        // render it !
-        RenderCard(x, y, _player_cards[num_player][card], _cards, _renderer);
-    }
+
+    RenderCards(player_node->player.hand_size, num_player, player_node->player.cards, _cards, _renderer);
+
+    num_player += 1;
     player_node = player_node->next;
   }
 }
@@ -181,20 +187,36 @@ void RenderPlayerCards(Player_node *players, SDL_Surface **_cards, SDL_Renderer*
 * \param _cards vector with all loaded card images
 * \param _renderer renderer to handle all rendering in a window
 */
-void RenderCard(int _x, int _y, int _num_card, SDL_Surface **_cards, SDL_Renderer* _renderer)
+void RenderCards(int cardNumber, int playerNumber, Card_node *cards_head, SDL_Surface **_cards, SDL_Renderer* _renderer)
 {
-  SDL_Texture *card_text = NULL;
-  SDL_Rect boardPos = {0, 0, 0, 0};
+    if (cards_head != NULL) {
+        int pos = 0, x = 0, y = 0;
 
-  // area that will be occupied by each card
-  boardPos.x = _x;
-  boardPos.y = _y;
-  boardPos.w = CARD_WIDTH;
-  boardPos.h = CARD_HEIGHT;
+        RenderCards(cardNumber - 1, playerNumber, cards_head->next, _cards, _renderer);
 
-  // render it !
-  card_text = SDL_CreateTextureFromSurface(_renderer, _cards[_num_card]);
-  SDL_RenderCopy(_renderer, card_text, NULL, &boardPos);
+        pos = (cardNumber - 1) % 4;
+        x = (int) playerNumber*((0.95f*WIDTH_WINDOW)/4-5)+((cardNumber - 1)/4)*12+15;
+        y = (int) (0.55f*HEIGHT_WINDOW)+10;
+        if ( pos == 1 || pos == 3) x += CARD_WIDTH + 30;
+        if ( pos == 2 || pos == 3) y += CARD_HEIGHT+ 10;
+
+        RenderCard(x, y, CardID(cards_head->card), _cards, _renderer);
+    }
+}
+
+void RenderCard(int x, int y, int card_id, SDL_Surface **_cards, SDL_Renderer* _renderer) {
+    SDL_Texture *card_text = NULL;
+    SDL_Rect boardPos = {0, 0, 0, 0};
+
+    // area that will be occupied by each card
+    boardPos.x = x;
+    boardPos.y = y;
+    boardPos.w = CARD_WIDTH;
+    boardPos.h = CARD_HEIGHT;
+
+    // render it !
+    card_text = SDL_CreateTextureFromSurface(_renderer, _cards[card_id]);
+    SDL_RenderCopy(_renderer, card_text, NULL, &boardPos);
 }
 
 /**

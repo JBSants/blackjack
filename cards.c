@@ -2,12 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-stat add_card(Card_node** head, Card data) {
+int CardID(Card card) {
+    return card.id + 13 * card.suit;
+}
+
+Stat add_card(Card_node** head, Card data) {
 
 	if(empty(*head))
 		return NOP_STAT;
 
-	Card_node* new_node = create_node_card(data);
+	Card_node* new_node = create_card_node(data);
 	if(new_node == NULL) {
         	ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
@@ -23,14 +27,14 @@ stat add_card(Card_node** head, Card data) {
 	return ACT_STAT;
 }
 
-stat insert_card(Card_node** head, Card data, int position) {
+Stat insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
 
     if(!empty(curr)) {
         if(position < 0)
             return NOP_STAT;
 
-        Card_node* new_node = create_node_card(data);
+        Card_node* new_node = create_card_node(data);
         if(empty(new_node)) {
 		ERROR_MESSAGE;
         	exit(EXIT_FAILURE);
@@ -91,7 +95,7 @@ Card_node* take_card_node(Card_node** head, int position) {
     return NULL;
 }
 
-stat join_card_node(Card_node** head, Card_node* jointo, int position) {
+Stat join_card_node(Card_node** head, Card_node* jointo, int position) {
     Card_node* curr = *head;
 
 	if(!empty(curr)) {
@@ -151,34 +155,28 @@ void push_card(Card_node** head, Card data) {
         }
 
         new_node->card = data;
-        new_node->prev = *head;
+        new_node->next = *head;
         *head = new_node;
 }
 
 void push_card_node(Card_node** head, Card_node* node){
 	if(!empty(node)){
-		node->prev = *head;
+		node->next = *head;
         *head = node;
 	}
 }
 
 
-Card pop_card(Card_node** head) {
-	Card_node* tmp;
-	Card data;
-
-	data.id = -1;
-	data.suit = 0;
+Card_node *pop_card(Card_node** head) {
+	Card_node* tmp = NULL;
 
 	if(!empty(*head)){
-		data = (*head)->card;
 		tmp = *head;
-		(*head) = (*head)->prev;
-		free(tmp);
-		return data;
+		(*head) = tmp->next;
+		tmp->next = NULL;
 	}
 
-	return data;
+	return tmp;
 }
 
 Card card_stack_top(Card_node* head) {
@@ -189,7 +187,7 @@ void card_stack_erase(Card_node** head) {
 	Card_node* tmp;
 
 	while((tmp=*head)!=NULL){
-		*head = (*head)->prev;
+		*head = (*head)->next;
 		free(tmp);
     }
 }

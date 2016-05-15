@@ -1,6 +1,8 @@
 #include "deck.h"
+#include "cards.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 Card_node* DeckMaker(int decks) {
 	Card_node* head = malloc(decks * 52 * sizeof(Card_node));
@@ -28,8 +30,8 @@ void ShuffleCards(Card_node** deck_head, int decks,int times) {
 	while(times > 0) {
 		for(int i=0; i < deck_size; i++) {
 			int random = rand() % deck_size;
-			card_taken = take_node_card(deck_head, random);
-			join_node_card(deck_head, card_taken, i);
+			card_taken = take_card_node(deck_head, random);
+			join_card_node(deck_head, card_taken, i);
 		}
 		times--;
 	}
@@ -41,7 +43,7 @@ void EraseDeck(Card_node* deck_head) {
 	while (deck_head != NULL) {
 		aux = deck_head;
 		deck_head = deck_head->next;
-		
+
 		free(aux);
 	}
 }

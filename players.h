@@ -29,6 +29,10 @@ typedef struct node_player {
     struct node_player *next;
 } Player_node;
 
-void GetScore(Player_node* current_player);
+void GetScore(Player* current_player);
+void GetPlayerListScore(Player_node *head);
+Stat add_player(Player_node** head, Player data);
+Player_node *create_player_node(Player data);
+void erase_player_list(Player_node* head);
 
 #endif
