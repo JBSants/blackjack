@@ -98,13 +98,13 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
     /* Checks if house_points is not 0. If so, renders, above the first player,
      * the house points
      */
-    if (player == currentPlayer && house->score > 0) {
+    if (i == 0 && house->score > 0) {
         sprintf(house_points_str, "House score: %d", house->score);
         RenderText(playerRect.x+40, playerRect.y-125, house_points_str, _font, &white, _renderer);
     }
 
     SDL_RenderDrawRect(_renderer, &playerRect);
-    i++;
+    i += 1;
 
     player = player->next;
   }

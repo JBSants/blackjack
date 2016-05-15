@@ -9,7 +9,7 @@ void GetBankroll_GameResults(Player* house, Player_node* head) {
     while(head != NULL) {
         if(head->player.surrender == true) {
         	head->player.surrender = false;
-        } else if (head->player.score > 21) {
+        } else if (Bust(head->player)) {
             head->player.games_result.lost += 1;
         } else if (house->score > 21) {
             head->player.money += 2 * (head->player.bet) + 0.5 * (head->player.bet) * (head->player.score == 21 && head->player.hand_size == 2);
@@ -95,13 +95,17 @@ Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberO
 	GetScore(&(current_player->player));
 
 	if (Bust(current_player->player)) {
-		return current_player->next;
+		return Stand(current_player);
 	}
 
 	return current_player;
 }
 
 Player_node* Stand(Player_node* current_player) {
+    if (current_player->next != NULL) {
+        current_player->next->player.money -= current_player->next->player.bet;
+    }
+    
 	return current_player->next;
 }
 
