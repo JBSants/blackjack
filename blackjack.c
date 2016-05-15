@@ -89,7 +89,8 @@ void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
 }
 
 Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberOfDecks) {
-    push_card_node(&(current_player->player.cards), NextCard(deck_head, numberOfDecks));
+    Card_node *n = NextCard(deck_head, numberOfDecks);
+    push_card_node(&(current_player->player.cards), n);
     current_player->player.hand_size += 1;
 
 	GetScore(&(current_player->player));

@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int CardID(Card card) {
-    return card.id + 13 * card.suit;
-}
-
 Stat add_card(Card_node** head, Card data) {
 
 	if(empty(*head))

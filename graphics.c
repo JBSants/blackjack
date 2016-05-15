@@ -6,6 +6,10 @@ const char myNumber1[] = "84083";
 const char myName2[] = "Simao Goncalves Eusebio";
 const char myNumber2[] = "84183";
 
+int CardGraphicID(Card card) {
+    return (card.id + 13 * card.suit) - 1;
+}
+
 /**
 * RenderTable: Draws the table where the game will be played, namely:
 * -  some texture for the background
@@ -134,7 +138,7 @@ void RenderHouseCards(Player *house, Card_node *cards_head, int cardNumber, SDL_
         y = (int) (0.26f*HEIGHT_WINDOW);
         
         // render it !
-        RenderCard(x, y, CardID(cards_head->card), _cards, _renderer);
+        RenderCard(x, y, CardGraphicID(cards_head->card), _cards, _renderer);
         
         // just one card ?: draw a card face down
         if (house->hand_size == 1)
@@ -190,7 +194,7 @@ void RenderCards(int cardNumber, int playerNumber, Card_node *cards_head, SDL_Su
         if ( pos == 1 || pos == 3) x += CARD_WIDTH + 30;
         if ( pos == 2 || pos == 3) y += CARD_HEIGHT+ 10;
 
-        RenderCard(x, y, CardID(cards_head->card), _cards, _renderer);
+        RenderCard(x, y, CardGraphicID(cards_head->card), _cards, _renderer);
     }
 }
 

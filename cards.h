@@ -8,7 +8,7 @@
 #define empty(head) (head==NULL)
 #define IsAce(card) card.id == 13
 
-typedef enum { Clubs, Diamonds, Hearts, Spades} Suit;
+typedef enum { Clubs = 0, Diamonds = 1, Hearts = 2, Spades = 3} Suit;
 typedef enum { NOP_STAT=-1, EMPTY_STAT, ACT_STAT, WARN_STAT } Stat;
 
 typedef struct {
@@ -20,8 +20,6 @@ typedef struct card_node {
 	Card card;
 	struct card_node* next;
 } Card_node;
-
-int CardID(Card card);
 
 Stat add_card(Card_node** head, Card data);
 Stat insert_card(Card_node** head,Card data, int position);

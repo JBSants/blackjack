@@ -14,7 +14,7 @@ void GetPlayerListScore(Player_node *head) {
 }
 
 void GetScore(Player* player) {
-    const short card_points[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
+    const short card_points[] = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
     short score = 0, aces = 0;
     Card_node* cardnode_ptr;
@@ -25,7 +25,7 @@ void GetScore(Player* player) {
     // calculate the score excluding the aces
     while(cardnode_ptr != NULL) {
 
-        if (cardnode_ptr->card.id != 12) {
+        if (cardnode_ptr->card.id != 13) {
             score += card_points[cardnode_ptr->card.id];
         } else {
             aces++;

@@ -12,8 +12,8 @@ Card_node* DeckMaker(int decks) {
 	for (int i=0; i < decks * 52; i++) {
         
         Card_node *tmp = create_card_node();
-        tmp->card.id = i % 13;
-        tmp->card.suit = i / 13 % 4;
+        tmp->card.id = (i % 13) + 1;
+        tmp->card.suit = (i / 13) % 4;
         tmp->next = NULL;
         
         if (head == NULL) {
