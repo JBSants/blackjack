@@ -5,37 +5,36 @@
 #include "blackjack.h"
 #include "deck.h"
 
-void GetBankroll_GameResults(Player* house, Player_node* head, int bet) {
+void GetBankroll_GameResults(Player* house, Player_node* head) {
     while(head != NULL) {
-
         if(head->player.surrender == true) {
         	head->player.surrender = false;
         } else if (head->player.score > 21) {
             head->player.games_result.lost += 1;
         } else if (house->score > 21) {
-            head->player.money += 2 * bet + 0.5 * bet * (head->player.score == 21 && head->player.hand_size == 2);
+            head->player.money += 2 * (head->player.bet) + 0.5 * (head->player.bet) * (head->player.score == 21 && head->player.hand_size == 2);
             head->player.games_result.won += 1;
         } else if (house->score == head->player.score) {
 
             if (house->score == 21) {
 
                 if (head->player.hand_size == house->hand_size || (head->player.hand_size != 2 && house->hand_size != 2)) {
-                    head->player.money += bet;
+                    head->player.money += (head->player.bet);
                     head->player.games_result.tied+=1;
                 } else if (head->player.hand_size == 2 && house->hand_size != 2) {
-                    head->player.money += 2.5 * bet;
+                    head->player.money += 2.5 * (head->player.bet);
                     head->player.games_result.won += 1;
                 } else {
                     head->player.games_result.lost += 1;
                 }
 
             } else {
-                head->player.money += bet;
+                head->player.money += (head->player.bet);
                 head->player.games_result.tied += 1;
             }
 
         } else if (head->player.score != 21 || (head->player.score == 21 && head->player.hand_size != 2)) {
-            head->player.money += 2 * bet * (head->player.score > house->score);
+            head->player.money += 2 * (head->player.bet) * (head->player.score > house->score);
 
             if (head->player.score > house->score) {
                 head->player.games_result.won +=1;
@@ -44,7 +43,7 @@ void GetBankroll_GameResults(Player* house, Player_node* head, int bet) {
             }
 
         } else {
-            head->player.money += 2.5 * bet;
+            head->player.money += 2.5 * (head->player.bet);
             head->player.games_result.won += 1;
         }
 
@@ -52,9 +51,9 @@ void GetBankroll_GameResults(Player* house, Player_node* head, int bet) {
     }
 }
 
-void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node* head, int bet) {
+void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node* head) {
     PlayHouse(house, deck_head, numberOfDecks);
-    GetBankroll_GameResults(house, head, bet);
+    GetBankroll_GameResults(house, head);
 }
 
 void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
