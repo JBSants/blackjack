@@ -179,9 +179,9 @@ int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numbe
 			}
 
 			push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks));
-			house->hand_size += 1;
+			house->hand_size = 1;
             		
-            		walk = head;
+            walk = head;
 		}
 	}
 

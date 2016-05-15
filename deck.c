@@ -5,20 +5,25 @@
 #include <stdio.h>
 
 Card_node* DeckMaker(int decks) {
-	Card_node* head = malloc(decks * 52 * sizeof(Card_node));
-	Card_node* tmp = head;
-	if(empty(head)){
-		ERROR_MESSAGE;
-		exit(EXIT_SUCCESS);
-	}
+	Card_node* head = NULL;
+    
+	Card_node* tail = head;
+    
 	for (int i=0; i < decks * 52; i++) {
-		tmp->next = tmp + 1;
-		tmp->card.id = i % 13;
-		tmp->card.suit = i / 13 % 4;
-		tmp = tmp->next;
+        
+        Card_node *tmp = create_card_node();
+        tmp->card.id = i % 13;
+        tmp->card.suit = i / 13 % 4;
+        tmp->next = NULL;
+        
+        if (head == NULL) {
+            head = tmp;
+            tail = head;
+        } else {
+            tail->next = tmp;
+            tail = tmp;
+        }
 	}
-
-	(tmp - 1)->next = NULL;
 
 	return head;
 }
@@ -38,12 +43,5 @@ void ShuffleCards(Card_node** deck_head, int decks,int times) {
 }
 
 void EraseDeck(Card_node* deck_head) {
-	Card_node *aux = NULL;
-
-	while (deck_head != NULL) {
-		aux = deck_head;
-		deck_head = deck_head->next;
-
-		free(aux);
-	}
+    card_stack_erase(&deck_head);
 }

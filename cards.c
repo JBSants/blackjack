@@ -11,13 +11,14 @@ Stat add_card(Card_node** head, Card data) {
 	if(empty(*head))
 		return NOP_STAT;
 
-	Card_node* new_node = create_card_node(data);
-	if(new_node == NULL) {
-        	ERROR_MESSAGE;
-        	exit(EXIT_FAILURE);
-    	}
+	Card_node* new_node = create_card_node();
+    
+	if (new_node == NULL) {
+        ERROR_MESSAGE();
+        exit(EXIT_FAILURE);
+    }
 
-	if(new_node == NULL)
+	if (new_node == NULL)
 		return NOP_STAT;
 
 	new_node->next = *head;
@@ -30,13 +31,14 @@ Stat add_card(Card_node** head, Card data) {
 Stat insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
 
-    if(!empty(curr)) {
+    if (!empty(curr)) {
         if(position < 0)
             return NOP_STAT;
 
-        Card_node* new_node = create_card_node(data);
-        if(empty(new_node)) {
-		ERROR_MESSAGE;
+        Card_node* new_node = create_card_node();
+        
+        if (empty(new_node)) {
+            ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
     	}
 
@@ -108,7 +110,7 @@ Stat join_card_node(Card_node** head, Card_node* jointo, int position) {
 			return ACT_STAT;
 		}
 
-		for(int i=1; i < position && curr != NULL; i++)
+		for (int i=1; i < position && curr != NULL; i++)
 			curr=curr->next;
 
 		if(empty(curr)) {
@@ -125,11 +127,11 @@ Stat join_card_node(Card_node** head, Card_node* jointo, int position) {
 	return WARN_STAT;
 }
 
-Card_node* create_card_node(Card data) {
-    Card_node* new_node = malloc(sizeof(Card_node));
+Card_node* create_card_node() {
+    Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
 
     if(empty(new_node)) {
-        ERROR_MESSAGE;
+        ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
 
@@ -138,7 +140,8 @@ Card_node* create_card_node(Card data) {
 
 void erase_card_list(Card_node* head) {
     Card_node* tmp;
-    while((tmp=head) != NULL){
+    
+    while((tmp = head) != NULL){
         head = head->next;
         free(tmp);
     }
@@ -147,10 +150,10 @@ void erase_card_list(Card_node* head) {
 ///Stack
 
 void push_card(Card_node** head, Card data) {
-        Card_node* new_node = malloc(sizeof(Card_node));
+        Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
 
         if(empty(new_node)){
-        	ERROR_MESSAGE;
+        	ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
         }
 
@@ -186,7 +189,7 @@ Card card_stack_top(Card_node* head) {
 void card_stack_erase(Card_node** head) {
 	Card_node* tmp;
 
-	while((tmp=*head)!=NULL){
+	while((tmp = *head) != NULL){
 		*head = (*head)->next;
 		free(tmp);
     }

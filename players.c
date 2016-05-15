@@ -50,7 +50,7 @@ Stat add_player(Player_node** head, Player data) {
 	new_node = create_player_node(data);
 
 	if(empty(new_node)){
-		ERROR_MESSAGE;
+		ERROR_MESSAGE();
 		exit(EXIT_FAILURE);
 	}
 
@@ -65,7 +65,7 @@ Player_node *create_player_node(Player data) {
 	Player_node *new_node = malloc(sizeof(Player_node));
 
 	if(empty(new_node)) {
-    	ERROR_MESSAGE;
+    	ERROR_MESSAGE();
     	exit(EXIT_FAILURE);
     }
 

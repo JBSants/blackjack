@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define MAX_DECK_SIZE 52
-#define ERROR_MESSAGE printf("Memory allocation failed! Bye.")
+#define ERROR_MESSAGE() printf("Memory allocation failed! Bye.")
 #define empty(head) (head==NULL)
 #define IsAce(card) card.id == 13
 
@@ -26,8 +26,8 @@ int CardID(Card card);
 Stat add_card(Card_node** head, Card data);
 Stat insert_card(Card_node** head,Card data, int position);
 Card_node* take_card_node(Card_node** head, int position);
-Stat join_node_card(Card_node** head, Card_node* jointo, int position);
-Card_node* create_card_node(Card data);
+Stat join_card_node(Card_node** head, Card_node* jointo, int position);
+Card_node* create_card_node();
 void erase_card_list(Card_node* head);
 
 void push_card(Card_node** head, Card data);
