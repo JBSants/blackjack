@@ -190,6 +190,33 @@ int main() {
               }
 
               break;
+            case SDLK_d:
+                  if (!turn_ended) {
+                      currentPlayerNode = Double(&deck, numberOfDecks, house, currentPlayerNode);
+                      
+                      if (currentPlayerNode == NULL) {
+                          FinishTurn(&deck, numberOfDecks, house, players);
+                          
+                          turn_ended = true;
+                      }
+                  }
+                  break;
+            case SDLK_r:
+                  if (!turn_ended) {
+                      currentPlayerNode = Surrender(currentPlayerNode);
+                      
+                      if (currentPlayerNode == NULL) {
+                          FinishTurn(&deck, numberOfDecks, house, players);
+                          
+                          turn_ended = true;
+                      }
+                  }
+                  break;
+            case SDLK_b:
+                  if (turn_ended) {
+                      Bet(players);
+                  }
+                  break;
             case SDLK_n:
               /* Verifies if the turn has ended. If so, begins a new turn. */
               if (turn_ended) {
