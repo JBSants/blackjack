@@ -24,6 +24,9 @@ int main() {
     Player_node *currentPlayerNode = NULL;
     Player *house = (Player *) malloc(sizeof(Player));
     int i = 0;
+    Player_node *player_node_aux = NULL;
+    Card_node **house_cards = &(house->cards);
+    Player_node *tmp_player = NULL;
     
     if (house == NULL) {
         ERROR_MESSAGE();
@@ -54,7 +57,14 @@ int main() {
     DealCards(&deck, players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS);
     
     currentPlayerNode = players;
-    currentPlayerNode->player.money -= currentPlayerNode->player.bet;
+    
+    player_node_aux = currentPlayerNode;
+    
+    while (player_node_aux != NULL) {
+        player_node_aux->player.money -= player_node_aux->player.bet;
+        
+        player_node_aux = player_node_aux->next;
+    }
     
     /* Main loop. Window remains open until quit == 1 */
     while( quit == 0 )
@@ -139,9 +149,8 @@ int main() {
                     case SDLK_n:
                         /* Verifies if the turn has ended. If so, begins a new turn. */
                         if (turn_ended) {
-                            Player_node *player_node_aux = players;
-                            Card_node **house_cards = &(house->cards);
-                            Player_node *tmp_player = NULL;
+                            player_node_aux = players;
+                            tmp_player = NULL;
                             
                             i = 0;
                             
@@ -154,6 +163,7 @@ int main() {
                                 
                                 player_node_aux->player.score = 0;
                                 player_node_aux->player.hand_size = 0;
+                                player_node_aux->player.money -= player_node_aux->player.bet;
                                 
                                 if (player_node_aux->player.money <= 0) {
                                     tmp_player = player_node_aux->next;
@@ -184,7 +194,6 @@ int main() {
                             
                             /* Stands until the current player hasn't a blackjack */
                             currentPlayerNode = players;
-                            currentPlayerNode->player.money -= currentPlayerNode->player.bet;
                             
                             turn_ended = false;
                         }

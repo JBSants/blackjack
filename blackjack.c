@@ -117,10 +117,6 @@ Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberO
 }
 
 Player_node* Stand(Player_node* current_player) {
-    if (current_player->next != NULL) {
-        current_player->next->player.money -= current_player->next->player.bet;
-    }
-    
 	return current_player->next;
 }
 
