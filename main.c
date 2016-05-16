@@ -8,66 +8,6 @@
 #include "blackjack.h"
 #include "config.h"
 
-const char * playerNames[] = {"Player 1", "Player 2", "Player 3", "Player 4"};
-
-void ReadGameParameters(int *numberOfDecks, int *initialMoney, int *betAmount)
-{
-    short notValid = 1; // used for parameter value check
-    char buffer[255] = { 0 }; // buffer for fgets
-    
-    /* While the parameter entered is not valid prompt for it */
-    while (notValid) {
-        /* Prompts the parameter */
-        printf("Please enter the number of decks (%d to %d) you wan't to use in your game: ", 1, 6);
-        fgets(buffer, 255, stdin);
-        sscanf(buffer, "%d", numberOfDecks);
-        
-        notValid = *numberOfDecks < 1 || *numberOfDecks > 6;
-        
-        /* If not valid show error */
-        if (notValid) {
-            printf("\n** Sorry, you have to select between %d to %d decks. **\n\n", 1, 6);
-        }
-    }
-    
-    notValid = 1; // resets not valid
-    
-    /* While the parameter entered is not valid prompt for it */
-    while (notValid) {
-        /* Prompts the parameter */
-        printf("Please enter the initial amount of money for each player (> %d): ", 10);
-        fgets(buffer, 255, stdin);
-        sscanf(buffer, "%d", initialMoney);
-        
-        notValid = *initialMoney < 10;
-        
-        /* If not valid show error */
-        if (notValid) {
-            printf("\n** Sorry, each player has to have at least 10 EUR. **\n\n");
-        }
-    }
-    
-    notValid = 1; // resets not valid
-    
-    /* While the parameter entered is not valid prompt for it */
-    while (notValid) {
-        /* Determines maximum bet value */
-        int betMaximumValue = 0.2 * (*initialMoney);
-        
-        /* Prompts the parameter */
-        printf("Please enter the bet amount (%d to %d): ", 1, betMaximumValue);
-        fgets(buffer, 255, stdin);
-        sscanf(buffer, "%d", betAmount);
-        
-        notValid = *betAmount < 1 || *betAmount > betMaximumValue;
-        
-        /* If not valid show error */
-        if (notValid) {
-            printf("\n** Sorry, bet amount has to be from %d to %d. **\n\n", 1, betMaximumValue);
-        }
-    }
-}
-
 int main() {
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;

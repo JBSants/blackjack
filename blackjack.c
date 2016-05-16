@@ -125,17 +125,28 @@ Player_node* Stand(Player_node* current_player) {
 }
 
 Player_node* Double(Card_node **deck_head, int numberOfDecks, Player *house, Player_node *current_player) {
-	(current_player->player).money -= (current_player->player).bet;
-	(current_player->player).bet *= 2;
-	Hit(deck_head, current_player, numberOfDecks);
-
-	return current_player->next;
+    float bet = (current_player->player).bet;
+    
+    if (bet <= current_player->player.money && current_player->player.hand_size == BLACKJACK_INITIAL_CARDS) {
+        (current_player->player).money -= bet;
+        (current_player->player).bet *= 2;
+        Hit(deck_head, current_player, numberOfDecks);
+        
+        return current_player->next;
+    }
+    
+    return current_player;
 }
 
 Player_node* Surrender(Player_node *current_player) {
+    if (current_player->player.hand_size > BLACKJACK_INITIAL_CARDS) {
+        return current_player;
+    }
+    
 	current_player->player.surrender = true;
 	current_player->player.money += 0.5 * (current_player->player.bet);
 	current_player->player.games_result.lost += 1;
+    
 	return current_player->next;
 }
 
