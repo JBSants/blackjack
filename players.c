@@ -61,7 +61,7 @@ Stat add_player(Player_node** head, Player data) {
 	return ACT_STAT;
 }
 
-Stat insert_player(Player_node **head, Player_node **tail, Player data) {
+Stat insert_player_node(Player_node **head, Player_node **tail, Player data) {
     Player_node *new_node = create_player_node();
     
     if (new_node == NULL) {
@@ -83,6 +83,65 @@ Stat insert_player(Player_node **head, Player_node **tail, Player data) {
     }
     
     return ACT_STAT;
+}
+
+Player_node *take_player_node(Player_node** head, int position) {
+    Player_node *tmp;
+    Player_node *curr=*head;
+    
+    if(!empty(curr)) {
+        if(position < 0)
+            return NULL;
+        else if(position == 0) {
+            *head = curr->next;
+            curr->next = NULL;
+            return curr;
+        }
+        
+        for(int i=1; i < position && curr != NULL; i++)
+            curr=curr->next;
+        
+        if(empty(curr)) {
+            return NULL;
+        }
+        
+        tmp = curr->next;
+        curr->next = curr->next->next;
+        tmp->next = NULL;
+        
+        return tmp;
+    }
+    
+    return NULL;
+}
+
+Stat join_player_node(Player_node** head, Player_node* jointo, int position) {
+    Player_node *curr = *head;
+    if(!empty(curr)) {
+        
+        if(position < 0) {
+            return NOP_STAT;
+        } else if(position == 0){
+            jointo->next = *head;
+            *head = jointo;
+            return ACT_STAT;
+        }
+        
+        for(int i=1; i < position && curr != NULL; i++)
+            curr=curr->next;
+        
+        if(empty(curr)) {
+            return NOP_STAT;
+        }
+        
+        jointo->next = curr->next;
+        curr->next = jointo;
+    } else {
+        *head = jointo;
+        return ACT_STAT;
+    }
+    
+    return WARN_STAT;
 }
 
 Player_node *create_player_node() {

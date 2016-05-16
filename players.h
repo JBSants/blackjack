@@ -18,6 +18,7 @@ typedef struct {
     float bet;
     Card_node *cards;
     int hand_size;
+    int position;
     Results games_result;
     bool ai; // computer or artificial inteligence
     bool surrender;
@@ -33,7 +34,9 @@ void GetScore(Player* current_player);
 void GetPlayerListScore(Player_node *head);
 Stat add_player(Player_node** head, Player data);
 Player_node *create_player_node();
-Stat insert_player(Player_node **head, Player_node **tail, Player data);
+Stat insert_player_node(Player_node **head, Player_node **tail, Player data);
 void erase_player_list(Player_node* head);
+Stat join_player_node(Player_node** head, Player_node* jointo, int position);
+Player_node *take_player_node(Player_node** head, int position);
 
 #endif

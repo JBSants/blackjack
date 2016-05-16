@@ -16,7 +16,7 @@ void ReadGameSettingsLine(FILE *config_file, Player *player) {
     int i = 0;
     
     if (fgets(line, MAX_LINE, config_file) == NULL) {
-        printf("Error reading configuration file!");
+        printf("Error reading configuration file!\n");
         exit(EXIT_FAILURE);
     }
     
@@ -35,13 +35,13 @@ void ReadGameSettingsLine(FILE *config_file, Player *player) {
                 } else if (strcmp(aux, AI) == 0){
                     player->ai = true;
                 } else {
-                    printf("Error reading configuration file!");
+                    printf("Error reading configuration file!\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
             case 1:
                 if (aux == NULL || strlen(aux) > MAX_NAME) {
-                    printf("Error reading configuration file!");
+                    printf("Error reading configuration file!\n");
                     exit(EXIT_FAILURE);
                 }
                 
@@ -49,29 +49,29 @@ void ReadGameSettingsLine(FILE *config_file, Player *player) {
                 break;
             case 2:
                 if (sscanf(aux, "%f", &(player->money)) != 1) {
-                    printf("Error reading configuration file!");
+                    printf("Error reading configuration file!\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
             case 3:
                 if (sscanf(aux, "%f", &(player->bet)) != 1) {
-                    printf("Error reading configuration file!");
+                    printf("Error reading configuration file!\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
         }
         
-        player->cards = NULL;
-        player->score = 0;
-        player->hand_size = 0;
-        player->games_result.won = 0;
-        player->games_result.tied = 0;
-        player->games_result.lost = 0;
-        player->surrender = false;
-        
         aux = strtok(NULL, "-");
         i += 1;
     } while (aux != NULL);
+    
+    player->cards = NULL;
+    player->score = 0;
+    player->hand_size = 0;
+    player->games_result.won = 0;
+    player->games_result.tied = 0;
+    player->games_result.lost = 0;
+    player->surrender = false;
 }
 
 void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers) {
@@ -97,21 +97,21 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     }
     
     if (fgets(line, MAX_LINE, game_file) == NULL) {
-        printf("Error reading configuration file!");
+        printf("Error reading configuration file!\n");
         exit(EXIT_FAILURE);
     }
     
     tmp = strtok(line, "-");
     
     if (sscanf(tmp, "%d", decks) == 0) {
-        printf("Error reading configuration file!");
+        printf("Error reading configuration file!\n");
         exit(EXIT_FAILURE);
     }
     
     tmp = strtok(NULL, "-");
     
     if (sscanf(tmp, "%d", &players) == 0) {
-        printf("Error reading configuration file!");
+        printf("Error reading configuration file!\n");
         exit(EXIT_FAILURE);
     }
     
@@ -132,8 +132,9 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
         }
         
         ReadGameSettingsLine(game_file, newPlayer);
+        newPlayer->position = i;
         
-        insert_player(&head, &aux, *newPlayer);
+        insert_player_node(&head, &aux, *newPlayer);
         
         free(newPlayer);
     }

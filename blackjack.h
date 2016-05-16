@@ -8,8 +8,8 @@
 #define MIN_BET_VALUE 2
 #define Bust(player) player.score > 21
 
-void GetBankroll_GameResults(Player* house, Player_node* head);
-void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node* head);
+void GetBankroll_GameResults(Player* house, Player_node **head, Player_node **removedPlayers);
+void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, Player_node **removedPlayers);
 void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks);
 Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberOfDecks);
 Player_node* Stand(Player_node* current_player);

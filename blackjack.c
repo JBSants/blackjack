@@ -11,55 +11,63 @@ void reads(char *buffer, int max) {
     buffer[strlen(buffer) - 1] = '\0';
 }
 
-void GetBankroll_GameResults(Player* house, Player_node* head) {
-    while(head != NULL) {
-        if(head->player.surrender == true) {
-        	head->player.surrender = false;
-        } else if (Bust(head->player)) {
-            head->player.games_result.lost += 1;
+void GetBankroll_GameResults(Player* house, Player_node **head, Player_node **removedPlayers) {
+    Player_node *walk = *head;
+    int i = 0;
+    
+    while(walk != NULL) {
+        if(walk->player.surrender == true) {
+        	walk->player.surrender = false;
+        } else if (Bust(walk->player)) {
+            walk->player.games_result.lost += 1;
         } else if (house->score > 21) {
-            head->player.money += 2 * (head->player.bet) + 0.5 * (head->player.bet) * (head->player.score == 21 && head->player.hand_size == 2);
-            head->player.games_result.won += 1;
-        } else if (house->score == head->player.score) {
+            walk->player.money += 2 * (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == 21 && walk->player.hand_size == 2);
+            walk->player.games_result.won += 1;
+        } else if (house->score == walk->player.score) {
 
             if (house->score == 21) {
 
-                if (head->player.hand_size == house->hand_size || (head->player.hand_size != 2 && house->hand_size != 2)) {
-                    head->player.money += (head->player.bet);
-                    head->player.games_result.tied+=1;
-                } else if (head->player.hand_size == 2 && house->hand_size != 2) {
-                    head->player.money += 2.5 * (head->player.bet);
-                    head->player.games_result.won += 1;
+                if (walk->player.hand_size == house->hand_size || (walk->player.hand_size != 2 && house->hand_size != 2)) {
+                    walk->player.money += (walk->player.bet);
+                    walk->player.games_result.tied+=1;
+                } else if (walk->player.hand_size == 2 && house->hand_size != 2) {
+                    walk->player.money += 2.5 * (walk->player.bet);
+                    walk->player.games_result.won += 1;
                 } else {
-                    head->player.games_result.lost += 1;
+                    walk->player.games_result.lost += 1;
                 }
 
             } else {
-                head->player.money += (head->player.bet);
-                head->player.games_result.tied += 1;
+                walk->player.money += (walk->player.bet);
+                walk->player.games_result.tied += 1;
             }
 
-        } else if (head->player.score != 21 || (head->player.score == 21 && head->player.hand_size != 2)) {
-            head->player.money += 2 * (head->player.bet) * (head->player.score > house->score);
+        } else if (walk->player.score != 21 || (walk->player.score == 21 && walk->player.hand_size != 2)) {
+            walk->player.money += 2 * (walk->player.bet) * (walk->player.score > house->score);
 
-            if (head->player.score > house->score) {
-                head->player.games_result.won +=1;
+            if (walk->player.score > house->score) {
+                walk->player.games_result.won +=1;
             } else {
-                head->player.games_result.lost +=1;
+                walk->player.games_result.lost +=1;
             }
 
         } else {
-            head->player.money += 2.5 * (head->player.bet);
-            head->player.games_result.won += 1;
+            walk->player.money += 2.5 * (walk->player.bet);
+            walk->player.games_result.won += 1;
+        }
+        
+        if (walk->player.bet > walk->player.money) {
+            walk->player.bet = walk->player.money;
         }
 
-        head = head->next;
+        walk = walk->next;
+        i += 1;
     }
 }
 
-void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node* head) {
+void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, Player_node **removedPlayers) {
     PlayHouse(house, deck_head, numberOfDecks);
-    GetBankroll_GameResults(house, head);
+    GetBankroll_GameResults(house, head, removedPlayers);
 }
 
 void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
