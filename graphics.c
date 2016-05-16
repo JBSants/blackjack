@@ -67,7 +67,7 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
     height += RenderText(separatorPos+3*MARGIN, height, myName2, _font, &black, _renderer);
     
     // this renders another student number
-    RenderText(separatorPos+3*MARGIN, height, myNumber2, _font, &black, _renderer);
+    height += RenderText(separatorPos+3*MARGIN, height, myNumber2, _font, &black, _renderer) + 20;
     
     /* Checks if house_points is not 0. If so, renders, above the first player,
      * the house points
@@ -98,7 +98,7 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
         playerRect.w = separatorPos/4-5;
         playerRect.h = (int) (0.42f*HEIGHT_WINDOW);
         
-        sprintf(name_money_str,"%s -- %.2f euros", player->player.name, player->player.money);
+        sprintf(name_money_str,"%s -- Bet: %.2f euros", player->player.name, player->player.bet);
         
         sprintf(points_str, "%d points", player->player.score);
         
@@ -109,6 +109,20 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
         
         RenderText(playerRect.x+20, playerRect.y-50, name_money_str, _font, playerColor, _renderer);
         RenderText(playerRect.x+20, playerRect.y-30, points_str, _font, playerColor, _renderer); // renders points
+        
+        sprintf(name_money_str, "%s", player->player.name);
+        
+        if (player->player.ai) {
+            strcat(name_money_str, " (Computer)");
+        } else {
+            strcat(name_money_str, " (Human)");
+        }
+        
+        height += RenderText(separatorPos+3*MARGIN, height, name_money_str, _font, &black, _renderer);
+        
+        sprintf(name_money_str, "Money: %.2f", player->player.money);
+        
+        height += RenderText(separatorPos+3*MARGIN, height, name_money_str, _font, &black, _renderer) + 5;
         
         SDL_RenderDrawRect(_renderer, &playerRect);
         i += 1;
