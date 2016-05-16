@@ -134,6 +134,14 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
     SDL_DestroyTexture(table_texture);
 }
 
+int GetPlayerPositionFromXY(int x, int y) {
+    if (y < 0.55f * HEIGHT_WINDOW) {
+        return -1;
+    }
+    
+    return (int) (x + 10)/((0.95f * WIDTH_WINDOW)/4-5);
+}
+
 /**
  * RenderHouseCards: Renders cards of the house
  * \param _house vector with the house cards

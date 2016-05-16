@@ -144,6 +144,33 @@ Stat join_player_node(Player_node** head, Player_node* jointo, int position) {
     return WARN_STAT;
 }
 
+void insert_sorted_player_node(Player_node **head, Player data) {
+    Player_node *tmp = NULL;
+    Player_node *curr = *head;
+    Player_node *new_node = create_player_node();
+    
+    new_node->player = data;
+    
+    if (empty(*head)) {
+        free(new_node);
+        insert_player_node(head, head, data);
+    } else if((*head)->player.position > data.position) {
+        new_node->next = *head;
+        *head = new_node;
+    } else {
+        while (curr != NULL) {
+            tmp = curr;
+            curr = curr->next;
+            
+            if (curr == NULL || curr->player.position > data.position) {
+                new_node->next = curr;
+                tmp->next = new_node;
+                break;
+            }
+        }
+    }
+}
+
 Player_node *create_player_node() {
 	Player_node *new_node = malloc(sizeof(Player_node));
 

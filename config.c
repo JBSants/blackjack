@@ -74,6 +74,110 @@ void ReadGameSettingsLine(FILE *config_file, Player *player) {
     player->surrender = false;
 }
 
+void PromptNewPlayer(Player *newPlayer) {
+    short notValid = 1; // used for parameter value check
+    char buffer[MAX_LINE] = { 0 }; // buffer for fgets
+    char aux = 0;
+    
+    /* While the parameter entered is not valid prompt for it */
+    while (notValid) {
+        /* Prompts the parameter */
+        printf("Player Name: ");
+        
+        notValid = fgets(buffer, MAX_LINE, stdin) == NULL;
+    }
+    
+    buffer[strlen(buffer) - 1] = '\0';
+    
+    strcpy(newPlayer->name, buffer);
+    
+    notValid = 1; // resets not valid
+    
+    /* While the parameter entered is not valid prompt for it */
+    while (notValid) {
+        /* Prompts the parameter */
+        printf("AI? (Y/n) ");
+        fgets(buffer, MAX_LINE, stdin);
+        sscanf(buffer, "%c", &aux);
+        
+        notValid = aux != 'Y' && aux != 'n';
+        
+        /* If not valid show error */
+        if (notValid) {
+            printf("\n** Not valid (Y/n). **\n\n");
+        }
+    }
+    
+    newPlayer->ai = aux == 'Y';
+    
+    notValid = 1; // resets not valid
+    
+    /* While the parameter entered is not valid prompt for it */
+    while (notValid) {
+        /* Prompts the parameter */
+        printf("Initial money: ");
+        fgets(buffer, MAX_LINE, stdin);
+        
+        notValid = sscanf(buffer, "%f", &(newPlayer->money)) != 1 || newPlayer->money < 0;
+        
+        /* If not valid show error */
+        if (notValid) {
+            printf("\n** Sorry, invalid initial money. **\n\n");
+        }
+    }
+    
+    notValid = 1;
+    
+    while (notValid) {
+        /* Prompts the parameter */
+        printf("Bet amount: ");
+        fgets(buffer, MAX_LINE, stdin);
+        
+        notValid = sscanf(buffer, "%f", &(newPlayer->bet)) != 1 || newPlayer->bet > newPlayer->money || newPlayer->bet < 0;
+        
+        /* If not valid show error */
+        if (notValid) {
+            printf("\n** Sorry, invalid bet amount. **\n\n");
+        }
+    }
+}
+
+void AddNewPlayer(Player_node **players, int position) {
+    Player_node *aux = *players;
+    Player *newPlayer = NULL;
+    
+    while (aux != NULL) {
+        if (aux->player.position == position) {
+            return;
+        }
+        aux = aux->next;
+    }
+    
+    newPlayer = (Player *) malloc(sizeof(Player));
+    
+    if (newPlayer == NULL) {
+        ERROR_MESSAGE();
+        exit(EXIT_FAILURE);
+    }
+    
+    
+    PromptNewPlayer(newPlayer);
+    
+    newPlayer->cards = NULL;
+    newPlayer->score = 0;
+    newPlayer->hand_size = 0;
+    newPlayer->games_result.won = 0;
+    newPlayer->games_result.tied = 0;
+    newPlayer->games_result.lost = 0;
+    newPlayer->surrender = false;
+    newPlayer->position = position;
+    
+    insert_sorted_player_node(players, *newPlayer);
+    
+    free(newPlayer);
+    
+}
+
 void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers) {
     FILE* game_file, *ai_strategy;
     Player_node *aux;

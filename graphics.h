@@ -35,5 +35,5 @@ void RenderHouseCards(Player *house, Card_node *cards_head, int cardNumber, SDL_
 void RenderPlayerCards(Player_node *players, SDL_Surface **_cards, SDL_Renderer* _renderer);
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
-
+int GetPlayerPositionFromXY(int x, int y);
 #endif

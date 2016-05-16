@@ -18,12 +18,13 @@ int main() {
     int quit = 0; // quit variable
     Card_node *deck = NULL; // set of decks
     int numberOfDecks = 0; // number of decks used in the game
-    bool turn_ended = 0; // true value if turn has ended
+    bool turn_ended = false; // true value if turn has ended
+    bool adding_player = false;
     Player_node *players = NULL; // players list
     Player_node *removedPlayers = NULL;
     Player_node *currentPlayerNode = NULL;
     Player *house = (Player *) malloc(sizeof(Player));
-    int i = 0;
+    int i = 0, newPlayerPos = -1;
     Player_node *player_node_aux = NULL;
     Card_node **house_cards = &(house->cards);
     Player_node *tmp_player = NULL;
@@ -75,9 +76,17 @@ int main() {
             if( event.type == SDL_QUIT )
             {
                 quit = 1;
-            }
-            else if ( event.type == SDL_KEYDOWN )
-            {
+            } else if (event.type == SDL_MOUSEBUTTONDOWN && adding_player) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    newPlayerPos = GetPlayerPositionFromXY(event.button.x, event.button.y);
+                    
+                    if (newPlayerPos != -1) {
+                        AddNewPlayer(&players, newPlayerPos);
+                    }
+                    
+                    adding_player = false;
+                }
+            } else if ( event.type == SDL_KEYDOWN ) {
                 switch ( event.key.keysym.sym )
                 {
                     case SDLK_q:
@@ -146,6 +155,11 @@ int main() {
                             Bet(players);
                         }
                         break;
+                    case SDLK_a:
+                        if (turn_ended) {
+                            adding_player = true;
+                        }
+                        break;
                     case SDLK_n:
                         /* Verifies if the turn has ended. If so, begins a new turn. */
                         if (turn_ended) {
@@ -165,7 +179,7 @@ int main() {
                                 player_node_aux->player.hand_size = 0;
                                 player_node_aux->player.money -= player_node_aux->player.bet;
                                 
-                                if (player_node_aux->player.money <= 0) {
+                                if (player_node_aux->player.money <= 0 && player_node_aux->player.bet <= 0) {
                                     tmp_player = player_node_aux->next;
                                     join_player_node(&removedPlayers, take_player_node(&players, i), 0);
                                     player_node_aux = tmp_player;
