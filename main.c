@@ -6,6 +6,7 @@
 #include "cards.h"
 #include "deck.h"
 #include "blackjack.h"
+#include "config.h"
 
 const char * playerNames[] = {"Player 1", "Player 2", "Player 3", "Player 4"};
 
@@ -77,9 +78,6 @@ int main() {
     int quit = 0; // quit variable
     Card_node *deck = NULL; // set of decks
     int numberOfDecks = 0; // number of decks used in the game
-    int initialMoney = 0; // initial money
-    int betAmount = 0; // bet amount
-    int i = 0; // iterator
     bool turn_ended = 0; // true value if turn has ended
     Player_node *players = NULL; // players list
     Player_node *currentPlayerNode = NULL;
@@ -100,28 +98,7 @@ int main() {
     /* Prints welcome message */
     printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
 
-    /* Reads parameters */
-    ReadGameParameters(&numberOfDecks, &initialMoney, &betAmount);
-
-    for (i = 0; i < 4; i++) {
-        Player *currentPlayer = (Player *) malloc(sizeof(Player));
-
-        strcpy(currentPlayer->name, playerNames[i]);
-        currentPlayer->money = (float) initialMoney;
-        currentPlayer->bet = (float) betAmount;
-        currentPlayer->cards = NULL;
-        currentPlayer->hand_size = 0;
-        currentPlayer->games_result.won = 0;
-        currentPlayer->games_result.tied = 0;
-        currentPlayer->games_result.lost = 0;
-        currentPlayer->ai = false;
-        currentPlayer->surrender = false;
-        currentPlayer->score = 0;
-
-        add_player(&players, *currentPlayer);
-        
-        free(currentPlayer);
-    }
+    GameSettings("config1.txt", "config2.txt", &numberOfDecks, &players);
 
     // initialize graphics
     InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, &serif, imgs, &window, &renderer);

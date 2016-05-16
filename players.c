@@ -61,7 +61,31 @@ Stat add_player(Player_node** head, Player data) {
 	return ACT_STAT;
 }
 
-Player_node *create_player_node(Player data) {
+Stat insert_player(Player_node **head, Player_node **tail, Player data) {
+    Player_node *new_node = create_player_node();
+    
+    if (new_node == NULL) {
+        ERROR_MESSAGE();
+        exit(EXIT_FAILURE);
+    }
+    
+    if (*tail != NULL) {
+        (*tail)->next = new_node;
+    }
+    
+    new_node->next = NULL;
+    new_node->player = data;
+    
+    *tail = new_node;
+    
+    if (*head == NULL) {
+        *head = *tail;
+    }
+    
+    return ACT_STAT;
+}
+
+Player_node *create_player_node() {
 	Player_node *new_node = malloc(sizeof(Player_node));
 
 	if(empty(new_node)) {
