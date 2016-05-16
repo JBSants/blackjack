@@ -146,7 +146,7 @@ int main() {
                                  * After this function, it's possible to press the 'n' key
                                  * to begin a new turn.
                                  */
-                                FinishTurn(&deck, numberOfDecks, house, &players, &removedPlayers);
+                                FinishTurn(&deck, numberOfDecks, house, &players);
                                 
                                 turn_ended = true;
                             }
@@ -162,7 +162,7 @@ int main() {
                             
                             /* If there are no more players after this stand */
                             if (currentPlayerNode == NULL) {
-                                FinishTurn(&deck, numberOfDecks, house, &players, &removedPlayers);
+                                FinishTurn(&deck, numberOfDecks, house, &players);
                                 
                                 turn_ended = true;
                             }
@@ -174,7 +174,7 @@ int main() {
                             currentPlayerNode = Double(&deck, numberOfDecks, house, currentPlayerNode);
                             
                             if (currentPlayerNode == NULL) {
-                                FinishTurn(&deck, numberOfDecks, house, &players, &removedPlayers);
+                                FinishTurn(&deck, numberOfDecks, house, &players);
                                 
                                 turn_ended = true;
                             }
@@ -185,7 +185,7 @@ int main() {
                             currentPlayerNode = Surrender(currentPlayerNode);
                             
                             if (currentPlayerNode == NULL) {
-                                FinishTurn(&deck, numberOfDecks, house, &players, &removedPlayers);
+                                FinishTurn(&deck, numberOfDecks, house, &players);
                                 
                                 turn_ended = true;
                             }

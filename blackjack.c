@@ -11,7 +11,7 @@ void reads(char *buffer, int max) {
     buffer[strlen(buffer) - 1] = '\0';
 }
 
-void GetBankroll_GameResults(Player* house, Player_node **head, Player_node **removedPlayers) {
+void GetBankroll_GameResults(Player* house, Player_node **head) {
     Player_node *walk = *head;
     int i = 0;
     
@@ -65,9 +65,9 @@ void GetBankroll_GameResults(Player* house, Player_node **head, Player_node **re
     }
 }
 
-void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, Player_node **removedPlayers) {
+void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head) {
     PlayHouse(house, deck_head, numberOfDecks);
-    GetBankroll_GameResults(house, head, removedPlayers);
+    GetBankroll_GameResults(house, head);
 }
 
 void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
