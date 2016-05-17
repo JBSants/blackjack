@@ -9,7 +9,7 @@ AIAction GetCurrentAIAction(Player_node *currentPlayer, Player *house, AIAction 
     int aiRow = 0;
     
     if (house->cards->card.id > 9) {
-        aiColumn = 9;
+        aiColumn = 8;
     } else {
         aiColumn = house->cards->card.id - 1;
     }
@@ -32,39 +32,40 @@ AIAction GetCurrentAIAction(Player_node *currentPlayer, Player *house, AIAction 
 }
 
 void PlayAI(Player_node **currentPlayer, Player *house, AIAction **ai_actions, Card_node **deck_head, int numberOfDecks) {
-
-    switch (GetCurrentAIAction(*currentPlayer, house, ai_actions)) {
-        case ActionHit:
-            *currentPlayer = Hit(deck_head, *currentPlayer, numberOfDecks);
-            break;
-        case ActionStand:
-            *currentPlayer = Stand(*currentPlayer);
-            break;
-        case ActionDoubleOrHit:
-            if ((*currentPlayer)->player.money >= (*currentPlayer)->player.bet) {
-                *currentPlayer = Double(deck_head, numberOfDecks, house, *currentPlayer);
-            } else {
+    if (currentPlayer != NULL) {
+        switch (GetCurrentAIAction(*currentPlayer, house, ai_actions)) {
+            case ActionHit:
                 *currentPlayer = Hit(deck_head, *currentPlayer, numberOfDecks);
-            }
-            break;
-        case ActionDoubleOrStand:
-            if ((*currentPlayer)->player.money >= (*currentPlayer)->player.bet) {
-                *currentPlayer = Double(deck_head, numberOfDecks, house, *currentPlayer);
-            } else {
+                break;
+            case ActionStand:
                 *currentPlayer = Stand(*currentPlayer);
-            }
-            break;
-        case ActionSurrenderOrHit:
-            if ((*currentPlayer)->player.hand_size == BLACKJACK_INITIAL_CARDS) {
-                *currentPlayer = Surrender(*currentPlayer);
-            } else {
-                *currentPlayer = Hit(deck_head, *currentPlayer, numberOfDecks);
-            }
-            break;
-    }
-    
-    if (*currentPlayer != NULL && (*currentPlayer)->player.ai) {
-        PlayAI(currentPlayer, house, ai_actions, deck_head, numberOfDecks);
+                break;
+            case ActionDoubleOrHit:
+                if ((*currentPlayer)->player.money >= (*currentPlayer)->player.bet && (*currentPlayer)->player.hand_size == BLACKJACK_INITIAL_CARDS) {
+                    *currentPlayer = Double(deck_head, numberOfDecks, house, *currentPlayer);
+                } else {
+                    *currentPlayer = Hit(deck_head, *currentPlayer, numberOfDecks);
+                }
+                break;
+            case ActionDoubleOrStand:
+                if ((*currentPlayer)->player.money >= (*currentPlayer)->player.bet) {
+                    *currentPlayer = Double(deck_head, numberOfDecks, house, *currentPlayer);
+                } else {
+                    *currentPlayer = Stand(*currentPlayer);
+                }
+                break;
+            case ActionSurrenderOrHit:
+                if ((*currentPlayer)->player.hand_size == BLACKJACK_INITIAL_CARDS && (*currentPlayer)->player.hand_size == BLACKJACK_INITIAL_CARDS) {
+                    *currentPlayer = Surrender(*currentPlayer);
+                } else {
+                    *currentPlayer = Hit(deck_head, *currentPlayer, numberOfDecks);
+                }
+                break;
+        }
+        
+        if (*currentPlayer != NULL && (*currentPlayer)->player.ai) {
+            PlayAI(currentPlayer, house, ai_actions, deck_head, numberOfDecks);
+        }
     }
     
 }

@@ -219,6 +219,8 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         }
         
         (*ai_actions)[currentRow][currentColumn] = (AIAction) (c - '0');
+        
+        currentColumn += 1;
     }
 }
 
