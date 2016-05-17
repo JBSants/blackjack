@@ -32,7 +32,7 @@ void push_card(Card_node** head, Card data);
 void push_card_node(Card_node** head, Card_node* node);
 Card_node *pop_card(Card_node** head);
 Card card_stack_top(Card_node* head);
-void card_stack_erase(Card_node** head);
+void card_stack_erase(Card_node* head);
 
 int CountAces(Card_node *head);
 #endif

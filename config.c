@@ -267,7 +267,7 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
         exit(EXIT_FAILURE);
     }
     
-    if(*decks < 4 || *decks > 8 || players < 1 || players > 4){
+    if(*decks < 1 || *decks > 8 || players < 1 || players > 4){
         printf("Not valid players or deck parameters!\n");
         exit(EXIT_FAILURE);
     }

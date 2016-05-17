@@ -40,5 +40,5 @@ void ShuffleCards(Card_node** deck_head, int decks) {
 }
 
 void EraseDeck(Card_node* deck_head) {
-    card_stack_erase(&deck_head);
+    card_stack_erase(deck_head);
 }

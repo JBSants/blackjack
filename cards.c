@@ -182,11 +182,11 @@ Card card_stack_top(Card_node* head) {
     return head->card;
 }
 
-void card_stack_erase(Card_node** head) {
-	Card_node* tmp;
+void card_stack_erase(Card_node* head) {
+	Card_node* tmp = NULL;
 
-	while((tmp = *head) != NULL){
-		*head = (*head)->next;
+	while((tmp = head) != NULL){
+		head = head->next;
 		free(tmp);
     }
 }

@@ -231,6 +231,7 @@ int main(int argc, char **argv) {
         player_node_aux = players->next;
         
         players->next = NULL;
+        erase_card_list(players->player.cards);
         join_player_node(&removedPlayers, players, 0);
         
         players = player_node_aux;

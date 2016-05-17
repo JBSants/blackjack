@@ -2,8 +2,14 @@
 #define GRAPHICS_H
 
 #include <SDL2/SDL.h>
-#include <SDL2_ttf/SDL_ttf.h>
-#include <SDL2_image/SDL_image.h>
+#define COMPILED_XCODE
+#ifndef COMPILED_XCODE
+    #include <SDL2/SDL_ttf.h>
+    #include <SDL2/SDL_image.h>
+#else
+    #include <SDL2_ttf/SDL_ttf.h>
+    #include <SDL2_image/SDL_image.h>
+#endif
 #include "cards.h"
 #include "players.h"
 
