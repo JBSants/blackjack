@@ -2,7 +2,6 @@
 #define GRAPHICS_H
 
 #include <SDL2/SDL.h>
-#define COMPILED_XCODE
 #ifndef COMPILED_XCODE
     #include <SDL2/SDL_ttf.h>
     #include <SDL2/SDL_image.h>

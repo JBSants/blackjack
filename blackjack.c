@@ -6,6 +6,8 @@
 #include "blackjack.h"
 #include "deck.h"
 
+const char STATISTICS_FILE_NAME[] = "stats.txt";
+
 void reads(char *buffer, int max) {
     fgets(buffer, max, stdin);
     buffer[strlen(buffer) - 1] = '\0';
@@ -23,17 +25,20 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
         } else if (house->score > 21) {
             walk->player.money += 2 * (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == 21 && walk->player.hand_size == 2);
             walk->player.games_result.won += 1;
+            house->money -= (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == 21 && walk->player.hand_size == 2);
         } else if (house->score == walk->player.score) {
 
             if (house->score == 21) {
 
                 if (walk->player.hand_size == house->hand_size || (walk->player.hand_size != 2 && house->hand_size != 2)) {
                     walk->player.money += (walk->player.bet);
-                    walk->player.games_result.tied+=1;
+                    walk->player.games_result.tied += 1;
                 } else if (walk->player.hand_size == 2 && house->hand_size != 2) {
                     walk->player.money += 2.5 * (walk->player.bet);
                     walk->player.games_result.won += 1;
+                    house->money -= 1.5 * (walk->player.bet);
                 } else {
+                    house->money += walk->player.bet;
                     walk->player.games_result.lost += 1;
                 }
 
@@ -47,13 +52,16 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
 
             if (walk->player.score > house->score) {
                 walk->player.games_result.won +=1;
+                house->money -= walk->player.bet;
             } else {
                 walk->player.games_result.lost +=1;
+                house->money += walk->player.bet;
             }
 
         } else {
             walk->player.money += 2.5 * (walk->player.bet);
             walk->player.games_result.won += 1;
+            house->money -= 1.5 * (walk->player.bet);
         }
         
         if (walk->player.bet > walk->player.money) {
@@ -264,4 +272,34 @@ Card_node *NextCard(Card_node **deck_head, int numberOfDecks) {
     }
 
     return take_card_node(deck_head, 0);
+}
+
+void WriteMoneyAndStatsToFile(Player_node *players, Player *house) {
+    FILE *statsFile = NULL; // pointer to be used for stats file access
+    
+    /* Opens the statistics file */
+    statsFile = fopen(STATISTICS_FILE_NAME, "w");
+    
+    if (statsFile == NULL) {
+        printf("Error creating statistics file!");
+        
+        exit(EXIT_FAILURE);
+    }
+    
+    /* Prints some information */
+    fprintf(statsFile, "-- Statistics -- \n\n");
+    fprintf(statsFile, "[Player Name]: [Games Won] - [Games Tied] - [Games Lost] (Money: [Final Money])\n\n");
+    
+    /* Writes statstics for each player */
+    while(players != NULL) {
+        fprintf(statsFile, "%s: %d - %d - %d (Money: %.2f)\n", players->player.name, players->player.games_result.won, players->player.games_result.tied, players->player.games_result.lost, players->player.money);
+        
+        players = players->next;
+    }
+    
+    /* Writes the house final balance */
+    fprintf(statsFile, "House Money: %.2f", house->money);
+    
+    /* Closes the statistics file */
+    fclose(statsFile);
 }

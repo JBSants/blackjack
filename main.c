@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
     
     house->ai = true;
     house->cards = NULL;
+    house->money = 0;
     
     srand((unsigned int) time(NULL)); // initializes the random number generator
     
@@ -229,8 +230,6 @@ int main(int argc, char **argv) {
         erase_card_list(house->cards);
     }
     
-    free(house);
-    
     while (players != NULL) {
         player_node_aux = players->next;
         
@@ -240,6 +239,10 @@ int main(int argc, char **argv) {
         
         players = player_node_aux;
     }
+    
+    WriteMoneyAndStatsToFile(removedPlayers, house);
+    
+    free(house);
     
     erase_player_list(removedPlayers);
     EraseDeck(deck);

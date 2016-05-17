@@ -19,5 +19,6 @@ Player_node* Surrender(Player_node *current_player);
 void Bet(Player_node *head);
 void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal);
 Card_node *NextCard(Card_node **deck_head, int numberOfDecks);
+void WriteMoneyAndStatsToFile(Player_node *players, Player *house);
 
 #endif
