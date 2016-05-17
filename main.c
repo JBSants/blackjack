@@ -7,6 +7,7 @@
 #include "deck.h"
 #include "blackjack.h"
 #include "config.h"
+#include "ai.h"
 
 int main() {
     SDL_Window* window = NULL;
@@ -28,6 +29,7 @@ int main() {
     Player_node *player_node_aux = NULL;
     Card_node **house_cards = &(house->cards);
     Player_node *tmp_player = NULL;
+    AIAction **ai_actions = NULL;
     
     if (house == NULL) {
         ERROR_MESSAGE();
@@ -44,7 +46,7 @@ int main() {
     /* Prints welcome message */
     printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
     
-    GameSettings("config1.txt", "config2.txt", &numberOfDecks, &players);
+    GameSettings("config1.txt", "config2.txt", &numberOfDecks, &players, &ai_actions);
     
     // initialize graphics
     InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, &serif, imgs, &window, &renderer);
@@ -218,6 +220,15 @@ int main() {
             }
         }
         
+        if (currentPlayerNode != NULL && currentPlayerNode->player.ai) {
+            PlayAI(&currentPlayerNode, house, ai_actions, &deck, numberOfDecks);
+            
+            if (currentPlayerNode == NULL) {
+                FinishTurn(&deck, numberOfDecks, house, &players);
+                
+                turn_ended = true;
+            }
+        }
         
         // render game table
         RenderTable(players, currentPlayerNode, house, serif, imgs, renderer);
@@ -247,6 +258,7 @@ int main() {
     erase_player_list(players);
     erase_player_list(removedPlayers);
     EraseDeck(deck);
+    FreeAIActions(ai_actions);
     
     return EXIT_SUCCESS;
 }

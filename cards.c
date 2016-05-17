@@ -190,3 +190,17 @@ void card_stack_erase(Card_node** head) {
 		free(tmp);
     }
 }
+
+int CountAces(Card_node *head) {
+    int result = 0;
+    
+    while (head != NULL) {
+        if (IsAce(head->card)) {
+            result += 1;
+        }
+        
+        head = head->next;
+    }
+    
+    return result;
+}

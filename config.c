@@ -5,12 +5,13 @@
 #include <string.h>
 
 #include "players.h"
+#include "ai.h"
 #define MAX_LINE 35
 
 const char AI[] = "EA";
 const char NOT_AI[] = "HU";
 
-void ReadGameSettingsLine(FILE *config_file, Player *player) {
+void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     char line[MAX_LINE] = { 0 };
     char *aux = NULL;
     int i = 0;
@@ -84,7 +85,7 @@ void PromptNewPlayer(Player *newPlayer) {
         /* Prompts the parameter */
         printf("Player Name: ");
         
-        notValid = fgets(buffer, MAX_LINE, stdin) == NULL;
+        notValid = fgets(buffer, MAX_LINE, stdin) == NULL || strlen(buffer) > MAX_NAME;
     }
     
     buffer[strlen(buffer) - 1] = '\0';
@@ -178,7 +179,50 @@ void AddNewPlayer(Player_node **players, int position) {
     
 }
 
-void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers) {
+void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
+    int currentColumn = 0, currentRow = 0;
+    char c;
+    
+    *ai_actions = (AIAction **) malloc(sizeof(AIAction *) * AIACTIONS_ROWS);
+    
+    if (*ai_actions == NULL) {
+        ERROR_MESSAGE();
+        
+        exit(EXIT_FAILURE);
+    }
+    
+    for (int i = 0; i < AIACTIONS_ROWS; i++) {
+        (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS);
+        
+        if ((*ai_actions)[i] == NULL) {
+            ERROR_MESSAGE();
+            
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    while ((c = fgetc(ai_strategy)) != EOF) {
+        if (c == '\n' || c == '\r') {
+            currentRow += 1;
+            currentColumn = 0;
+            continue;
+        }
+        
+        if (c > '4' || c < '0') {
+            printf("Error opening configuration file!\n");
+            
+            exit(EXIT_FAILURE);
+        }
+        
+        if (currentRow > AIACTIONS_ROWS || currentColumn > AIACTIONS_COLUMNS) {
+            break;
+        }
+        
+        (*ai_actions)[currentRow][currentColumn] = (AIAction) (c - '0');
+    }
+}
+
+void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers, AIAction ***ai_actions) {
     FILE* game_file, *ai_strategy;
     Player_node *aux;
     Player_node *head = NULL;
@@ -199,6 +243,8 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
         printf("Error opening AI strategy file!\n");
         exit(EXIT_FAILURE);
     }
+    
+    ReadAIActions(ai_strategy, ai_actions);
     
     if (fgets(line, MAX_LINE, game_file) == NULL) {
         printf("Error reading configuration file!\n");
@@ -235,7 +281,7 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
             exit(EXIT_FAILURE);
         }
         
-        ReadGameSettingsLine(game_file, newPlayer);
+        ReadGameSettingsPlayer(game_file, newPlayer);
         newPlayer->position = i;
         
         insert_player_node(&head, &aux, *newPlayer);
@@ -244,5 +290,8 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     }
     
     *resultPlayers = head;
+    
+    fclose(game_file);
+    fclose(ai_strategy);
     
 }
