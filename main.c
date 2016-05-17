@@ -16,6 +16,7 @@ int main() {
     SDL_Event event;
     TTF_Font *serif = NULL;
     int delay = 300; // interface refresh delay
+    int aiDelay = 1000;
     int quit = 0; // quit variable
     Card_node *deck = NULL; // set of decks
     int numberOfDecks = 0; // number of decks used in the game
@@ -93,6 +94,14 @@ int main() {
                 {
                     case SDLK_q:
                         quit = 1; // Quits
+                        break;
+                    case SDLK_UP:
+                        aiDelay += 250;
+                        break;
+                    case SDLK_DOWN:
+                        if (aiDelay > 0) {
+                            aiDelay -= 250;
+                        }
                         break;
                     case SDLK_s:
                         // stand !
@@ -220,16 +229,6 @@ int main() {
             }
         }
         
-        if (currentPlayerNode != NULL && currentPlayerNode->player.ai) {
-            PlayAI(&currentPlayerNode, house, ai_actions, &deck, numberOfDecks);
-            
-            if (currentPlayerNode == NULL) {
-                FinishTurn(&deck, numberOfDecks, house, &players);
-                
-                turn_ended = true;
-            }
-        }
-        
         // render game table
         RenderTable(players, currentPlayerNode, house, serif, imgs, renderer);
         // render house cards
@@ -240,6 +239,24 @@ int main() {
         SDL_RenderPresent(renderer);
         // add a delay
         SDL_Delay( delay );
+        
+        if (currentPlayerNode != NULL && currentPlayerNode->player.ai) {
+            SDL_Delay(aiDelay);
+            
+            PlayAI(&currentPlayerNode, house, ai_actions, &deck, numberOfDecks);
+            
+            if (currentPlayerNode == NULL) {
+                FinishTurn(&deck, numberOfDecks, house, &players);
+                
+                turn_ended = true;
+            }
+            
+            while( SDL_PollEvent( &event ) ) {
+                if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_q)) {
+                    quit = 1;
+                }
+            }
+        }
     }
     
     // free memory allocated for images and textures and close everything

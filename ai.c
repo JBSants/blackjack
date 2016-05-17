@@ -32,7 +32,10 @@ AIAction GetCurrentAIAction(Player_node *currentPlayer, Player *house, AIAction 
 }
 
 void PlayAI(Player_node **currentPlayer, Player *house, AIAction **ai_actions, Card_node **deck_head, int numberOfDecks) {
-    if (currentPlayer != NULL) {
+    Player_node *initialPlayer = NULL;
+    if ((*currentPlayer) != NULL && (*currentPlayer)->player.ai) {
+        initialPlayer = *currentPlayer;
+        
         switch (GetCurrentAIAction(*currentPlayer, house, ai_actions)) {
             case ActionHit:
                 *currentPlayer = Hit(deck_head, *currentPlayer, numberOfDecks);
@@ -63,7 +66,7 @@ void PlayAI(Player_node **currentPlayer, Player *house, AIAction **ai_actions, C
                 break;
         }
         
-        if (*currentPlayer != NULL && (*currentPlayer)->player.ai) {
+        if (*currentPlayer == initialPlayer) {
             PlayAI(currentPlayer, house, ai_actions, deck_head, numberOfDecks);
         }
     }
