@@ -9,7 +9,9 @@
 #include "config.h"
 #include "ai.h"
 
-int main() {
+#define MIN_ARGUMENTS 3
+
+int main(int argc, char **argv) {
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
     SDL_Surface *cards[MAX_DECK_SIZE+1], *imgs[2];
@@ -29,6 +31,16 @@ int main() {
     int newPlayerPos = -1;
     Player_node *player_node_aux = NULL;
     AIAction **ai_actions = NULL;
+    char *gameConfig = NULL;
+    char *aiConfig = NULL;
+    
+    if (argc < MIN_ARGUMENTS) {
+        printf("Usage: blackjack <game settings file> <ai settings file>\n");
+        return EXIT_FAILURE;
+    }
+    
+    gameConfig = argv[1];
+    aiConfig = argv[2];
     
     if (house == NULL) {
         ERROR_MESSAGE();
@@ -43,7 +55,7 @@ int main() {
     /* Prints welcome message */
     printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
     
-    GameSettings("config1.txt", "config2.txt", &numberOfDecks, &players, &ai_actions);
+    GameSettings(gameConfig, aiConfig, &numberOfDecks, &players, &ai_actions);
     
     // initialize graphics
     InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, &serif, imgs, &window, &renderer);
