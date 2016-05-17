@@ -28,18 +28,15 @@ Card_node* DeckMaker(int decks) {
 	return head;
 }
 
-void ShuffleCards(Card_node** deck_head, int decks,int times) {
-	Card_node* card_taken;
+void ShuffleCards(Card_node** deck_head, int decks) {
+	Card_node* card_taken = NULL;
 	int deck_size = decks * MAX_DECK_SIZE;
 
-	while(times > 0) {
-		for(int i=0; i < deck_size; i++) {
-			int random = rand() % deck_size;
-			card_taken = take_card_node(deck_head, random);
-			join_card_node(deck_head, card_taken, i);
-		}
-		times--;
-	}
+    for(int i=0; i < deck_size; i++) {
+        int random = rand() % deck_size;
+        card_taken = take_card_node(deck_head, random);
+        join_card_node(deck_head, card_taken, i);
+    }
 }
 
 void EraseDeck(Card_node* deck_head) {

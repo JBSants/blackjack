@@ -80,6 +80,10 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
         RenderText(35, (0.55f*HEIGHT_WINDOW)-130, house_points_str, _font, &white, _renderer);
     }
     
+    if (empty(player)) {
+        RenderText(0.4f * separatorPos, 0.75f * HEIGHT_WINDOW, "No more players! Press 'a' to add.", _font, &white, _renderer);
+    }
+    
     // renders the areas for each player: names and money too !
     while (player != NULL)
     {

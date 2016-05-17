@@ -102,6 +102,45 @@ void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
     } while (house->score < 16);
 }
 
+void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Player_node **removedPlayers, Player_node **currentPlayerNode, Player *house) {
+    Player_node *player_node_aux = *players;
+    Player_node *tmp_player = NULL;
+    int i = 0;
+    
+    while (player_node_aux != NULL) {
+        Card_node **player_cards = &(player_node_aux->player.cards);
+        
+        while (*player_cards != NULL) {
+            free(pop_card(player_cards));
+        }
+        
+        player_node_aux->player.score = 0;
+        player_node_aux->player.hand_size = 0;
+        player_node_aux->player.money -= player_node_aux->player.bet;
+        
+        if (player_node_aux->player.money <= 0 && player_node_aux->player.bet <= 0) {
+            tmp_player = player_node_aux->next;
+            join_player_node(removedPlayers, take_player_node(players, i), 0);
+            player_node_aux = tmp_player;
+        } else {
+            player_node_aux = player_node_aux->next;
+        }
+        
+        i += 1;
+    }
+    
+    while (house->cards != NULL) {
+        free(pop_card(&(house->cards)));
+    }
+    
+    house->score = 0;
+    house->hand_size = 0;
+    
+    DealCards(deck_head, *players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS);
+    
+    *currentPlayerNode = *players;
+}
+
 Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberOfDecks) {
     Card_node *n = NextCard(deck_head, numberOfDecks);
     push_card_node(&(current_player->player.cards), n);
@@ -193,10 +232,8 @@ void Bet(Player_node *head) {
     free(buf2);
 }
 
-int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal) {
-    int cardsDealt = 0;
-
-    if(house != NULL) {
+void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal) {
+    if(house != NULL && !empty(head)) {
         Player_node *walk = head;
 
 		for(int i=0; i < numberOfCardsToDeal; i++) {
@@ -204,8 +241,7 @@ int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numbe
 			while (walk != NULL) {
 				push_card_node(&(walk->player.cards), NextCard(deck_head, numberOfDecks));
 				walk->player.hand_size += 1;
-                		cardsDealt += 1;
-                		
+                
 				walk = walk->next;
 			}
 
@@ -217,14 +253,12 @@ int DealCards(Card_node** deck_head, Player_node* head, Player* house, int numbe
 	}
 
     GetPlayerListScore(head);
-
-    return cardsDealt;
 }
 
 Card_node *NextCard(Card_node **deck_head, int numberOfDecks) {
     if(empty(*deck_head)){
         *deck_head = DeckMaker(numberOfDecks);
-        ShuffleCards(deck_head, numberOfDecks, 1); //TODO: Times really needed??
+        ShuffleCards(deck_head, numberOfDecks); //TODO: Times really needed??
     }
 
     return take_card_node(deck_head, 0);

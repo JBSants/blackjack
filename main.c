@@ -26,10 +26,8 @@ int main() {
     Player_node *removedPlayers = NULL;
     Player_node *currentPlayerNode = NULL;
     Player *house = (Player *) malloc(sizeof(Player));
-    int i = 0, newPlayerPos = -1;
+    int newPlayerPos = -1;
     Player_node *player_node_aux = NULL;
-    Card_node **house_cards = &(house->cards);
-    Player_node *tmp_player = NULL;
     AIAction **ai_actions = NULL;
     
     if (house == NULL) {
@@ -38,8 +36,6 @@ int main() {
     }
     
     house->ai = true;
-    house->score = 0;
-    house->hand_size = 0;
     house->cards = NULL;
     
     srand((unsigned int) time(NULL)); // initializes the random number generator
@@ -56,19 +52,9 @@ int main() {
     
     deck = DeckMaker(numberOfDecks);
     
-    ShuffleCards(&deck, numberOfDecks, 1); // TODO: Times really needed??
+    ShuffleCards(&deck, numberOfDecks);
     
-    DealCards(&deck, players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS);
-    
-    currentPlayerNode = players;
-    
-    player_node_aux = currentPlayerNode;
-    
-    while (player_node_aux != NULL) {
-        player_node_aux->player.money -= player_node_aux->player.bet;
-        
-        player_node_aux = player_node_aux->next;
-    }
+    NewTurn(&deck, numberOfDecks, &players, &removedPlayers, &currentPlayerNode, house);
     
     /* Main loop. Window remains open until quit == 1 */
     while( quit == 0 )
@@ -174,53 +160,9 @@ int main() {
                     case SDLK_n:
                         /* Verifies if the turn has ended. If so, begins a new turn. */
                         if (turn_ended) {
-                            player_node_aux = players;
-                            tmp_player = NULL;
+                            NewTurn(&deck, numberOfDecks, &players, &removedPlayers, &currentPlayerNode, house);
                             
-                            i = 0;
-                            
-                            while (player_node_aux != NULL) {
-                                Card_node **player_cards = &(player_node_aux->player.cards);
-                                
-                                while (*player_cards != NULL) {
-                                    free(pop_card(player_cards));
-                                }
-                                
-                                player_node_aux->player.score = 0;
-                                player_node_aux->player.hand_size = 0;
-                                player_node_aux->player.money -= player_node_aux->player.bet;
-                                
-                                if (player_node_aux->player.money <= 0 && player_node_aux->player.bet <= 0) {
-                                    tmp_player = player_node_aux->next;
-                                    join_player_node(&removedPlayers, take_player_node(&players, i), 0);
-                                    player_node_aux = tmp_player;
-                                } else {
-                                    player_node_aux = player_node_aux->next;
-                                }
-                                
-                                i += 1;
-                            }
-                            
-                            while (*house_cards != NULL) {
-                                free(pop_card(house_cards));
-                            }
-                            
-                            house->score = 0;
-                            house->hand_size = 0;
-                            
-                            /* Verfies if there are any dealt cards. If not, quits the game
-                             * diplaying a message.
-                             */
-                            if (!DealCards(&deck, players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS)) {
-                                printf("No more players! Thank you for playing Blackjack!\n");
-                                quit = 1;
-                                break;
-                            }
-                            
-                            /* Stands until the current player hasn't a blackjack */
-                            currentPlayerNode = players;
-                            
-                            turn_ended = false;
+                            turn_ended = (currentPlayerNode == NULL);
                         }
                         break;
                     default:
@@ -272,7 +214,16 @@ int main() {
     //WriteMoneyAndStatsToFile(money, player_stats);
     
     free(house);
-    erase_player_list(players);
+    
+    while (players != NULL) {
+        player_node_aux = players->next;
+        
+        players->next = NULL;
+        join_player_node(&removedPlayers, players, 0);
+        
+        players = player_node_aux;
+    }
+    
     erase_player_list(removedPlayers);
     EraseDeck(deck);
     FreeAIActions(ai_actions);
