@@ -135,6 +135,8 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
     
     house->score = 0;
     house->hand_size = 0;
+    erase_card_list(house->cards);
+    house->cards = NULL;
     
     DealCards(deck_head, *players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS);
     

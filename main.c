@@ -224,6 +224,10 @@ int main(int argc, char **argv) {
     
     /* Writes stats file */
     //WriteMoneyAndStatsToFile(money, player_stats);
+
+    if (!empty(house->cards)) {
+        erase_card_list(house->cards);
+    }
     
     free(house);
     
