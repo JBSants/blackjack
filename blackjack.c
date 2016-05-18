@@ -76,12 +76,12 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
     }
 }
 
-void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head) {
-    PlayHouse(house, deck_head, numberOfDecks);
+void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, int *hilo, int *cardsDealt) {
+    PlayHouse(house, deck_head, numberOfDecks, hilo, cardsDealt);
     GetBankroll_GameResults(house, head);
 }
 
-void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
+void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks, int *hilo, int *cardsDealt)
 {
     int numberOfAces = 0; // number of aces in house hand
     Card_node *card_aux = NULL;
@@ -107,13 +107,13 @@ void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks)
 
         /* If house points is less than 16, or is 17 and house has one ace */
         if (house->score < 16 || (numberOfAces == 1 && house->score == 17)) {
-            push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks));
+            push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt));
             house->hand_size += 1; // House Hits!
         }
     } while (house->score < 16);
 }
 
-void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Player_node **removedPlayers, Player_node **currentPlayerNode, Player *house) {
+void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Player_node **removedPlayers, Player_node **currentPlayerNode, Player *house, int *hilo, int *cardsDealt) {
     Player_node *player_node_aux = *players;
     Player_node *tmp_player = NULL;
     int i = 0;
@@ -127,9 +127,29 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
         
         player_node_aux->player.score = 0;
         player_node_aux->player.hand_size = 0;
+        
+        if (player_node_aux->player.ai) {
+            int decksNotDealt = (numberOfDecks - (*cardsDealt / DECK_MAX_CARDS));
+            int hiloValue = 0;
+            
+            if (decksNotDealt > 0) {
+                hiloValue = *hilo / decksNotDealt;
+                
+                player_node_aux->player.bet = 2 * hiloValue * player_node_aux->player.initialBet;
+                
+                if (player_node_aux->player.bet < player_node_aux->player.initialBet) {
+                    if (player_node_aux->player.bet > player_node_aux->player.money) {
+                        player_node_aux->player.bet = player_node_aux->player.money;
+                    } else {
+                        player_node_aux->player.bet = player_node_aux->player.initialBet;
+                    }
+                }
+            }
+        }
+        
         player_node_aux->player.money -= player_node_aux->player.bet;
         
-        if (player_node_aux->player.money <= 0 && player_node_aux->player.bet <= 0) {
+        if (player_node_aux->player.money <= 0 || player_node_aux->player.bet <= 0) {
             tmp_player = player_node_aux->next;
             join_player_node(removedPlayers, take_player_node(players, i), 0);
             player_node_aux = tmp_player;
@@ -149,13 +169,13 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
     erase_card_list(house->cards);
     house->cards = NULL;
     
-    DealCards(deck_head, *players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS);
+    DealCards(deck_head, *players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS, hilo, cardsDealt);
     
     *currentPlayerNode = *players;
 }
 
-Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberOfDecks) {
-    Card_node *n = NextCard(deck_head, numberOfDecks);
+Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberOfDecks, int *hilo, int *cardsDealt) {
+    Card_node *n = NextCard(deck_head, numberOfDecks, hilo, cardsDealt);
     push_card_node(&(current_player->player.cards), n);
     current_player->player.hand_size += 1;
 
@@ -172,13 +192,13 @@ Player_node* Stand(Player_node* current_player) {
 	return current_player->next;
 }
 
-Player_node* Double(Card_node **deck_head, int numberOfDecks, Player *house, Player_node *current_player) {
+Player_node* Double(Card_node **deck_head, int numberOfDecks, Player *house, Player_node *current_player, int *hilo, int *cardsDealt) {
     float bet = (current_player->player).bet;
     
     if (bet <= current_player->player.money && current_player->player.hand_size == BLACKJACK_INITIAL_CARDS) {
         (current_player->player).money -= bet;
-        (current_player->player).bet *= 2;
-        Hit(deck_head, current_player, numberOfDecks);
+        (current_player->player).bet += bet;
+        Hit(deck_head, current_player, numberOfDecks, hilo, cardsDealt);
         
         return current_player->next;
     }
@@ -214,7 +234,7 @@ void Bet(Player_node *head) {
         reads(buf, MAX_NAME + 1);
         
         while(tmp != NULL) {
-            if (strcmp(tmp->player.name, buf) == 0) {
+            if (strcmp(tmp->player.name, buf) == 0 && !tmp->player.ai) {
                 playerSelected = true;
                 
                 do {
@@ -245,20 +265,20 @@ void Bet(Player_node *head) {
     free(buf2);
 }
 
-void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal) {
+void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal, int *hilo, int *cardsDealt) {
     if(house != NULL && !empty(head)) {
         Player_node *walk = head;
 
 		for(int i=0; i < numberOfCardsToDeal; i++) {
 
 			while (walk != NULL) {
-				push_card_node(&(walk->player.cards), NextCard(deck_head, numberOfDecks));
+				push_card_node(&(walk->player.cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt));
 				walk->player.hand_size += 1;
                 
 				walk = walk->next;
 			}
 
-			push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks));
+			push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt));
 			house->hand_size = 1;
             		
             walk = head;
@@ -268,16 +288,7 @@ void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numb
     GetPlayerListScore(head);
 }
 
-Card_node *NextCard(Card_node **deck_head, int numberOfDecks) {
-    if(empty(*deck_head)){
-        *deck_head = DeckMaker(numberOfDecks);
-        ShuffleCards(deck_head, numberOfDecks); //TODO: Times really needed??
-    }
-
-    return take_card_node(deck_head, 0);
-}
-
-void WriteMoneyAndStatsToFile(Player_node *players, Player *house) {
+void WriteMoneyAndStatsToFile(Player_node *players, Player *house, bool turn_ended) {
     FILE *statsFile = NULL; // pointer to be used for stats file access
     
     /* Opens the statistics file */
@@ -295,6 +306,10 @@ void WriteMoneyAndStatsToFile(Player_node *players, Player *house) {
     
     /* Writes statstics for each player */
     while(players != NULL) {
+        
+        if (!turn_ended) {
+            players->player.money += players->player.bet;
+        }
         
         fprintf(statsFile, "%s (%s): %d | %d | %d (Money: %.2f)\n", players->player.name, players->player.ai ? AI : NOT_AI, players->player.games_result.won, players->player.games_result.tied, players->player.games_result.lost, players->player.money);
         

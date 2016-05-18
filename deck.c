@@ -42,3 +42,34 @@ void ShuffleCards(Card_node** deck_head, int decks) {
 void EraseDeck(Card_node* deck_head) {
     erase_card_list(deck_head);
 }
+
+int GetHiloScore(Card card) {
+    if (card.id > 8) {
+        return -1;
+    }
+    
+    if (card.id > 5) {
+        return 0;
+    }
+    
+    return 1;
+}
+
+Card_node *NextCard(Card_node **deck_head, int numberOfDecks, int *hilo, int *cardsDealt) {
+    Card_node *result = NULL;
+    
+    if(empty(*deck_head)) {
+        *deck_head = DeckMaker(numberOfDecks);
+        ShuffleCards(deck_head, numberOfDecks);
+        
+        *cardsDealt = 0;
+        *hilo = 0;
+    }
+    
+    result = take_card_node(deck_head, 0);
+    
+    *hilo += GetHiloScore(result->card);
+    *cardsDealt += 1;
+    
+    return result;
+}

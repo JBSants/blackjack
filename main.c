@@ -34,6 +34,8 @@ int main(int argc, char **argv) {
     AIAction **ai_actions = NULL;
     char *gameConfig = NULL;
     char *aiConfig = NULL;
+    int hilo = 0;
+    int cardsDealt = 0;
     
     if (argc < MIN_ARGUMENTS) {
         printf("Usage: blackjack <game settings file> <ai settings file>\n");
@@ -48,7 +50,6 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
     
-    house->ai = true;
     house->cards = NULL;
     house->money = 0;
     
@@ -68,7 +69,7 @@ int main(int argc, char **argv) {
     
     ShuffleCards(&deck, numberOfDecks);
     
-    NewTurn(&deck, numberOfDecks, &players, &removedPlayers, &currentPlayerNode, house);
+    NewTurn(&deck, numberOfDecks, &players, &removedPlayers, &currentPlayerNode, house, &hilo, &cardsDealt);
     
     /* Main loop. Window remains open until quit == 1 */
     while( quit == 0 )
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
              * After this function, it's possible to press the 'n' key
              * to begin a new turn.
              */
-            FinishTurn(&deck, numberOfDecks, house, &players);
+            FinishTurn(&deck, numberOfDecks, house, &players, &hilo, &cardsDealt);
             
             turn_ended = true;
         }
@@ -127,13 +128,13 @@ int main(int argc, char **argv) {
                         /* Verifies the turn hasn't end */
                         if (!turn_ended) {
                             /* The current player requests a card. */
-                            currentPlayerNode = Hit(&deck, currentPlayerNode, numberOfDecks);
+                            currentPlayerNode = Hit(&deck, currentPlayerNode, numberOfDecks, &hilo, &cardsDealt);
                         }
                         
                         break;
                     case SDLK_d:
                         if (!turn_ended) {
-                            currentPlayerNode = Double(&deck, numberOfDecks, house, currentPlayerNode);
+                            currentPlayerNode = Double(&deck, numberOfDecks, house, currentPlayerNode, &hilo, &cardsDealt);
                         }
                         break;
                     case SDLK_r:
@@ -155,7 +156,7 @@ int main(int argc, char **argv) {
                     case SDLK_n:
                         /* Verifies if the turn has ended. If so, begins a new turn. */
                         if (turn_ended) {
-                            NewTurn(&deck, numberOfDecks, &players, &removedPlayers, &currentPlayerNode, house);
+                            NewTurn(&deck, numberOfDecks, &players, &removedPlayers, &currentPlayerNode, house, &hilo, &cardsDealt);
                             
                             turn_ended = (currentPlayerNode == NULL);
                         }
@@ -180,10 +181,10 @@ int main(int argc, char **argv) {
         if (currentPlayerNode != NULL && currentPlayerNode->player.ai) {
             SDL_Delay(aiDelay);
             
-            PlayAI(&currentPlayerNode, house, ai_actions, &deck, numberOfDecks);
+            PlayAI(&currentPlayerNode, house, ai_actions, &deck, numberOfDecks, &hilo, &cardsDealt);
             
             if (currentPlayerNode == NULL) {
-                FinishTurn(&deck, numberOfDecks, house, &players);
+                FinishTurn(&deck, numberOfDecks, house, &players, &hilo, &cardsDealt);
                 
                 turn_ended = true;
             }
@@ -220,7 +221,7 @@ int main(int argc, char **argv) {
     }
     
     /* Writes stats file */
-    WriteMoneyAndStatsToFile(removedPlayers, house);
+    WriteMoneyAndStatsToFile(removedPlayers, house, turn_ended);
     
     free(house);
     

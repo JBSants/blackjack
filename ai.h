@@ -11,7 +11,7 @@
 
 typedef enum { ActionHit = 0, ActionStand = 1, ActionDoubleOrHit = 2, ActionDoubleOrStand = 3, ActionSurrenderOrHit = 4 } AIAction;
 
-void PlayAI(Player_node **currentPlayer, Player *house, AIAction **ai_actions, Card_node **deck_head, int numberOfDecks);
+void PlayAI(Player_node **currentPlayer, Player *house, AIAction **ai_actions, Card_node **deck_head, int numberOfDecks, int *hilo, int *cardsDealt);
 void FreeAIActions(AIAction **ai_actions);
 
 #endif

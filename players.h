@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "cards.h"
 
+#define MIN_BET_VALUE 2
+#define MAX_BET_PERCENTAGE 0.25
+#define MIN_MONEY 10
+#define MAX_MONEY 500
 #define MAX_NAME 9
 
 typedef struct {
@@ -16,6 +20,7 @@ typedef struct {
     char name[MAX_NAME];
     float money;
     float bet;
+    float initialBet;
     Card_node *cards;
     int hand_size;
     int position;

@@ -49,12 +49,25 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
                     printf("Error reading configuration file!\n");
                     exit(EXIT_FAILURE);
                 }
+                
+                if (player->money < MIN_MONEY || player->money > MAX_MONEY) {
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
+                }
+                
                 break;
             case 3:
                 if (sscanf(aux, "%f", &(player->bet)) != 1) {
                     printf("Error reading configuration file!\n");
                     exit(EXIT_FAILURE);
                 }
+                
+                if (player->bet < MIN_BET_VALUE || player->bet > (MAX_BET_PERCENTAGE * player->money)) {
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
+                }
+                
+                player->initialBet = player->bet;
                 break;
         }
         
@@ -230,7 +243,7 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     
     game_file = fopen(config_file,"r");
     
-    if(game_file==NULL){
+    if(game_file == NULL){
         printf("Error opening configuration file!\n");
         exit(EXIT_FAILURE);
     }
@@ -263,7 +276,7 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
         exit(EXIT_FAILURE);
     }
     
-    if(*decks < 1 || *decks > 8 || players < 1 || players > 4){
+    if(*decks < 4 || *decks > 8 || players < 1 || players > 4){
         printf("Not valid players or deck parameters!\n");
         exit(EXIT_FAILURE);
     }
