@@ -24,7 +24,7 @@ void insert_card(Card_node** head, Card data, int position) {
     /*If the list isn't empty (not pointing to NULL)*/
     if (!empty(curr)) {
         
-        /*There isn't negative positions on the list, so return without no actions done*/
+        /*There isn't negative positions on the list, so return with no actions done*/
         if(position < 0)
             return;
 
@@ -55,7 +55,7 @@ void insert_card(Card_node** head, Card data, int position) {
             return;
         }
 
-        /*Inserts teh node in the specified 
+        /*Inserts the node in the specified 
         place with the specified data*/
         new_node->next=curr->next;
         new_node->card=data;
@@ -63,32 +63,43 @@ void insert_card(Card_node** head, Card data, int position) {
     }
 }
 
+/* FUNCTION NAME:take_card_node
+*  DESCRIPTION: Takes the node (if possible) from the selected 
+*position of the list and returns a pointer to it*/
 Card_node* take_card_node(Card_node** head, int position) {
     Card_node* tmp;
     Card_node* curr = *head;
 
-    if(!empty(curr)) {
-        if(position < 0)
-            return NULL;
-        else if(position == 0) {
-            *head = curr->next;
-            curr->next = NULL;
-            return curr;
-        }
+	/*If the list isn't empty (not pointing to NULL)*/
+	if(!empty(curr)) {
+        	/*There isn't negative positions on the list, so return without no actions done*/
+        	if(position < 0)
+            		return NULL;
+        	
+        	/*Takes a node from the first position of the list (head)*/
+        	else if(position == 0) {
+            		*head = curr->next;
+            		curr->next = NULL;
+            		return curr;
+        	}
+		
+		/*Search the node in the position specified, until the end of the list*/
+        	for(int i=1; i < position && curr != NULL; i++)
+        		curr=curr->next;
+		
+		/*If the position doesn't exist (more than the size of the list) 
+		returns with the list unchanged*/
+        	if(empty(curr)) {
+            		return NULL;
+        	}
+        	
+        	/*Takes node from the specified position*/
+        	tmp = curr->next;
+        	curr->next = curr->next->next;
+        	tmp->next = NULL;
 
-        for(int i=1; i < position && curr != NULL; i++)
-            curr=curr->next;
-
-        if(empty(curr)) {
-            return NULL;
-        }
-
-        tmp = curr->next;
-        curr->next = curr->next->next;
-        tmp->next = NULL;
-
-        return tmp;
-    }
+        	return tmp; //Returns a pointer to the taken node
+    	}
 
     return NULL;
 }
