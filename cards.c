@@ -217,14 +217,21 @@ Card_node *pop_card(Card_node** head) {
 	return tmp;//returns a pointer to the popped node
 }
 
+/* FUNCTION NAME:card_stack_top
+*  DESCRIPTION: Returns the card on the stack's top, 
+*  without changing the stack */
 Card card_stack_top(Card_node* head) {
     return head->card;
 }
 
+/* FUNCTION NAME:CountAces
+*  DESCRIPTION: Counts the aces in a card's list/stack */
 int CountAces(Card_node *head) {
     Card_node *walk = head;
     int result = 0;
     
+    /*If the list/stack is not empty(head does not point 
+    to NULL), walks through it in search for acesand counts them*/
     if (walk != NULL) {
         while (walk != NULL) {
             if (IsAce(walk->card)) {
@@ -235,5 +242,5 @@ int CountAces(Card_node *head) {
         }
     }
     
-    return result;
+    return result;//returns the number of aces in the list/stack
 }
