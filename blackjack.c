@@ -66,10 +66,6 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
             walk->player.games_result.won += 1;
             house->money -= 1.5 * (walk->player.bet);
         }
-        
-        if (walk->player.bet > walk->player.money) {
-            walk->player.bet = walk->player.money;
-        }
 
         walk = walk->next;
         i += 1;
@@ -138,7 +134,7 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
                 player_node_aux->player.bet = 2 * hiloValue * player_node_aux->player.initialBet;
                 
                 if (player_node_aux->player.bet < player_node_aux->player.initialBet) {
-                    if (player_node_aux->player.bet > player_node_aux->player.money) {
+                    if (player_node_aux->player.bet > player_node_aux->player.money || player_node_aux->player.initialBet > player_node_aux->player.money) {
                         player_node_aux->player.bet = player_node_aux->player.money;
                     } else {
                         player_node_aux->player.bet = player_node_aux->player.initialBet;
@@ -147,21 +143,20 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
             }
         }
         
-        player_node_aux->player.money -= player_node_aux->player.bet;
+        if (player_node_aux->player.bet > player_node_aux->player.money) {
+            player_node_aux->player.bet = player_node_aux->player.money;
+        }
         
-        if (player_node_aux->player.money <= 0 || player_node_aux->player.bet <= 0) {
+        if (player_node_aux->player.money <= 0) {
             tmp_player = player_node_aux->next;
             join_player_node(removedPlayers, take_player_node(players, i), 0);
             player_node_aux = tmp_player;
         } else {
+            player_node_aux->player.money -= player_node_aux->player.bet;
             player_node_aux = player_node_aux->next;
         }
         
         i += 1;
-    }
-    
-    while (house->cards != NULL) {
-        free(pop_card(&(house->cards)));
     }
     
     house->score = 0;
@@ -233,6 +228,10 @@ void Bet(Player_node *head) {
         
         reads(buf, MAX_NAME + 1);
         
+        if (strlen(buf) <= 0) {
+            break;
+        }
+        
         while(tmp != NULL) {
             if (strcmp(tmp->player.name, buf) == 0 && !tmp->player.ai) {
                 playerSelected = true;
@@ -259,7 +258,9 @@ void Bet(Player_node *head) {
         }
 	} while(!playerSelected);
 
-	tmp->player.bet = bet;
+    if (bet > 0) {
+        tmp->player.bet = bet;
+    }
     
     free(buf);
     free(buf2);

@@ -51,7 +51,7 @@ void PlayAI(Player_node **currentPlayer, Player *house, AIAction **ai_actions, C
                 }
                 break;
             case ActionDoubleOrStand:
-                if ((*currentPlayer)->player.money >= (*currentPlayer)->player.bet) {
+                if ((*currentPlayer)->player.money >= (*currentPlayer)->player.bet && (*currentPlayer)->player.hand_size == BLACKJACK_INITIAL_CARDS) {
                     *currentPlayer = Double(deck_head, numberOfDecks, house, *currentPlayer, hilo, cardsDealt);
                 } else {
                     *currentPlayer = Stand(*currentPlayer);

@@ -6,6 +6,7 @@
 
 #define BLACKJACK_INITIAL_CARDS 2
 #define Bust(player) player.score > 21
+#define Blackjack(player) player.score == 21
 
 void GetBankroll_GameResults(Player* house, Player_node **head);
 void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, int *hilo, int *cardsDealt);

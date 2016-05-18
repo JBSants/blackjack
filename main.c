@@ -85,6 +85,10 @@ int main(int argc, char **argv) {
             turn_ended = true;
         }
         
+        if (currentPlayerNode != NULL && !currentPlayerNode->player.ai && Blackjack(currentPlayerNode->player)) {
+            currentPlayerNode = Stand(currentPlayerNode);
+        }
+        
         // while there's events to handle
         while( SDL_PollEvent( &event ) )
         {
@@ -140,7 +144,6 @@ int main(int argc, char **argv) {
                     case SDLK_r:
                         if (!turn_ended) {
                             currentPlayerNode = Surrender(currentPlayerNode);
-                            
                         }
                         break;
                     case SDLK_b:
