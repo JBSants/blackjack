@@ -16,35 +16,47 @@ void add_card(Card_node** head, Card data) {
 
 }
 
+/* FUNCTION NAME:inser_card
+*  DESCRIPTION: Inserts a card in a specified position on the list*/
 void insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
-
+    
+    /*If the list isn't empty (not pointing to NULL)*/
     if (!empty(curr)) {
+        
+        /*There isn't negative positions on the list, so return without no actions done*/
         if(position < 0)
             return;
 
-        Card_node* new_node = create_card_node();
-        
+	/*Allocates memory for a new node to hold the card, and 
+	if it's not capable, exits the main program*/
+ 	Card_node* new_node = create_card_node();
         if (empty(new_node)) {
             ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
     	}
-
+	
+	/*Inserts on the first position of the list (head)*/
         if(position == 0) {
             new_node->card=data;
             new_node->next=*head;
             *head=new_node;
         }
 
+        /*Search the node in the position specified, until the end of the list*/
         for(int i=1; i < position && curr!=NULL; i++) {
             curr=curr->next;
         }
-
+	
+	/*If the position doesn't exist (more than the size of the list) 
+	returns with the list unchanged*/
         if(empty(curr)) {
             free(new_node);
             return;
         }
 
+        /*Inserts teh node in the specified 
+        place with the specified data*/
         new_node->next=curr->next;
         new_node->card=data;
         curr->next=new_node;
