@@ -10,6 +10,7 @@
 #include "ai.h"
 
 #define MIN_ARGUMENTS 3
+#define AI_DELAY_UNIT 250
 
 int main(int argc, char **argv) {
     SDL_Window* window = NULL;
@@ -72,6 +73,17 @@ int main(int argc, char **argv) {
     /* Main loop. Window remains open until quit == 1 */
     while( quit == 0 )
     {
+        if (!turn_ended && currentPlayerNode == NULL) {
+            /**
+             * Finishes the turn. The house plays and the money is updated.
+             * After this function, it's possible to press the 'n' key
+             * to begin a new turn.
+             */
+            FinishTurn(&deck, numberOfDecks, house, &players);
+            
+            turn_ended = true;
+        }
+        
         // while there's events to handle
         while( SDL_PollEvent( &event ) )
         {
@@ -95,11 +107,11 @@ int main(int argc, char **argv) {
                         quit = 1; // Quits
                         break;
                     case SDLK_UP:
-                        aiDelay += 250;
+                        aiDelay += AI_DELAY_UNIT;
                         break;
                     case SDLK_DOWN:
-                        if (aiDelay > 0) {
-                            aiDelay -= 250;
+                        if (aiDelay >= AI_DELAY_UNIT) {
+                            aiDelay -= AI_DELAY_UNIT;
                         }
                         break;
                     case SDLK_s:
@@ -107,18 +119,6 @@ int main(int argc, char **argv) {
                         /* Verifies the turn hasn't end */
                         if (!turn_ended) {
                             currentPlayerNode = Stand(currentPlayerNode);
-                            
-                            /* If there are no more players after this stand */
-                            if (currentPlayerNode == NULL) {
-                                /**
-                                 * Finishes the turn. The house plays and the money is updated.
-                                 * After this function, it's possible to press the 'n' key
-                                 * to begin a new turn.
-                                 */
-                                FinishTurn(&deck, numberOfDecks, house, &players);
-                                
-                                turn_ended = true;
-                            }
                         }
                         
                         break;
@@ -128,36 +128,18 @@ int main(int argc, char **argv) {
                         if (!turn_ended) {
                             /* The current player requests a card. */
                             currentPlayerNode = Hit(&deck, currentPlayerNode, numberOfDecks);
-                            
-                            /* If there are no more players after this stand */
-                            if (currentPlayerNode == NULL) {
-                                FinishTurn(&deck, numberOfDecks, house, &players);
-                                
-                                turn_ended = true;
-                            }
                         }
                         
                         break;
                     case SDLK_d:
                         if (!turn_ended) {
                             currentPlayerNode = Double(&deck, numberOfDecks, house, currentPlayerNode);
-                            
-                            if (currentPlayerNode == NULL) {
-                                FinishTurn(&deck, numberOfDecks, house, &players);
-                                
-                                turn_ended = true;
-                            }
                         }
                         break;
                     case SDLK_r:
                         if (!turn_ended) {
                             currentPlayerNode = Surrender(currentPlayerNode);
                             
-                            if (currentPlayerNode == NULL) {
-                                FinishTurn(&deck, numberOfDecks, house, &players);
-                                
-                                turn_ended = true;
-                            }
                         }
                         break;
                     case SDLK_b:
@@ -223,9 +205,6 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     
-    /* Writes stats file */
-    //WriteMoneyAndStatsToFile(money, player_stats);
-
     if (!empty(house->cards)) {
         erase_card_list(house->cards);
     }
@@ -240,6 +219,7 @@ int main(int argc, char **argv) {
         players = player_node_aux;
     }
     
+    /* Writes stats file */
     WriteMoneyAndStatsToFile(removedPlayers, house);
     
     free(house);

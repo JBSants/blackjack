@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "players.h"
 
+const short CARD_POINTS[] = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
+
 void GetPlayerListScore(Player_node *head) {
     Player_node *walk = head;
 
@@ -14,8 +16,6 @@ void GetPlayerListScore(Player_node *head) {
 }
 
 void GetScore(Player* player) {
-    const short card_points[] = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
-
     short score = 0, aces = 0;
     Card_node* cardnode_ptr;
 
@@ -26,7 +26,7 @@ void GetScore(Player* player) {
     while(cardnode_ptr != NULL) {
 
         if (cardnode_ptr->card.id != 13) {
-            score += card_points[cardnode_ptr->card.id];
+            score += CARD_POINTS[cardnode_ptr->card.id];
         } else {
             aces++;
         }
@@ -41,10 +41,11 @@ void GetScore(Player* player) {
             score += 1;
         }
     }
+    
     player->score = score;
 }
 
-Stat add_player(Player_node** head, Player data) {
+void add_player(Player_node** head, Player data) {
     Player_node *new_node = NULL;
 
 	new_node = create_player_node(data);
@@ -57,11 +58,9 @@ Stat add_player(Player_node** head, Player data) {
     new_node->next = *head;
     new_node->player = data;
     *head = new_node;
-
-	return ACT_STAT;
 }
 
-Stat insert_player_node(Player_node **head, Player_node **tail, Player data) {
+void insert_player_node(Player_node **head, Player_node **tail, Player data) {
     Player_node *new_node = create_player_node();
     
     if (new_node == NULL) {
@@ -81,8 +80,6 @@ Stat insert_player_node(Player_node **head, Player_node **tail, Player data) {
     if (*head == NULL) {
         *head = *tail;
     }
-    
-    return ACT_STAT;
 }
 
 Player_node *take_player_node(Player_node** head, int position) {
@@ -115,33 +112,32 @@ Player_node *take_player_node(Player_node** head, int position) {
     return NULL;
 }
 
-Stat join_player_node(Player_node** head, Player_node* jointo, int position) {
+void join_player_node(Player_node** head, Player_node* jointo, int position) {
     Player_node *curr = *head;
     if(!empty(curr)) {
         
         if(position < 0) {
-            return NOP_STAT;
-        } else if(position == 0){
+            return;
+        }
+        
+        if(position == 0){
             jointo->next = *head;
             *head = jointo;
-            return ACT_STAT;
+            return;
         }
         
         for(int i=1; i < position && curr != NULL; i++)
             curr=curr->next;
         
         if(empty(curr)) {
-            return NOP_STAT;
+            return;
         }
         
         jointo->next = curr->next;
         curr->next = jointo;
     } else {
         *head = jointo;
-        return ACT_STAT;
     }
-    
-    return WARN_STAT;
 }
 
 void insert_sorted_player_node(Player_node **head, Player data) {

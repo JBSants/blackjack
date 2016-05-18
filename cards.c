@@ -2,11 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Stat add_card(Card_node** head, Card data) {
-
-	if(empty(*head))
-		return NOP_STAT;
-
+void add_card(Card_node** head, Card data) {
 	Card_node* new_node = create_card_node();
     
 	if (new_node == NULL) {
@@ -14,22 +10,18 @@ Stat add_card(Card_node** head, Card data) {
         exit(EXIT_FAILURE);
     }
 
-	if (new_node == NULL)
-		return NOP_STAT;
-
 	new_node->next = *head;
 	new_node->card = data;
 	*head = new_node;
 
-	return ACT_STAT;
 }
 
-Stat insert_card(Card_node** head, Card data, int position) {
+void insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
 
     if (!empty(curr)) {
         if(position < 0)
-            return NOP_STAT;
+            return;
 
         Card_node* new_node = create_card_node();
         
@@ -50,17 +42,13 @@ Stat insert_card(Card_node** head, Card data, int position) {
 
         if(empty(curr)) {
             free(new_node);
-            return NOP_STAT;
+            return;
         }
 
         new_node->next=curr->next;
         new_node->card=data;
         curr->next=new_node;
-
-        return ACT_STAT;
     }
-
-    return EMPTY_STAT;
 }
 
 Card_node* take_card_node(Card_node** head, int position) {
@@ -93,34 +81,33 @@ Card_node* take_card_node(Card_node** head, int position) {
     return NULL;
 }
 
-Stat join_card_node(Card_node** head, Card_node* jointo, int position) {
+void join_card_node(Card_node** head, Card_node* jointo, int position) {
     Card_node* curr = *head;
 
 	if(!empty(curr)) {
 
 		if(position < 0) {
-			return NOP_STAT;
-		} else if(position == 0){
+			return;
+		}
+        
+        if(position == 0){
 			jointo->next = *head;
 			*head = jointo;
-			return ACT_STAT;
+			return;
 		}
 
 		for (int i=1; i < position && curr != NULL; i++)
 			curr=curr->next;
 
 		if(empty(curr)) {
-			return NOP_STAT;
+			return;
 		}
 
 		jointo->next = curr->next;
 		curr->next = jointo;
 	} else {
 		*head = jointo;
-		return ACT_STAT;
 	}
-
-	return WARN_STAT;
 }
 
 Card_node* create_card_node() {
@@ -182,24 +169,18 @@ Card card_stack_top(Card_node* head) {
     return head->card;
 }
 
-void card_stack_erase(Card_node* head) {
-	Card_node* tmp = NULL;
-
-	while((tmp = head) != NULL){
-		head = head->next;
-		free(tmp);
-    }
-}
-
 int CountAces(Card_node *head) {
+    Card_node *walk = head;
     int result = 0;
     
-    while (head != NULL) {
-        if (IsAce(head->card)) {
-            result += 1;
+    if (walk != NULL) {
+        while (walk != NULL) {
+            if (IsAce(walk->card)) {
+                result += 1;
+            }
+            
+            walk = walk->next;
         }
-        
-        head = head->next;
     }
     
     return result;

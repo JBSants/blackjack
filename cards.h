@@ -9,7 +9,6 @@
 #define IsAce(card) card.id == 13
 
 typedef enum { Clubs = 0, Diamonds = 1, Hearts = 2, Spades = 3} Suit;
-typedef enum { NOP_STAT=-1, EMPTY_STAT, ACT_STAT, WARN_STAT } Stat;
 
 typedef struct {
     short id;
@@ -21,10 +20,10 @@ typedef struct card_node {
 	struct card_node* next;
 } Card_node;
 
-Stat add_card(Card_node** head, Card data);
-Stat insert_card(Card_node** head,Card data, int position);
+void add_card(Card_node** head, Card data);
+void insert_card(Card_node** head,Card data, int position);
 Card_node* take_card_node(Card_node** head, int position);
-Stat join_card_node(Card_node** head, Card_node* jointo, int position);
+void join_card_node(Card_node** head, Card_node* jointo, int position);
 Card_node* create_card_node();
 void erase_card_list(Card_node* head);
 
@@ -32,7 +31,7 @@ void push_card(Card_node** head, Card data);
 void push_card_node(Card_node** head, Card_node* node);
 Card_node *pop_card(Card_node** head);
 Card card_stack_top(Card_node* head);
-void card_stack_erase(Card_node* head);
 
 int CountAces(Card_node *head);
+
 #endif

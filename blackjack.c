@@ -5,6 +5,7 @@
 #include "cards.h"
 #include "blackjack.h"
 #include "deck.h"
+#include "ai.h"
 
 const char STATISTICS_FILE_NAME[] = "stats.txt";
 
@@ -20,8 +21,10 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
     while(walk != NULL) {
         if(walk->player.surrender == true) {
         	walk->player.surrender = false;
+            house->money += 0.5 * walk->player.bet;
         } else if (Bust(walk->player)) {
             walk->player.games_result.lost += 1;
+            house->money += walk->player.bet;
         } else if (house->score > 21) {
             walk->player.money += 2 * (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == 21 && walk->player.hand_size == 2);
             walk->player.games_result.won += 1;
@@ -288,11 +291,12 @@ void WriteMoneyAndStatsToFile(Player_node *players, Player *house) {
     
     /* Prints some information */
     fprintf(statsFile, "-- Statistics -- \n\n");
-    fprintf(statsFile, "[Player Name]: [Games Won] - [Games Tied] - [Games Lost] (Money: [Final Money])\n\n");
+    fprintf(statsFile, "[Player Name] ([Type]): [Games Won] | [Games Tied] | [Games Lost] (Money: [Final Money])\n\n");
     
     /* Writes statstics for each player */
     while(players != NULL) {
-        fprintf(statsFile, "%s: %d - %d - %d (Money: %.2f)\n", players->player.name, players->player.games_result.won, players->player.games_result.tied, players->player.games_result.lost, players->player.money);
+        
+        fprintf(statsFile, "%s (%s): %d | %d | %d (Money: %.2f)\n", players->player.name, players->player.ai ? AI : NOT_AI, players->player.games_result.won, players->player.games_result.tied, players->player.games_result.lost, players->player.money);
         
         players = players->next;
     }

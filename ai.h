@@ -6,6 +6,8 @@
 
 #define AIACTIONS_COLUMNS 10
 #define AIACTIONS_ROWS 17
+#define AI "EA"
+#define NOT_AI "HU"
 
 typedef enum { ActionHit = 0, ActionStand = 1, ActionDoubleOrHit = 2, ActionDoubleOrStand = 3, ActionSurrenderOrHit = 4 } AIAction;
 

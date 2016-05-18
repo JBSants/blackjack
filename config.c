@@ -3,13 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "players.h"
-#include "ai.h"
-#define MAX_LINE 35
 
-const char AI[] = "EA";
-const char NOT_AI[] = "HU";
+#define MAX_LINE 35
 
 void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     char line[MAX_LINE] = { 0 };

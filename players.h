@@ -32,12 +32,12 @@ typedef struct node_player {
 
 void GetScore(Player* current_player);
 void GetPlayerListScore(Player_node *head);
-Stat add_player(Player_node** head, Player data);
+void add_player(Player_node** head, Player data);
 Player_node *create_player_node();
-Stat insert_player_node(Player_node **head, Player_node **tail, Player data);
+void insert_player_node(Player_node **head, Player_node **tail, Player data);
 void insert_sorted_player_node(Player_node **head, Player data);
 void erase_player_list(Player_node* head);
-Stat join_player_node(Player_node** head, Player_node* jointo, int position);
+void join_player_node(Player_node** head, Player_node* jointo, int position);
 Player_node *take_player_node(Player_node** head, int position);
 
 #endif
