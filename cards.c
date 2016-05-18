@@ -24,7 +24,7 @@ void insert_card(Card_node** head, Card data, int position) {
     /*If the list isn't empty (not pointing to NULL)*/
     if (!empty(curr)) {
         
-        /*There isn't negative positions on the list, so return with no actions done*/
+        /*There aren't negative positions on the list, so return with no actions done*/
         if(position < 0)
             return;
 
@@ -72,7 +72,7 @@ Card_node* take_card_node(Card_node** head, int position) {
 
 	/*If the list isn't empty (not pointing to NULL)*/
 	if(!empty(curr)) {
-        	/*There isn't negative positions on the list, so return without no actions done*/
+        	/*There aren't negative positions on the list, so return without no actions done*/
         	if(position < 0)
             		return NULL;
         	
@@ -104,49 +104,66 @@ Card_node* take_card_node(Card_node** head, int position) {
     return NULL;
 }
 
+/* FUNCTION NAME:join_card_node
+*  DESCRIPTION: Joins a node (if possible) in the selected,
+*  else doesn't do anything*/
 void join_card_node(Card_node** head, Card_node* jointo, int position) {
     Card_node* curr = *head;
 
+	/*If the list isn't empty (not pointing to NULL)*/
 	if(!empty(curr)) {
-
+		/*There aren't negative positions on the list, so return without no actions done*/
 		if(position < 0) {
 			return;
 		}
-        
-        if(position == 0){
+        	
+        	/*Joins a node in the first position of the list (head)*/
+        	if(position == 0){
 			jointo->next = *head;
 			*head = jointo;
 			return;
 		}
-
+		
+		/*Search the node in the position specified, until the end of the list*/
 		for (int i=1; i < position && curr != NULL; i++)
 			curr=curr->next;
-
+		
+		/*If the position doesn't exist (more than the size of the list) 
+		returns with the list unchanged*/
 		if(empty(curr)) {
 			return;
 		}
-
+		
+		/*Joins node to the list's specified position*/
 		jointo->next = curr->next;
 		curr->next = jointo;
-	} else {
+	
+	} else {//if the list is empty the node to join is in the head (independent of the position)
 		*head = jointo;
 	}
 }
 
-Card_node* create_card_node() {
-    Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
+/* FUNCTION NAME:create_card_node
+*  DESCRIPTION: Creates a node */
+Card_node* create_card_node()
+	
+	/*Allocates memory for a new node and 
+	if it's not capable, exits the main program*/
+	Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
+	if(empty(new_node)) {
+        	ERROR_MESSAGE();
+        	exit(EXIT_FAILURE);
+    	}
 
-    if(empty(new_node)) {
-        ERROR_MESSAGE();
-        exit(EXIT_FAILURE);
-    }
-
-    return new_node;
+	return new_node;//returns a pointer to the created node
 }
 
+/* FUNCTION NAME:erase_card_list
+*  DESCRIPTION: Erases a list */
 void erase_card_list(Card_node* head) {
     Card_node* tmp;
     
+    /*Removes each list's element*/
     while((tmp = head) != NULL){
         head = head->next;
         free(tmp);
@@ -155,37 +172,49 @@ void erase_card_list(Card_node* head) {
 
 ///Stack
 
+/* FUNCTION NAME:push_card
+*  DESCRIPTION: Performs a push into the stack of a card */
 void push_card(Card_node** head, Card data) {
-        Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
-
-        if(empty(new_node)){
+       
+       	/*Allocates memory for a new node to hold the card, and 
+	if it's not capable, exits the main program*/
+       Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
+	if(empty(new_node)){
         	ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
         }
-
+	
+	/*Push of the card into the stack*/
         new_node->card = data;
         new_node->next = *head;
         *head = new_node;
 }
 
+/* FUNCTION NAME:push_card_node
+*  DESCRIPTION: Performs a push into the stack of a node */
 void push_card_node(Card_node** head, Card_node* node){
+	
+	/*If there is a node (node pointer doesn't point to NULL)
+	push the node into the stack*/
 	if(!empty(node)){
 		node->next = *head;
         *head = node;
 	}
 }
 
-
+/* FUNCTION NAME:pop_card
+*  DESCRIPTION: Performs a pop onto the stack */
 Card_node *pop_card(Card_node** head) {
 	Card_node* tmp = NULL;
-
+	
+	/*If the stack isn't empty (not pointing to NULL), pop*/
 	if(!empty(*head)){
 		tmp = *head;
 		(*head) = tmp->next;
 		tmp->next = NULL;
 	}
 
-	return tmp;
+	return tmp;//returns a pointer to the popped node
 }
 
 Card card_stack_top(Card_node* head) {
