@@ -67,7 +67,7 @@ void insert_card(Card_node** head, Card data, int position) {
 *  DESCRIPTION: Takes the node (if possible) from the selected 
 *position of the list and returns a pointer to it*/
 Card_node* take_card_node(Card_node** head, int position) {
-    Card_node* tmp;
+    Card_node* tmp = NULL;
     Card_node* curr = *head;
 
 	/*If the list isn't empty (not pointing to NULL)*/
@@ -95,8 +95,11 @@ Card_node* take_card_node(Card_node** head, int position) {
         	
         	/*Takes node from the specified position*/
         	tmp = curr->next;
-        	curr->next = curr->next->next;
-        	tmp->next = NULL;
+        
+            if (tmp != NULL) {
+                curr->next = curr->next->next;
+                tmp->next = NULL;
+            }
 
         	return tmp; //Returns a pointer to the taken node
     	}

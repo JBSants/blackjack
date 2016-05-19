@@ -84,7 +84,7 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     player->surrender = false;
 }
 
-void PromptNewPlayer(Player *newPlayer) {
+void PromptNewPlayer(Player *newPlayer, Player_node *players) {
     short notValid = 1; // used for parameter value check
     char buffer[MAX_LINE] = { 0 }; // buffer for fgets
     char aux = 0;
@@ -95,6 +95,14 @@ void PromptNewPlayer(Player *newPlayer) {
         printf("Player Name: ");
         
         notValid = fgets(buffer, MAX_LINE, stdin) == NULL || strlen(buffer) > MAX_NAME;
+        
+        while (players != NULL) {
+            if (strcmp(players->player.name, buffer)) {
+                notValid = 1;
+            }
+            
+            players = players->next;
+        }
     }
     
     buffer[strlen(buffer) - 1] = '\0';
@@ -181,6 +189,7 @@ void AddNewPlayer(Player_node **players, int position) {
     newPlayer->games_result.lost = 0;
     newPlayer->surrender = false;
     newPlayer->position = position;
+    newPlayer->initialBet = newPlayer->bet;
     
     insert_sorted_player_node(players, *newPlayer);
     

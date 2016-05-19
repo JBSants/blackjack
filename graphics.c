@@ -73,11 +73,13 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
      * the house points
      */
     if (i == 0 && house->score > 0) {
-        sprintf(house_points_str, "House score: %d", house->score);
-        if (house->score > 21) {
-            strcat(house_points_str, " (BUST)");
+        if (Bust((*house))) {
+            sprintf(house_points_str, "House score: BUST!");
+        } else {
+            sprintf(house_points_str, "House score: %d", house->score);
         }
-        RenderText(35, (0.55f*HEIGHT_WINDOW)-130, house_points_str, _font, &white, _renderer);
+        
+        RenderText(35, (0.55f*HEIGHT_WINDOW)-130, house_points_str, _font, Bust((*house)) ? &currentPlayerAreaColor : &white, _renderer);
     }
     
     if (empty(player)) {
@@ -104,15 +106,17 @@ void RenderTable(Player_node *players, Player_node *currentPlayer, Player *house
         
         sprintf(name_money_str,"%s -- Bet: %.2f euros", player->player.name, player->player.bet);
         
-        sprintf(points_str, "%d points", player->player.score);
+        
         
         /* If player is bust */
         if (Bust(player->player)) {
-            strcat(points_str, " (BUST)"); // if bust concatnate BUST to string
+            sprintf(points_str, "BUST!"); // if bust concatnate BUST to string
+        } else {
+            sprintf(points_str, "%d points", player->player.score);
         }
         
         RenderText(playerRect.x+20, playerRect.y-50, name_money_str, _font, playerColor, _renderer);
-        RenderText(playerRect.x+20, playerRect.y-30, points_str, _font, playerColor, _renderer); // renders points
+        RenderText(playerRect.x+20, playerRect.y-30, points_str, _font, Bust(player->player) ? &currentPlayerAreaColor : playerColor, _renderer); // renders points
         
         sprintf(name_money_str, "%s", player->player.name);
         

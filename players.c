@@ -83,28 +83,32 @@ void insert_player_node(Player_node **head, Player_node **tail, Player data) {
 }
 
 Player_node *take_player_node(Player_node** head, int position) {
-    Player_node *tmp;
-    Player_node *curr=*head;
+    Player_node *tmp = NULL;
+    Player_node *curr = *head;
     
     if(!empty(curr)) {
         if(position < 0)
             return NULL;
-        else if(position == 0) {
+        
+        if(position == 0) {
             *head = curr->next;
             curr->next = NULL;
             return curr;
         }
         
-        for(int i=1; i < position && curr != NULL; i++)
-            curr=curr->next;
+        for(int i = 1; i < position && curr != NULL; i++)
+            curr = curr->next;
         
         if(empty(curr)) {
             return NULL;
         }
         
         tmp = curr->next;
-        curr->next = curr->next->next;
-        tmp->next = NULL;
+        
+        if (tmp != NULL) {
+            curr->next = curr->next->next;
+            tmp->next = NULL;
+        }
         
         return tmp;
     }
@@ -114,29 +118,31 @@ Player_node *take_player_node(Player_node** head, int position) {
 
 void join_player_node(Player_node** head, Player_node* jointo, int position) {
     Player_node *curr = *head;
-    if(!empty(curr)) {
-        
-        if(position < 0) {
-            return;
-        }
-        
-        if(position == 0){
-            jointo->next = *head;
+    if (jointo != NULL) {
+        if(!empty(curr)) {
+            
+            if(position < 0) {
+                return;
+            }
+            
+            if(position == 0){
+                jointo->next = *head;
+                *head = jointo;
+                return;
+            }
+            
+            for(int i = 1; i < position && curr != NULL; i++)
+                curr = curr->next;
+            
+            if(empty(curr)) {
+                return;
+            }
+            
+            jointo->next = curr->next;
+            curr->next = jointo;
+        } else {
             *head = jointo;
-            return;
         }
-        
-        for(int i=1; i < position && curr != NULL; i++)
-            curr=curr->next;
-        
-        if(empty(curr)) {
-            return;
-        }
-        
-        jointo->next = curr->next;
-        curr->next = jointo;
-    } else {
-        *head = jointo;
     }
 }
 
