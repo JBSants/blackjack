@@ -146,6 +146,81 @@ int GetPlayerPositionFromXY(int x, int y) {
     return (int) (x + 10)/((0.95f * WIDTH_WINDOW)/4-5);
 }
 
+void DisplayAddPlayerHover(int x, int y, Player_node *players, SDL_Renderer *_renderer) {
+    int playerPosition = GetPlayerPositionFromXY(x, y);
+    int separatorPos = (int)(0.95f*WIDTH_WINDOW); // seperates the left from the right part of the window
+    Player_node *player_node_aux = players;
+    SDL_Rect *playerRect = NULL;
+    
+    if (playerPosition >= 0 && playerPosition < 4) {
+        while (player_node_aux != NULL) {
+            if (playerPosition == player_node_aux->player.position) {
+                return;
+            }
+            
+            player_node_aux = player_node_aux->next;
+        }
+        
+        playerRect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
+        
+        if (playerRect == NULL) {
+            ERROR_MESSAGE();
+            
+            exit(EXIT_FAILURE);
+        }
+        
+        playerRect->x = playerPosition*(separatorPos/4-5)+10;
+        playerRect->y = (int) (0.55f*HEIGHT_WINDOW);
+        playerRect->w = separatorPos/4-5;
+        playerRect->h = (int) (0.42f*HEIGHT_WINDOW);
+        
+        SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 255);
+        
+        SDL_RenderDrawRect(_renderer, playerRect);
+        
+        free(playerRect);
+        
+    }
+}
+
+void DisplayAddPlayerMessage(SDL_Renderer *_renderer, TTF_Font *_font) {
+    SDL_Color *white = (SDL_Color *) malloc(sizeof(SDL_Color));
+    
+    if (white == NULL) {
+        ERROR_MESSAGE();
+        
+        exit(EXIT_FAILURE);
+    }
+    
+    white->a = 255;
+    white->r = 255;
+    white->g = 255;
+    white->b = 255;
+    
+    RenderText(35, 0.35F * HEIGHT_WINDOW, "Adding new player", _font, white, _renderer);
+    
+    free(white);
+}
+
+void DisplayBetMessage(SDL_Renderer *_renderer, TTF_Font *_font) {
+    SDL_Color *white = (SDL_Color *) malloc(sizeof(SDL_Color));
+    
+    if (white == NULL) {
+        ERROR_MESSAGE();
+        
+        exit(EXIT_FAILURE);
+    }
+    
+    white->a = 255;
+    white->r = 255;
+    white->g = 255;
+    white->b = 255;
+    
+    RenderText(35, 0.35F * HEIGHT_WINDOW, "Bet", _font, white, _renderer);
+    
+    free(white);
+}
+
 /**
  * RenderHouseCards: Renders cards of the house
  * \param _house vector with the house cards

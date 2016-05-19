@@ -41,4 +41,7 @@ void RenderPlayerCards(Player_node *players, SDL_Surface **_cards, SDL_Renderer*
 void LoadCards(SDL_Surface **);
 void UnLoadCards(SDL_Surface **);
 int GetPlayerPositionFromXY(int x, int y);
+void DisplayAddPlayerHover(int x, int y, Player_node *players, SDL_Renderer *_renderer);
+void DisplayAddPlayerMessage(SDL_Renderer *_renderer, TTF_Font *_font);
+void DisplayBetMessage(SDL_Renderer *_renderer, TTF_Font *_font);
 #endif

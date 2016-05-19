@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
     char *aiConfig = NULL;
     int hilo = 0;
     int cardsDealt = 0;
+    int mouseX = 0, mouseY = 0;
     
     if (argc < MIN_ARGUMENTS) {
         printf("Usage: blackjack <game settings file> <ai settings file>\n");
@@ -99,7 +100,7 @@ int main(int argc, char **argv) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     newPlayerPos = GetPlayerPositionFromXY(event.button.x, event.button.y);
                     
-                    if (newPlayerPos != -1) {
+                    if (newPlayerPos > 0 && newPlayerPos < 4) {
                         AddNewPlayer(&players, newPlayerPos);
                     }
                     
@@ -148,12 +149,15 @@ int main(int argc, char **argv) {
                         break;
                     case SDLK_b:
                         if (turn_ended) {
+                            DisplayBetMessage(renderer, serif);
+                            SDL_RenderPresent(renderer);
+                            
                             Bet(players);
                         }
                         break;
                     case SDLK_a:
                         if (turn_ended) {
-                            adding_player = true;
+                            adding_player = !adding_player;
                         }
                         break;
                     case SDLK_n:
@@ -177,6 +181,13 @@ int main(int argc, char **argv) {
         // render player cards
         RenderPlayerCards(players, cards, renderer);
         // render in the screen all changes above
+        
+        if (adding_player) {
+            DisplayAddPlayerMessage(renderer, serif);
+            SDL_GetMouseState(&mouseX, &mouseY);
+            DisplayAddPlayerHover(mouseX, mouseY, players, renderer);
+        }
+        
         SDL_RenderPresent(renderer);
         // add a delay
         SDL_Delay( delay );
