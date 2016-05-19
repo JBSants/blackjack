@@ -4,78 +4,96 @@
 #include <stdio.h>
 #include <string.h>
 #include "players.h"
-#include "deck.h"
 
 #define MAX_LINE 35
-#define CONFIG_SEPARATOR "-"
 
-void ConfigurationFileError() {
-    printf("Error reading configuration file!\n");
-    
-    exit(EXIT_FAILURE);
-}
-
+/* FUNCTION NAME:ReadGameSettingsPlayer
+*  DESCRIPTION: Reads players parameters from the configuration file*/
 void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     char line[MAX_LINE] = { 0 };
     char *aux = NULL;
     int i = 0;
     
+   /*Reads a line from the configuration file, and if 
+   not possible exits the main program*/
     if (fgets(line, MAX_LINE, config_file) == NULL) {
-        ConfigurationFileError();
+        printf("Error reading configuration file!\n");
+        exit(EXIT_FAILURE);
     }
     
-    aux = strtok(line, CONFIG_SEPARATOR);
-    
+    /*Breaks the line into the substrings (tokens) separated
+    by '-' and exits the main program if a first token isn't found*/
+    aux = strtok(line, "-");
     if (aux == NULL) {
-        ALLOCATION_ERROR_MESSAGE();
+        ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
     
     do {
-        switch (i) {
-            case 0:
+        switch (i) {//Switches through all the different player parameters
+            case 0://First Parameter: player's type
+                /*Check if player is human*/
                 if (strcmp(aux, NOT_AI) == 0) {
-                    player->ai = false;
+                    player->ai = false;//turns ai off (is human)
+                /*Check if player is artificial intelligence*/    
                 } else if (strcmp(aux, AI) == 0){
-                    player->ai = true;
+                    player->ai = true;//turns ai on
+                /*If it's not an expected type exits the main program*/ 
                 } else {
-                    ConfigurationFileError();
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
                 }
                 break;
-            case 1:
+            case 1://Second Parameter: player's name
+                /*Checks if the name was found in the file
+                and if the name as an expected size, if not
+                exits the main program*/ 
                 if (aux == NULL || strlen(aux) > MAX_NAME) {
-                    ConfigurationFileError();
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
                 }
                 
-                strcpy(player->name, aux);
+                strcpy(player->name, aux);//saves the player's name
                 break;
-            case 2:
+            case 2://Third Parameter: player's initial money
+                /*Checks if the parameter is of type float, if
+                not exits the main program, if it is saves it*/
                 if (sscanf(aux, "%f", &(player->money)) != 1) {
-                    ConfigurationFileError();
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
                 }
-                
+                /*Sets boundaries to the money value, and if 
+                they're not respected the main program is aborted */
                 if (player->money < MIN_MONEY || player->money > MAX_MONEY) {
-                    ConfigurationFileError();
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
                 }
                 
                 break;
-            case 3:
+            case 3://Fourth Parameter: player's initial bet
+                /*Checks if the parameter is of type float, if
+                not exits the main program, if it is saves it*/
                 if (sscanf(aux, "%f", &(player->bet)) != 1) {
-                    ConfigurationFileError();
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
                 }
                 
+                /*Sets boundaries to the bet value, and if they're 
+                not respected the main program is aborted */
                 if (player->bet < MIN_BET_VALUE || player->bet > (MAX_BET_PERCENTAGE * player->money)) {
-                    ConfigurationFileError();
+                    printf("Error reading configuration file!\n");
+                    exit(EXIT_FAILURE);
                 }
                 
-                player->initialBet = player->bet;
+                player->initialBet = player->bet;//Saves the player's bet as initial bet
                 break;
         }
         
-        aux = strtok(NULL, CONFIG_SEPARATOR);
+        aux = strtok(NULL, "-");//Searches for the next token
         i += 1;
-    } while (aux != NULL);
+    } while (aux != NULL);//while there's tokens
     
+    /*Initializes remaining player's fields*/
     player->cards = NULL;
     player->score = 0;
     player->hand_size = 0;
@@ -85,7 +103,7 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     player->surrender = false;
 }
 
-void PromptNewPlayer(Player *newPlayer, Player_node *players) {
+void PromptNewPlayer(Player *newPlayer) {
     short notValid = 1; // used for parameter value check
     char buffer[MAX_LINE] = { 0 }; // buffer for fgets
     char aux = 0;
@@ -96,14 +114,6 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
         printf("Player Name: ");
         
         notValid = fgets(buffer, MAX_LINE, stdin) == NULL || strlen(buffer) > MAX_NAME;
-        
-        while (players != NULL) {
-            if (strcmp(players->player.name, buffer)) {
-                notValid = 1;
-            }
-            
-            players = players->next;
-        }
     }
     
     buffer[strlen(buffer) - 1] = '\0';
@@ -175,12 +185,12 @@ void AddNewPlayer(Player_node **players, int position) {
     newPlayer = (Player *) malloc(sizeof(Player));
     
     if (newPlayer == NULL) {
-        ALLOCATION_ERROR_MESSAGE();
+        ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
     
     
-    PromptNewPlayer(newPlayer, *players);
+    PromptNewPlayer(newPlayer);
     
     newPlayer->cards = NULL;
     newPlayer->score = 0;
@@ -190,7 +200,6 @@ void AddNewPlayer(Player_node **players, int position) {
     newPlayer->games_result.lost = 0;
     newPlayer->surrender = false;
     newPlayer->position = position;
-    newPlayer->initialBet = newPlayer->bet;
     
     insert_sorted_player_node(players, *newPlayer);
     
@@ -205,7 +214,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     *ai_actions = (AIAction **) malloc(sizeof(AIAction *) * AIACTIONS_ROWS);
     
     if (*ai_actions == NULL) {
-        ALLOCATION_ERROR_MESSAGE();
+        ERROR_MESSAGE();
         
         exit(EXIT_FAILURE);
     }
@@ -214,7 +223,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS);
         
         if ((*ai_actions)[i] == NULL) {
-            ALLOCATION_ERROR_MESSAGE();
+            ERROR_MESSAGE();
             
             exit(EXIT_FAILURE);
         }
@@ -228,7 +237,9 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         }
         
         if (c > '4' || c < '0') {
-            ConfigurationFileError();
+            printf("Error opening configuration file!\n");
+            
+            exit(EXIT_FAILURE);
         }
         
         if (currentRow > AIACTIONS_ROWS || currentColumn > AIACTIONS_COLUMNS) {
@@ -252,35 +263,41 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     game_file = fopen(config_file,"r");
     
     if(game_file == NULL){
-        ConfigurationFileError();
+        printf("Error opening configuration file!\n");
+        exit(EXIT_FAILURE);
     }
     
     ai_strategy = fopen(ai, "r");
     
     if(ai_strategy == NULL){
-        ConfigurationFileError();
+        printf("Error opening AI strategy file!\n");
+        exit(EXIT_FAILURE);
     }
     
     ReadAIActions(ai_strategy, ai_actions);
     
     if (fgets(line, MAX_LINE, game_file) == NULL) {
-        ConfigurationFileError();
+        printf("Error reading configuration file!\n");
+        exit(EXIT_FAILURE);
     }
     
-    tmp = strtok(line, CONFIG_SEPARATOR);
+    tmp = strtok(line, "-");
     
     if (sscanf(tmp, "%d", decks) == 0) {
-        ConfigurationFileError();
+        printf("Error reading configuration file!\n");
+        exit(EXIT_FAILURE);
     }
     
-    tmp = strtok(NULL, CONFIG_SEPARATOR);
+    tmp = strtok(NULL, "-");
     
     if (sscanf(tmp, "%d", &players) == 0) {
-        ConfigurationFileError();
+        printf("Error reading configuration file!\n");
+        exit(EXIT_FAILURE);
     }
     
-    if(*decks < MIN_DECKS || *decks > MAX_DECKS || players < MIN_PLAYERS || players > MAX_PLAYERS){
-        ConfigurationFileError();
+    if(*decks < 4 || *decks > 8 || players < 1 || players > 4){
+        printf("Not valid players or deck parameters!\n");
+        exit(EXIT_FAILURE);
     }
     
     
@@ -290,7 +307,7 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
         Player *newPlayer = (Player *) malloc(sizeof(Player));
         
         if (newPlayer == NULL) {
-            ALLOCATION_ERROR_MESSAGE();
+            ERROR_MESSAGE();
             exit(EXIT_FAILURE);
         }
         
