@@ -4,10 +4,10 @@
 #include "players.h"
 #include "cards.h"
 
-#define BLACKJACK_INITIAL_CARDS 2
-#define BLACKJACK_MAX_SCORE 21
-#define Bust(player) player.score > BLACKJACK_MAX_SCORE
-#define Blackjack(player) (player.score == BLACKJACK_MAX_SCORE && player.hand_size == BLACKJACK_INITIAL_CARDS)
+#define BLACKJACK_INITIAL_CARDS 2  // initially dealt cards
+#define BLACKJACK_MAX_SCORE 21  // max score
+#define Bust(player) player.score > BLACKJACK_MAX_SCORE  // bust check macro
+#define Blackjack(player) (player.score == BLACKJACK_MAX_SCORE && player.hand_size == BLACKJACK_INITIAL_CARDS)  // blackjack check macro
 
 void GetBankroll_GameResults(Player* house, Player_node **head);
 void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, int *hilo, int *cardsDealt);
