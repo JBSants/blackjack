@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
             turn_ended = true;
         }
         
-        if (currentPlayerNode != NULL && !currentPlayerNode->player.ai && Blackjack(currentPlayerNode->player)) {
+        if (currentPlayerNode != NULL && !currentPlayerNode->player.ai && currentPlayerNode->player.score >= BLACKJACK_MAX_SCORE) {
             currentPlayerNode = Stand(currentPlayerNode);
         }
         

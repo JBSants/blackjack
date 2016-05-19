@@ -7,6 +7,7 @@
 #define ALLOCATION_ERROR_MESSAGE() printf("Memory allocation failed! Bye.")
 #define empty(head) (head==NULL)
 #define IsAce(card) card.id == 13
+#define MAX_ACE_POINTS 11
 
 typedef enum { Clubs = 0, Diamonds = 1, Hearts = 2, Spades = 3} Suit;
 

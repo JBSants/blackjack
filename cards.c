@@ -50,7 +50,7 @@ void insert_card(Card_node** head, Card data, int position) {
         }
 
         /*Search the node in the position specified, until the end of the list*/
-        for(int i=1; i < position && curr!=NULL; i++) {
+        for(int i = 1; i < position && curr!=NULL; i++) {
             curr=curr->next;
         }
 	

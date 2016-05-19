@@ -5,15 +5,14 @@
 #include <stdio.h>
 
 Card_node* DeckMaker(int decks) {
-	Card_node* head = NULL;
+	Card_node *head = NULL;
+	Card_node *tail = head;
     
-	Card_node* tail = head;
-    
-	for (int i=0; i < decks * 52; i++) {
+	for (int i = 0; i < decks * MAX_DECK_SIZE; i++) {
         
         Card_node *tmp = create_card_node();
-        tmp->card.id = (i % 13) + 1;
-        tmp->card.suit = (i / 13) % 4;
+        tmp->card.id = (i % MAX_SUIT_CARDS) + 1;
+        tmp->card.suit = (i / MAX_SUIT_CARDS) % MAX_SUITS;
         tmp->next = NULL;
         
         if (head == NULL) {
@@ -29,10 +28,10 @@ Card_node* DeckMaker(int decks) {
 }
 
 void ShuffleCards(Card_node** deck_head, int decks) {
-	Card_node* card_taken = NULL;
+	Card_node *card_taken = NULL;
 	int deck_size = decks * MAX_DECK_SIZE;
 
-    for(int i=0; i < deck_size; i++) {
+    for(int i = 0; i < deck_size; i++) {
         int random = rand() % deck_size;
         card_taken = take_card_node(deck_head, random);
         join_card_node(deck_head, card_taken, i);

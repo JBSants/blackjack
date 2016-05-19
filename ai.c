@@ -4,27 +4,31 @@
 #include "blackjack.h"
 
 AIAction GetCurrentAIAction(Player_node *currentPlayer, Player *house, AIAction **ai_actions) {
-    int numberOfAces = CountAces(currentPlayer->player.cards);
+    int numberOfAces = 0;
     int aiColumn = 0;
     int aiRow = 0;
     
-    if (house->cards->card.id > 9) {
-        aiColumn = 8;
-    } else {
-        aiColumn = house->cards->card.id - 1;
-    }
-    
-    if (numberOfAces > 0) {
-        if (currentPlayer->player.score >= 19) {
-            aiRow = 16;
-        } else if (currentPlayer->player.score >= 13) {
-            aiRow = currentPlayer->player.score - 3;
+    if (currentPlayer != NULL && house != NULL && ai_actions != NULL) {
+        numberOfAces = CountAces(currentPlayer->player.cards);
+        
+        if (house->cards->card.id > 9) {
+            aiColumn = 8;
+        } else {
+            aiColumn = house->cards->card.id - 1;
         }
-    } else {
-        if (currentPlayer->player.score >= 17) {
-            aiRow = 9;
-        } else if (currentPlayer->player.score > 8) {
-            aiRow = currentPlayer->player.score - 8;
+        
+        if (numberOfAces > 0) {
+            if (currentPlayer->player.score >= 19) {
+                aiRow = 16;
+            } else if (currentPlayer->player.score >= 13) {
+                aiRow = currentPlayer->player.score - 3;
+            }
+        } else {
+            if (currentPlayer->player.score >= 17) {
+                aiRow = 9;
+            } else if (currentPlayer->player.score > 8) {
+                aiRow = currentPlayer->player.score - 8;
+            }
         }
     }
     

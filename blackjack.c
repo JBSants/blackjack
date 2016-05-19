@@ -25,13 +25,13 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
         } else if (Bust(walk->player)) {
             walk->player.games_result.lost += 1;
             house->money += walk->player.bet;
-        } else if (house->score > 21) {
-            walk->player.money += 2 * (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == 21 && walk->player.hand_size == 2);
+        } else if (house->score > BLACKJACK_MAX_SCORE) {
+            walk->player.money += 2 * (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == BLACKJACK_MAX_SCORE && walk->player.hand_size == 2);
             walk->player.games_result.won += 1;
-            house->money -= (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == 21 && walk->player.hand_size == 2);
+            house->money -= (walk->player.bet) + 0.5 * (walk->player.bet) * (walk->player.score == BLACKJACK_MAX_SCORE && walk->player.hand_size == 2);
         } else if (house->score == walk->player.score) {
 
-            if (house->score == 21) {
+            if (house->score == BLACKJACK_MAX_SCORE) {
 
                 if (walk->player.hand_size == house->hand_size || (walk->player.hand_size != 2 && house->hand_size != 2)) {
                     walk->player.money += (walk->player.bet);
@@ -50,7 +50,7 @@ void GetBankroll_GameResults(Player* house, Player_node **head) {
                 walk->player.games_result.tied += 1;
             }
 
-        } else if (walk->player.score != 21 || (walk->player.score == 21 && walk->player.hand_size != 2)) {
+        } else if (walk->player.score != BLACKJACK_MAX_SCORE || (walk->player.score == BLACKJACK_MAX_SCORE && walk->player.hand_size != 2)) {
             walk->player.money += 2 * (walk->player.bet) * (walk->player.score > house->score);
 
             if (walk->player.score > house->score) {

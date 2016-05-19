@@ -5,8 +5,9 @@
 #include "cards.h"
 
 #define BLACKJACK_INITIAL_CARDS 2
-#define Bust(player) player.score > 21
-#define Blackjack(player) player.score == 21
+#define BLACKJACK_MAX_SCORE 21
+#define Bust(player) player.score > BLACKJACK_MAX_SCORE
+#define Blackjack(player) (player.score == BLACKJACK_MAX_SCORE && player.hand_size == BLACKJACK_INITIAL_CARDS)
 
 void GetBankroll_GameResults(Player* house, Player_node **head);
 void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, int *hilo, int *cardsDealt);

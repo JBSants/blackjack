@@ -17,7 +17,7 @@ void GetPlayerListScore(Player_node *head) {
 
 void GetScore(Player* player) {
     short score = 0, aces = 0;
-    Card_node* cardnode_ptr;
+    Card_node *cardnode_ptr = NULL;
 
 
     cardnode_ptr = player->cards;
@@ -34,9 +34,9 @@ void GetScore(Player* player) {
     }
 
     // calculates the aces' points and sums it to the rest of the score
-    for(;aces>0;aces--) {
-        if ((score + 11) <= 22 - aces) {
-            score += 11;
+    for(aces = 0; aces > 0; aces--) {
+        if ((score + MAX_ACE_POINTS) <= 22 - aces) {
+            score += MAX_ACE_POINTS;
         } else {
             score += 1;
         }
@@ -184,7 +184,7 @@ Player_node *create_player_node() {
     return new_node;
 }
 void erase_player_list(Player_node* head) {
-	Player_node* tmp;
+	Player_node *tmp;
 
 	while((tmp = head) != NULL){
 		head = head->next;
