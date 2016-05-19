@@ -179,7 +179,7 @@ void AddNewPlayer(Player_node **players, int position) {
     }
     
     
-    PromptNewPlayer(newPlayer);
+    PromptNewPlayer(newPlayer, *players);
     
     newPlayer->cards = NULL;
     newPlayer->score = 0;
