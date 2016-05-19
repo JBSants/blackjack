@@ -2,21 +2,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* FUNCTION NAME:add_card
+*  DESCRIPTION: Adds a card to the head of the list*/
 void add_card(Card_node** head, Card data) {
+	
+	/*Allocates memory for a new node to hold the card, and 
+	if it's not capable, exits the main program*/
 	Card_node* new_node = create_card_node();
-    
 	if (new_node == NULL) {
         ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
-
+	
+	/*Inserts a node in the head
+        with the specified data*/
 	new_node->next = *head;
 	new_node->card = data;
 	*head = new_node;
 
 }
 
-/* FUNCTION NAME:inser_card
+/* FUNCTION NAME:insert_card
 *  DESCRIPTION: Inserts a card in a specified position on the list*/
 void insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
