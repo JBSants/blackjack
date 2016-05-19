@@ -1,3 +1,18 @@
+/**
+ *
+ *   Authors: 
+ *    Joao Bernardo Almeida Santos, n. 84083
+ *    Simão Gonçalves Eusébio, n. 84183
+ *
+ *   MEEC - Instituto Superior Técnico
+ *
+ *
+ *   Graphical Interface provided by Professor João Ascenso
+ *
+ *   Blackjack Game
+ *
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
