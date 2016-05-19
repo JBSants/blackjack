@@ -168,7 +168,7 @@ void DisplayAddPlayerHover(int x, int y, Player_node *players, SDL_Renderer *_re
         playerRect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
         
         if (playerRect == NULL) {
-            ERROR_MESSAGE();
+            ALLOCATION_ERROR_MESSAGE();
             
             exit(EXIT_FAILURE);
         }
@@ -191,7 +191,7 @@ void DisplayAddPlayerMessage(SDL_Renderer *_renderer, TTF_Font *_font) {
     SDL_Color *white = (SDL_Color *) malloc(sizeof(SDL_Color));
     
     if (white == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         
         exit(EXIT_FAILURE);
     }
@@ -210,7 +210,7 @@ void DisplayBetMessage(SDL_Renderer *_renderer, TTF_Font *_font) {
     SDL_Color *white = (SDL_Color *) malloc(sizeof(SDL_Color));
     
     if (white == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         
         exit(EXIT_FAILURE);
     }

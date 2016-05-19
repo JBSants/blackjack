@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     aiConfig = argv[2];
     
     if (house == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         return EXIT_FAILURE;
     }
     

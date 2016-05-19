@@ -10,7 +10,7 @@ void add_card(Card_node** head, Card data) {
 	if it's not capable, exits the main program*/
 	Card_node* new_node = create_card_node();
 	if (new_node == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
 	
@@ -38,7 +38,7 @@ void insert_card(Card_node** head, Card data, int position) {
 	if it's not capable, exits the main program*/
  	Card_node* new_node = create_card_node();
         if (empty(new_node)) {
-            ERROR_MESSAGE();
+            ALLOCATION_ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
     	}
 	
@@ -160,7 +160,7 @@ Card_node* create_card_node() {
 	if it's not capable, exits the main program*/
 	Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
 	if(empty(new_node)) {
-        	ERROR_MESSAGE();
+        	ALLOCATION_ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
     	}
 
@@ -188,7 +188,7 @@ void push_card(Card_node** head, Card data) {
 	if it's not capable, exits the main program*/
         Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
         if(empty(new_node)) {
-        	ERROR_MESSAGE();
+        	ALLOCATION_ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
         }
 	

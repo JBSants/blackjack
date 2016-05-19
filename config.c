@@ -4,8 +4,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "players.h"
+#include "deck.h"
 
 #define MAX_LINE 35
+#define CONFIG_SEPARATOR "-"
+
+void ConfigurationFileError() {
+    printf("Error reading configuration file!\n");
+    
+    exit(EXIT_FAILURE);
+}
 
 void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     char line[MAX_LINE] = { 0 };
@@ -13,14 +21,13 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     int i = 0;
     
     if (fgets(line, MAX_LINE, config_file) == NULL) {
-        printf("Error reading configuration file!\n");
-        exit(EXIT_FAILURE);
+        ConfigurationFileError();
     }
     
-    aux = strtok(line, "-");
+    aux = strtok(line, CONFIG_SEPARATOR);
     
     if (aux == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
     
@@ -32,46 +39,40 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
                 } else if (strcmp(aux, AI) == 0){
                     player->ai = true;
                 } else {
-                    printf("Error reading configuration file!\n");
-                    exit(EXIT_FAILURE);
+                    ConfigurationFileError();
                 }
                 break;
             case 1:
                 if (aux == NULL || strlen(aux) > MAX_NAME) {
-                    printf("Error reading configuration file!\n");
-                    exit(EXIT_FAILURE);
+                    ConfigurationFileError();
                 }
                 
                 strcpy(player->name, aux);
                 break;
             case 2:
                 if (sscanf(aux, "%f", &(player->money)) != 1) {
-                    printf("Error reading configuration file!\n");
-                    exit(EXIT_FAILURE);
+                    ConfigurationFileError();
                 }
                 
                 if (player->money < MIN_MONEY || player->money > MAX_MONEY) {
-                    printf("Error reading configuration file!\n");
-                    exit(EXIT_FAILURE);
+                    ConfigurationFileError();
                 }
                 
                 break;
             case 3:
                 if (sscanf(aux, "%f", &(player->bet)) != 1) {
-                    printf("Error reading configuration file!\n");
-                    exit(EXIT_FAILURE);
+                    ConfigurationFileError();
                 }
                 
                 if (player->bet < MIN_BET_VALUE || player->bet > (MAX_BET_PERCENTAGE * player->money)) {
-                    printf("Error reading configuration file!\n");
-                    exit(EXIT_FAILURE);
+                    ConfigurationFileError();
                 }
                 
                 player->initialBet = player->bet;
                 break;
         }
         
-        aux = strtok(NULL, "-");
+        aux = strtok(NULL, CONFIG_SEPARATOR);
         i += 1;
     } while (aux != NULL);
     
@@ -174,7 +175,7 @@ void AddNewPlayer(Player_node **players, int position) {
     newPlayer = (Player *) malloc(sizeof(Player));
     
     if (newPlayer == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
     
@@ -204,7 +205,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     *ai_actions = (AIAction **) malloc(sizeof(AIAction *) * AIACTIONS_ROWS);
     
     if (*ai_actions == NULL) {
-        ERROR_MESSAGE();
+        ALLOCATION_ERROR_MESSAGE();
         
         exit(EXIT_FAILURE);
     }
@@ -213,7 +214,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS);
         
         if ((*ai_actions)[i] == NULL) {
-            ERROR_MESSAGE();
+            ALLOCATION_ERROR_MESSAGE();
             
             exit(EXIT_FAILURE);
         }
@@ -227,9 +228,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         }
         
         if (c > '4' || c < '0') {
-            printf("Error opening configuration file!\n");
-            
-            exit(EXIT_FAILURE);
+            ConfigurationFileError();
         }
         
         if (currentRow > AIACTIONS_ROWS || currentColumn > AIACTIONS_COLUMNS) {
@@ -253,41 +252,35 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     game_file = fopen(config_file,"r");
     
     if(game_file == NULL){
-        printf("Error opening configuration file!\n");
-        exit(EXIT_FAILURE);
+        ConfigurationFileError();
     }
     
     ai_strategy = fopen(ai, "r");
     
     if(ai_strategy == NULL){
-        printf("Error opening AI strategy file!\n");
-        exit(EXIT_FAILURE);
+        ConfigurationFileError();
     }
     
     ReadAIActions(ai_strategy, ai_actions);
     
     if (fgets(line, MAX_LINE, game_file) == NULL) {
-        printf("Error reading configuration file!\n");
-        exit(EXIT_FAILURE);
+        ConfigurationFileError();
     }
     
-    tmp = strtok(line, "-");
+    tmp = strtok(line, CONFIG_SEPARATOR);
     
     if (sscanf(tmp, "%d", decks) == 0) {
-        printf("Error reading configuration file!\n");
-        exit(EXIT_FAILURE);
+        ConfigurationFileError();
     }
     
-    tmp = strtok(NULL, "-");
+    tmp = strtok(NULL, CONFIG_SEPARATOR);
     
     if (sscanf(tmp, "%d", &players) == 0) {
-        printf("Error reading configuration file!\n");
-        exit(EXIT_FAILURE);
+        ConfigurationFileError();
     }
     
-    if(*decks < 4 || *decks > 8 || players < 1 || players > 4){
-        printf("Not valid players or deck parameters!\n");
-        exit(EXIT_FAILURE);
+    if(*decks < MIN_DECKS || *decks > MAX_DECKS || players < MIN_PLAYERS || players > MAX_PLAYERS){
+        ConfigurationFileError();
     }
     
     
@@ -297,7 +290,7 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
         Player *newPlayer = (Player *) malloc(sizeof(Player));
         
         if (newPlayer == NULL) {
-            ERROR_MESSAGE();
+            ALLOCATION_ERROR_MESSAGE();
             exit(EXIT_FAILURE);
         }
         

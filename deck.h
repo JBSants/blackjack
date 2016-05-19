@@ -4,6 +4,8 @@
 #include "cards.h"
 
 #define DECK_MAX_CARDS 52
+#define MAX_DECKS 8
+#define MIN_DECKS 4
 
 Card_node* DeckMaker(int decks);
 void ShuffleCards(Card_node** deck_head, int decks);

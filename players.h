@@ -9,6 +9,8 @@
 #define MIN_MONEY 10
 #define MAX_MONEY 500
 #define MAX_NAME 9
+#define MIN_PLAYERS 1
+#define MAX_PLAYERS 4
 
 typedef struct {
     int won;

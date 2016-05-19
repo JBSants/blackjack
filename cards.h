@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define MAX_DECK_SIZE 52
-#define ERROR_MESSAGE() printf("Memory allocation failed! Bye.")
+#define ALLOCATION_ERROR_MESSAGE() printf("Memory allocation failed! Bye.")
 #define empty(head) (head==NULL)
 #define IsAce(card) card.id == 13
 
