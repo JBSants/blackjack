@@ -2,21 +2,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* FUNCTION NAME:add_card
+*  DESCRIPTION: Adds a card to the head of the list*/
 void add_card(Card_node** head, Card data) {
+	
+	/*Allocates memory for a new node to hold the card, and 
+	if it's not capable, exits the main program*/
 	Card_node* new_node = create_card_node();
-    
 	if (new_node == NULL) {
         ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
-
+	
+	/*Inserts a node in the head
+        with the specified data*/
 	new_node->next = *head;
 	new_node->card = data;
 	*head = new_node;
 
 }
 
-/* FUNCTION NAME:inser_card
+/* FUNCTION NAME:insert_card
 *  DESCRIPTION: Inserts a card in a specified position on the list*/
 void insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
@@ -121,7 +127,7 @@ void join_card_node(Card_node** head, Card_node* jointo, int position) {
 		}
         	
         	/*Joins a node in the first position of the list (head)*/
-        	if(position == 0){
+        	if(position == 0) {
 			jointo->next = *head;
 			*head = jointo;
 			return;
@@ -167,7 +173,7 @@ void erase_card_list(Card_node* head) {
     Card_node* tmp;
     
     /*Removes each list's element*/
-    while((tmp = head) != NULL){
+    while((tmp = head) != NULL) {
         head = head->next;
         free(tmp);
     }
@@ -181,7 +187,7 @@ void push_card(Card_node** head, Card data) {
        	/*Allocates memory for a new node to hold the card, and 
 	if it's not capable, exits the main program*/
         Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
-        if(empty(new_node)){
+        if(empty(new_node)) {
         	ERROR_MESSAGE();
         	exit(EXIT_FAILURE);
         }
@@ -199,7 +205,7 @@ void push_card_node(Card_node** head, Card_node* node){
 	
 	/*If there is a node (node pointer doesn't point to NULL)
 	push the node into the stack*/
-	if(!empty(node)){
+	if(!empty(node)) {
 		node->next = *head;
         *head = node;
 	}
@@ -211,7 +217,7 @@ Card_node *pop_card(Card_node** head) {
 	Card_node* tmp = NULL;
 	
 	/*If the stack isn't empty (not pointing to NULL), pop*/
-	if(!empty(*head)){
+	if(!empty(*head)) {
 		tmp = *head;
 		(*head) = tmp->next;
 		tmp->next = NULL;
