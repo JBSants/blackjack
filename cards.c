@@ -9,10 +9,6 @@ void add_card(Card_node** head, Card data) {
 	/* Allocates memory for a new node to hold the card, and 
 	if it's not capable, exits the main program */
 	Card_node* new_node = create_card_node();
-	if (new_node == NULL) {
-        ALLOCATION_ERROR_MESSAGE();
-        exit(EXIT_FAILURE);
-    }
 	
 	/* Inserts a node in the head
         with the specified data */
@@ -37,10 +33,6 @@ void insert_card(Card_node** head, Card data, int position) {
 	/* Allocates memory for a new node to hold the card, and 
 	if it's not capable, exits the main program */
  	Card_node* new_node = create_card_node();
-        if (empty(new_node)) {
-            ALLOCATION_ERROR_MESSAGE();
-        	exit(EXIT_FAILURE);
-    	}
 	
 	/* Inserts on the first position of the list (head) */
         if(position == 0) {
@@ -186,13 +178,10 @@ void erase_card_list(Card_node* head) {
 /* FUNCTION NAME:push_card
 *  DESCRIPTION: Performs a push into the stack of a card */
 void push_card(Card_node** head, Card data) {
+       	
        	/* Allocates memory for a new node to hold the card, and 
 	if it's not capable, exits the main program */
-        Card_node* new_node = (Card_node *) malloc(sizeof(Card_node));
-        if(empty(new_node)) {
-        	ALLOCATION_ERROR_MESSAGE();
-        	exit(EXIT_FAILURE);
-        }
+        Card_node* new_node = create_card_node();
 	
         /* Push of the card into the stack */
         new_node->card = data;
