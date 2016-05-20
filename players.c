@@ -50,7 +50,7 @@ void GetScore(Player* player) {
 }
 
 /* FUNCTION NAME:add_player
-*  DESCRIPTION: Adds a player to the head of the players' list*/
+*  DESCRIPTION: Adds a player to the head of the players' list */
 void add_player(Player_node** head, Player data) {
 	Player_node *new_node = NULL;
 	
@@ -65,21 +65,28 @@ void add_player(Player_node** head, Player data) {
 	*head = new_node;
 }
 
+/* FUNCTION NAME:insert_player_node
+*  DESCRIPTION: Adds a card to the tail of the list */
 void insert_player_node(Player_node **head, Player_node **tail, Player data) {
-    Player_node *new_node = create_player_node();
+	
+	/* Allocates memory for a new node to hold the card, and 
+	if it's not capable, exits the main program */
+	Player_node *new_node = create_player_node();
+	
+	/* If the list has a tail (list isn't empty) */
+	if (*tail != NULL) 
+        	(*tail)->next = new_node;
     
-    if (*tail != NULL) {
-        (*tail)->next = new_node;
-    }
-    
-    new_node->next = NULL;
-    new_node->player = data;
-    
-    *tail = new_node;
-    
-    if (*head == NULL) {
-        *head = *tail;
-    }
+    	/* Adds a node in the tail 
+    	with the specified data */
+    	new_node->next = NULL;
+    	new_node->player = data;
+    	*tail = new_node;
+    	
+    	/* If the list is empty updates the head too */
+    	if (*head == NULL) {
+        	*head = *tail;
+    	}
 }
 
 /* FUNCTION NAME:take_player_node
