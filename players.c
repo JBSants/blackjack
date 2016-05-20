@@ -178,17 +178,28 @@ void join_player_node(Player_node** head, Player_node* jointo, int position) {
 void insert_sorted_player_node(Player_node **head, Player data) {
     Player_node *tmp = NULL;
     Player_node *curr = *head;
+    
+    /* Allocates memory for node, and 
+    if it's not capable exits the main program */
     Player_node *new_node = create_player_node();
     
-    new_node->player = data;
+    new_node->player = data; // Saves the player data in the corresponding node field
     
+    /* If the list is empty (head pointing to NULL) inserts
+    the player in the head and if it's not capable exits the main program*/
     if (empty(*head)) {
         free(new_node);
         insert_player_node(head, head, data);
+    /* If the element in the head has a bigger position than the position
+    of the player to insert in the list, inserts the player in the head
+    (position in ascending order)*/
     } else if((*head)->player.position > data.position) {
         new_node->next = *head;
         *head = new_node;
-    } else {
+    } else { // The position of the player is bigger or equal to than the one in the head
+       
+       /* Walks through the list until it finds the place where the player position
+       is in ascending order with the rest of the list */
         while (curr != NULL) {
             tmp = curr;
             curr = curr->next;
