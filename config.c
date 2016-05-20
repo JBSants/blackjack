@@ -189,7 +189,7 @@ void AddNewPlayer(Player_node **players, int position) {
     Player_node *aux = *players;
     Player *newPlayer = NULL;
     
-    /*If the position specified is already been taken return */
+    /* If the position specified is already been taken return */
     while (aux != NULL) {
         if (aux->player.position == position) {
             return;
@@ -198,7 +198,7 @@ void AddNewPlayer(Player_node **players, int position) {
     }
     
     /* Allocates memory for player, and 
-	if it's not capable exits the main program */
+    if it's not capable exits the main program */
     newPlayer = (Player *) malloc(sizeof(Player));
     if (newPlayer == NULL) {
         ALLOCATION_ERROR_MESSAGE();
@@ -233,7 +233,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     
     /* Allocates memory for a vector of pointers, in which pointer is going to point to the
     first position of a soon to be row of a "2 dimensional vector" and if it's not capable
-    exits the main program*/
+    exits the main program */
     *ai_actions = (AIAction **) malloc(sizeof(AIAction *) * AIACTIONS_ROWS); // *ai_actions points to the refered vector
     if (*ai_actions == NULL) {
         ALLOCATION_ERROR_MESSAGE();
@@ -243,7 +243,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     
     /* Allocates memory for all the elements of each row (for all rows),which
     in a "2 dimensional matrix" the number of elements of a row corresponds to its number of
-    columns, and if its not capable to allocate the memory exits the main program*/
+    columns, and if its not capable to allocate the memory exits the main program */
     for (int i = 0; i < AIACTIONS_ROWS; i++) {
         (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS); // (*ai_actions)[i] is the pointer to the the first element of each row
         if ((*ai_actions)[i] == NULL) {
@@ -268,7 +268,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         }
 
         /* If the current row or the current column are greater than the dimension
-        of the matrix, the matrix is complete*/
+        of the matrix, the matrix is complete */
         if (currentRow > AIACTIONS_ROWS || currentColumn > AIACTIONS_COLUMNS) {
             break;
         }
@@ -281,7 +281,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
 }
 
 /* FUNCTION NAME:GameSettings
-*  DESCRIPTION: Reads the game settings from two files */
+*  DESCRIPTION: Reads the game settings from two files and treats the data */
 void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers, AIAction ***ai_actions) {
     FILE* game_file = NULL;
     FILE* ai_strategy = NULL;
@@ -310,22 +310,31 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     in a "2 dimensional vector" */
     ReadAIActions(ai_strategy, ai_actions);
     
+    /* Reads the first line in the game configuration
+    file and if doesn't find it exits the main program */
     if (fgets(line, MAX_LINE, game_file) == NULL) {
         ConfigurationFileError();
     }
     
+    /* Gets the first chunck till '-' appears from the read line
+    and this chunck should be an integer (and corresponds to the number 
+    of decks to be played with), and if it's not found or it's not an 
+    integer exits the main program */
     tmp = strtok(line, CONFIG_SEPARATOR);
-    
     if (sscanf(tmp, "%d", decks) == 0) {
         ConfigurationFileError();
     }
     
+    /* Gets the next chunck till '-' appears from the read line
+    and this chunck should be an integer (number of player), and if it's not found 
+    or it's not an integer exits the main program */
     tmp = strtok(NULL, CONFIG_SEPARATOR);
-    
     if (sscanf(tmp, "%d", &players) == 0) {
         ConfigurationFileError();
     }
-
+	
+	/* If the number of decks or the number of players are not 
+	between the imposed boundaries exits the main program */
     if(*decks < MIN_DECKS || *decks > MAX_DECKS || players < MIN_PLAYERS || players > MAX_PLAYERS){
         printf("Not valid players or deck parameters!\n");
         exit(EXIT_FAILURE);
@@ -333,25 +342,30 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     
     
     aux = head;
-    
-    for (int i = 0; i < players; i++) {
+ 
+    /*  */
+    for (int i = 0; i < players; i++) { // Searches for all players expexted
+        /* Allocates memory for player, and 
+	if it's not capable exits the main program */
         Player *newPlayer = (Player *) malloc(sizeof(Player));
-        
         if (newPlayer == NULL) {
             ALLOCATION_ERROR_MESSAGE();
             exit(EXIT_FAILURE);
         }
         
+        /* Reads players information from the game configuration file
+        an saves it in newPlayer and if it's not capable exits the main program*/
         ReadGameSettingsPlayer(game_file, newPlayer);
-        newPlayer->position = i;
+        newPlayer->position = i; // Sets the player position on the table
         
-        insert_player_node(&head, &aux, *newPlayer);
+        insert_player_node(&head, &aux, *newPlayer); // Inserts the player on the tail of the list if capable, else exits the main program
         
         free(newPlayer);
     }
     
-    *resultPlayers = head;
+    *resultPlayers = head; // Writes the head of the players' list in *resultPlayers
     
+    /* Closes the game settings' files */
     fclose(game_file);
     fclose(ai_strategy);
     
