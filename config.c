@@ -268,7 +268,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
         }
 
         /* If the current row or the current column are greater than the dimension
-        of the matrix the matrix is complete*/
+        of the matrix, the matrix is complete*/
         if (currentRow > AIACTIONS_ROWS || currentColumn > AIACTIONS_COLUMNS) {
             break;
         }
@@ -280,6 +280,8 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     }
 }
 
+/* FUNCTION NAME:GameSettings
+*  DESCRIPTION: Reads the game settings from two files */
 void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers, AIAction ***ai_actions) {
     FILE* game_file = NULL;
     FILE* ai_strategy = NULL;
@@ -289,20 +291,23 @@ void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultP
     char line[MAX_LINE] = { 0 };
     char *tmp = NULL;
     
+    /* Opens the configuration file in read mode and if
+    it's not capable exits the main program */
     game_file = fopen(config_file, "r");
-    
     if(game_file == NULL){
         printf("Error opening configuration file!\n");
         exit(EXIT_FAILURE);
     }
     
+    /* Opens the AI strategy file in read mode and if
+    it's not capable exits the main program */
     ai_strategy = fopen(ai, "r");
-    
     if(ai_strategy == NULL){
         printf("Error opening AI strategy file!\n");
         exit(EXIT_FAILURE);
     }
-    
+    /* Reads AI strategy from the file and saves it
+    in a "2 dimensional vector" */
     ReadAIActions(ai_strategy, ai_actions);
     
     if (fgets(line, MAX_LINE, game_file) == NULL) {
