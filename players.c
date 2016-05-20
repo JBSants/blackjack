@@ -132,7 +132,7 @@ selected position, else doesn't do anything*/
 void join_player_node(Player_node** head, Player_node* jointo, int position) {
     Player_node *curr = *head;
    
-    if (!empty(jointo)) { //If there is a node
+    if (!empty(jointo)) { //If there is a node to join
     	/* If the list isn't empty (not pointing to NULL) */
         if(!empty(curr)) {
             /* There aren't negative positions on the list, so return without no actions done */
