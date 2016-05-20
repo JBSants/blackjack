@@ -17,20 +17,20 @@ void ConfigurationFileError() {
 
 
 /* FUNCTION NAME:ReadGameSettingsPlayer
-*  DESCRIPTION: Reads players parameters from the configuration file*/
+*  DESCRIPTION: Reads players parameters from the configuration file */
 void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     char line[MAX_LINE] = { 0 };
     char *aux = NULL;
     int i = 0;
     
-   /*Reads a line from the configuration file, and if 
-   not possible exits the main program*/
+   /* Reads a line from the configuration file, and if 
+   not possible exits the main program */
     if (fgets(line, MAX_LINE, config_file) == NULL) {
         ConfigurationFileError();
     }
     
-    /*Breaks the line into the substrings (tokens) separated
-    by '-' and exits the main program if a first token isn't found*/
+    /* Breaks the line into the substrings (tokens) separated
+    by '-' and exits the main program if a first token isn't found */
     aux = strtok(line, CONFIG_SEPARATOR);
     if (aux == NULL) {
         ALLOCATION_ERROR_MESSAGE();
@@ -39,64 +39,64 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     }
     
     do {
-        switch (i) {//Switches through all the different player parameters
-            case 0://First Parameter: player's type
-                /*Check if player is human*/
+        switch (i) { // Switches through all the different player parameters
+            case 0: // First Parameter: player's type
+                /* Check if player is human */
                 if (strcmp(aux, NOT_AI) == 0) {
-                    player->ai = false;//turns ai off (is human)
-                /*Check if player is artificial intelligence*/    
+                    player->ai = false; // turns ai off (is human)
+                /* Check if player is artificial intelligence */    
                 } else if (strcmp(aux, AI) == 0){
-                    player->ai = true;//turns ai on
-                /*If it's not an expected type exits the main program*/ 
+                    player->ai = true; // turns ai on
+                /* If it's not an expected type exits the main program */ 
                 } else {
                     ConfigurationFileError();
                 }
                 break;
-            case 1://Second Parameter: player's name
-                /*Checks if the name was found in the file
+            case 1: // Second Parameter: player's name
+                /* Checks if the name was found in the file
                 and if the name as an expected size, if not
-                exits the main program*/ 
+                exits the main program */ 
                 if (aux == NULL || strlen(aux) > MAX_NAME) {
                     ConfigurationFileError();
                 }
                 
-                strcpy(player->name, aux);//saves the player's name
+                strcpy(player->name, aux); // saves the player's name
                 break;
-            case 2://Third Parameter: player's initial money
-                /*Checks if the parameter is of type float, if
-                not exits the main program, if it is saves it*/
+            case 2: // Third Parameter: player's initial money
+                /* Checks if the parameter is of type float, if
+                not exits the main program, if it is saves it */
                 if (sscanf(aux, "%f", &(player->money)) != 1) {
                     ConfigurationFileError();
                 }
-                /*Sets boundaries to the money value, and if 
+                /* Sets boundaries to the money value, and if 
                 they're not respected the main program is aborted */
                 if (player->money < MIN_MONEY || player->money > MAX_MONEY) {
                     ConfigurationFileError();
                 }
                 
                 break;
-            case 3://Fourth Parameter: player's initial bet
-                /*Checks if the parameter is of type float, if
-                not exits the main program, if it is saves it*/
+            case 3: // Fourth Parameter: player's initial bet
+                /* Checks if the parameter is of type float, if
+                not exits the main program, if it is saves it */
                 if (sscanf(aux, "%f", &(player->bet)) != 1) {
                     ConfigurationFileError();
                 }
                 
-                /*Sets boundaries to the bet value, and if they're 
+                /* Sets boundaries to the bet value, and if they're 
                 not respected the main program is aborted */
                 if (player->bet < MIN_BET_VALUE || player->bet > (MAX_BET_PERCENTAGE * player->money)) {
                     ConfigurationFileError();
                 }
                 
-                player->initialBet = player->bet;//Saves the player's bet as initial bet
+                player->initialBet = player->bet; // Saves the player's bet as initial bet
                 break;
         }
         
-        aux = strtok(NULL, CONFIG_SEPARATOR);//Searches for the next token
+        aux = strtok(NULL, CONFIG_SEPARATOR); // Searches for the next token
         i += 1;
-    } while (aux != NULL);//while there's tokens
+    } while (aux != NULL); // while there's tokens
     
-    /*Initializes remaining player's fields*/
+    /* Initializes remaining player's fields */
     player->cards = NULL;
     player->score = 0;
     player->hand_size = 0;
