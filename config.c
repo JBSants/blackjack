@@ -182,10 +182,14 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
     }
 }
 
+/* FUNCTION NAME:AddNewPlayer
+*  DESCRIPTION: Adds new player with information provided by 
+*  the user to list in a specified position */
 void AddNewPlayer(Player_node **players, int position) {
     Player_node *aux = *players;
     Player *newPlayer = NULL;
     
+    /*If the position specified is already been taken return */
     while (aux != NULL) {
         if (aux->player.position == position) {
             return;
@@ -193,16 +197,18 @@ void AddNewPlayer(Player_node **players, int position) {
         aux = aux->next;
     }
     
+    /* Allocates memory for player, and 
+	if it's not capable exits the main program */
     newPlayer = (Player *) malloc(sizeof(Player));
-    
     if (newPlayer == NULL) {
         ALLOCATION_ERROR_MESSAGE();
         exit(EXIT_FAILURE);
     }
     
-    
+    /* Prompts the user for the player's informtations */
     PromptNewPlayer(newPlayer, *players);
     
+    /* Initializes remaining player's fields */
     newPlayer->cards = NULL;
     newPlayer->score = 0;
     newPlayer->hand_size = 0;
@@ -218,46 +224,59 @@ void AddNewPlayer(Player_node **players, int position) {
     
 }
 
+/* FUNCTION NAME:ReadAIActions
+*  DESCRIPTION: Reads AI strategy from a file and saves it into
+*  "2 dimensional vector"*/
 void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     int currentColumn = 0, currentRow = 0;
     char c;
     
-    *ai_actions = (AIAction **) malloc(sizeof(AIAction *) * AIACTIONS_ROWS);
-    
+    /* Allocates memory for a vector of pointers, in which pointer is going to point to the
+    first position of a soon to be row of a "2 dimensional vector" and if it's not capable
+    exits the main program*/
+    *ai_actions = (AIAction **) malloc(sizeof(AIAction *) * AIACTIONS_ROWS); // *ai_actions points to the refered vector
     if (*ai_actions == NULL) {
         ALLOCATION_ERROR_MESSAGE();
         
         exit(EXIT_FAILURE);
     }
     
+    /* Allocates memory for all the elements of each row (for all rows),which
+    in a "2 dimensional matrix" the number of elements of a row corresponds to its number of
+    columns, and if its not capable to allocate the memory exits the main program*/
     for (int i = 0; i < AIACTIONS_ROWS; i++) {
-        (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS);
-        
+        (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS); // (*ai_actions)[i] is the pointer to the the first element of each row
         if ((*ai_actions)[i] == NULL) {
             ALLOCATION_ERROR_MESSAGE();
-            
             exit(EXIT_FAILURE);
         }
     }
     
+    /* Search for all the characters in the AI strategy file */
     while ((c = fgetc(ai_strategy)) != EOF) {
+        /* If the line is over increment the current row, reset 
+        the current column and passes to the next iteration */
         if (c == '\n' || c == '\r') {
             currentRow += 1;
             currentColumn = 0;
             continue;
         }
         
+        /* If it's not a valid value for an AI action exits the main program */
         if (c > '4' || c < '0') {
             ConfigurationFileError();
         }
-        
+
+        /* If the current row or the current column are greater than the dimension
+        of the matrix the matrix is complete*/
         if (currentRow > AIACTIONS_ROWS || currentColumn > AIACTIONS_COLUMNS) {
             break;
         }
         
+        /* Writes the AI action in the corresponding position in the matrix */
         (*ai_actions)[currentRow][currentColumn] = (AIAction) (c - '0');
         
-        currentColumn += 1;
+        currentColumn += 1; // Increments the current column
     }
 }
 
