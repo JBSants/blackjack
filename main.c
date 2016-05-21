@@ -1,18 +1,31 @@
-/**
- *
- *   Authors: 
- *    Joao Bernardo Almeida Santos, n. 84083
- *    Simão Gonçalves Eusébio, n. 84183
- *
- *   MEEC - Instituto Superior Técnico
- *
- *
- *   Graphical Interface provided by Professor João Ascenso
- *
- *   Blackjack Game
- *
- *
- */
+/**************************************
+*PROGRAM NAME: Blackjack Game
+*AUTHORS: João Santos e Simão Eusébio
+*   |IST INFO|: Joao Bernardo Almeida Santos, n. 84083
+*               Simão Gonçalves Eusébio, n. 84183
+*
+*               MEEC - Instituto Superior Técnico
+* 
+*DESCRIPTION: This program simulates the game Blackjack also known as twenty-one, which is the most widely played casino banking game in the world.
+* Blackjack is a comparing card game between player and dealer, meaning players compete against the dealer but not against other players.
+*FEATURES: Players' scores are shown in a graphical window for a more comfort play along with the money and cards of each player and the cards of the house.
+* This implementation of the game only as the following game moves: hit, stand, double and surrender. Each one with a keyboard key associated with it ('h', 's', 'd' and 'r' respectively), and there is also four more user available keys,
+* 'n' to start the next round, 'q' to quit the game, 'b' to change the bet of a player and 'a' to add a new player to the game (if possible).
+* Before quitting the program, a game statistics file is written with the overall game results of each player and the house's money losses/gains.
+* Also, when occurs a bust, the 'busted' player or house are marked  in the graphical interface (with a 'bust').
+* The house routine is inside a finish turn routine which performs all the actions that basically finish that round including the the house play that consists
+* in performing a stand if the house score is greater than 16.
+* 
+*PARAMETERS: Concerning to the game parameters, the program takes two files as program's arguments: the congiguration file and the AI strategy file.
+*
+* NOTES: Every function has a small description, parameter informations, when assumed relevant, and return values information, also when assumed relevant on the top of its definition. Besides they have some helpfull
+* commentaries inside the definition. Commentaries are also made when assumed relevant in other blocks of code along the main program.
+* DATE: 21/5/2016
+
+* CREDITS: Graphical Interface provided by Professor João Ascenso ; goto AUTHORS
+************************************************************************************************************************************************************************************************************************/
+
+#include <stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
