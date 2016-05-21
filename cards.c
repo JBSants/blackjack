@@ -188,7 +188,7 @@ void erase_card_list(Card_node* head) {
 
 ///Stack
 
-/* push_card: Performs a push into the stack of a card */
+/** push_card: Performs a push into the stack of a card */
 void push_card(Card_node** head, Card data) {
        	
        	/* Allocates memory for a new node to hold the card, and 
@@ -201,7 +201,7 @@ void push_card(Card_node** head, Card data) {
 }
 
 
-/* push_card_node: Performs a push into the stack of a node */
+/** push_card_node: Performs a push into the stack of a node */
 void push_card_node(Card_node** head, Card_node* node){
 	
 	/* If there is a node (node pointer doesn't point to NULL)
@@ -212,7 +212,7 @@ void push_card_node(Card_node** head, Card_node* node){
 	}
 }
 
-/* pop_card: Performs a pop onto the stack */
+/** pop_card: Performs a pop onto the stack */
 Card_node *pop_card(Card_node** head) {
 	Card_node* tmp = NULL;
 	
