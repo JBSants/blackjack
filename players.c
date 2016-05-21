@@ -37,7 +37,7 @@ void GetScore(Player* player) {
     }
 
     // calculates the aces' points and sums it to the rest of the score
-    for(aces = 0; aces > 0; aces--) {
+    for(; aces > 0; aces--) {
         if ((score + MAX_ACE_POINTS) <= 22 - aces) {
             score += MAX_ACE_POINTS;
         } else {
