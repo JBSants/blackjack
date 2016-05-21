@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include "players.h"
 
-const short CARD_POINTS[] = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
-
 /* FUNCTION NAME:GetPlayerListScore
 *  DESCRIPTION: Calculates the score of all players in the list */
 void GetPlayerListScore(Player_node *head) {
@@ -22,6 +20,7 @@ void GetPlayerListScore(Player_node *head) {
 void GetScore(Player* player) {
     short score = 0, aces = 0;
     Card_node *cardnode_ptr = NULL;
+    const short CARD_POINTS[] = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
 
     cardnode_ptr = player->cards;

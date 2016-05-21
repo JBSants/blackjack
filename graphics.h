@@ -25,6 +25,10 @@
 #define WINDOW_POSY 250       // initial position of the window: y
 #define EXTRASPACE 150
 #define MARGIN 5
+#define NAME_JOAO "Joao Almeida Santos"
+#define NUMBER_JOAO "84083"
+#define NAME_SIMAO "Simao Goncalves Eusebio"
+#define NUMBER_SIMAO "84183"
 
 void InitEverything(int , int, TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
 void InitSDL();

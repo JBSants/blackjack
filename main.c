@@ -24,34 +24,34 @@
 #include "config.h"
 #include "ai.h"
 
-#define MIN_ARGUMENTS 3 // minimum number of main arguments
-#define AI_DELAY_UNIT 250 // ai delay unit used for increasing and decreasing ai delay
+#define MIN_ARGUMENTS 3 // Minimum number of main arguments
+#define AI_DELAY_UNIT 250 // AI delay unit used for increasing and decreasing ai delay
 
 int main(int argc, char **argv) {
-    SDL_Window* window = NULL; // game window
-    SDL_Renderer* renderer = NULL; // sdl renderer used for rendering the graphical interface
-    SDL_Surface *cards[MAX_DECK_SIZE+1], *imgs[2]; // surfaces for the cards and images
-    SDL_Event event; // current event
+    SDL_Window* window = NULL; // Game window
+    SDL_Renderer* renderer = NULL; // SDL renderer used for rendering the graphical interface
+    SDL_Surface *cards[MAX_DECK_SIZE+1], *imgs[2]; // Surfaces for the cards and images
+    SDL_Event event; // Current event
     TTF_Font *serif = NULL;
-    int delay = 300; // interface refresh delay
-    int aiDelay = 1000; // artificial inteligence delay
-    int quit = 0; // quit variable
-    Card_node *deck = NULL; // set of decks
-    int numberOfDecks = 0; // number of decks used in the game
-    bool turn_ended = false; // true value if turn has ended
-    bool adding_player = false; // true value if 'a' option is selected
-    Player_node *players = NULL; // active players list
-    Player_node *removedPlayers = NULL; // non-active players list
-    Player_node *currentPlayerNode = NULL; // current player
-    Player *house = (Player *) malloc(sizeof(Player)); // house
-    int newPlayerPos = -1; // player position for 'a' option use
-    Player_node *player_node_aux = NULL; // auxiliary variable used to walk players list
+    int delay = 300; // Interface refresh delay
+    int aiDelay = 1000; // Artificial inteligence delay
+    int quit = 0; // Quit variable
+    Card_node *deck = NULL; // Set of decks
+    int numberOfDecks = 0; // Number of decks used in the game
+    bool turn_ended = false; // True value if turn has ended
+    bool adding_player = false; // True value if 'a' option is selected
+    Player_node *players = NULL; // Active players list
+    Player_node *removedPlayers = NULL; // Non-active players list
+    Player_node *currentPlayerNode = NULL; // Current player
+    Player *house = (Player *) malloc(sizeof(Player)); // House
+    int newPlayerPos = -1; // Player position for 'a' option use
+    Player_node *player_node_aux = NULL; // Auxiliary variable used to walk players list
     AIAction **ai_actions = NULL; // 2d matrix with ai actions
-    char *gameConfig = NULL; // game configuration file name
-    char *aiConfig = NULL; // ai configuration file name
-    int hilo = 0; // hilo current value
-    int cardsDealt = 0; // number of cards dealt
-    int mouseX = 0, mouseY = 0; // mouse coordinates
+    char *gameConfig = NULL; // Game configuration file name
+    char *aiConfig = NULL; // AI configuration file name
+    int hilo = 0; // Hilo current value
+    int cardsDealt = 0; // Number of cards dealt
+    int mouseX = 0, mouseY = 0; // Mouse coordinates
     
     /* Checks if all needed arguments are specified */
     if (argc < MIN_ARGUMENTS) {
@@ -59,8 +59,8 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
     
-    gameConfig = argv[1]; // sets game configuration file name
-    aiConfig = argv[2]; // sets ai configuration file name
+    gameConfig = argv[1]; // Sets game configuration file name
+    aiConfig = argv[2]; // Sets ai configuration file name
     
     /* Memory allocation test */
     if (house == NULL) {
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     house->cards = NULL;
     house->money = 0;
     
-    srand((unsigned int) time(NULL)); // initializes the random number generator
+    srand((unsigned int) time(NULL)); // Initializes the random number generator
     
     /* Prints welcome message */
     printf("**************************\n*                        *\n*  Welcome to BlackJack  *\n*                        *\n**************************\n\n");
@@ -82,10 +82,10 @@ int main(int argc, char **argv) {
     /* initialize graphics */
     InitEverything(WIDTH_WINDOW, HEIGHT_WINDOW, &serif, imgs, &window, &renderer);
     
-    /* loads the cards images */
+    /* Loads the cards images */
     LoadCards(cards);
     
-    deck = DeckMaker(numberOfDecks); // loads a new deck of cards
+    deck = DeckMaker(numberOfDecks); // Loads a new deck of cards
     
     ShuffleCards(&deck, numberOfDecks);
     
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
             currentPlayerNode = Stand(currentPlayerNode);
         }
         
-        /* while there's events to handle */
+        /* While there's events to handle */
         while( SDL_PollEvent( &event ) )
         {
             /* Handles events */
@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
                         }
                         break;
                     case SDLK_s:
-                        // stand !
+                        // Stand !
                         /* Verifies the turn hasn't ended */
                         if (!turn_ended) {
                             currentPlayerNode = Stand(currentPlayerNode);
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
                         
                         break;
                     case SDLK_h:
-                        // hit !
+                        // Hit !
                         /* Verifies the turn hasn't ended */
                         if (!turn_ended) {
                             /* The current player requests a card. */
@@ -167,21 +167,21 @@ int main(int argc, char **argv) {
                         
                         break;
                     case SDLK_d:
-                        // double !
+                        // Double !
                         /* Verifies the turn hasn't ended */
                         if (!turn_ended) {
                             currentPlayerNode = Double(&deck, numberOfDecks, house, currentPlayerNode, &hilo, &cardsDealt);
                         }
                         break;
                     case SDLK_r:
-                        // surrender !
+                        // Surrender !
                         /* Verifies the turn hasn't ended */
                         if (!turn_ended) {
                             currentPlayerNode = Surrender(currentPlayerNode);
                         }
                         break;
                     case SDLK_b:
-                        // bet !
+                        // Bet !
                         /* Verifies the turn has ended */
                         if (turn_ended) {
                             DisplayBetMessage(renderer, serif);
@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
                         }
                         break;
                     case SDLK_a:
-                        // add !
+                        // Add !
                         /* Verifies the turn has ended */
                         if (turn_ended) {
                             adding_player = !adding_player;
@@ -211,11 +211,11 @@ int main(int argc, char **argv) {
             }
         }
         
-        /* render game table */
+        /* Render game table */
         RenderTable(players, currentPlayerNode, house, serif, imgs, renderer);
-        /* render house cards */
+        /* Render house cards */
         RenderHouseCards(house, house->cards, house->hand_size, cards, renderer);
-        /* render player cards */
+        /* Render player cards */
         RenderPlayerCards(players, cards, renderer);
         
         /* If 'a' option is selected, displays the player area hovered by the mouse */
@@ -226,9 +226,9 @@ int main(int argc, char **argv) {
             DisplayAddPlayerHover(mouseX, mouseY, players, renderer); // renders it
         }
         
-        /* render in the screen all changes above */
+        /* Render in the screen all changes above */
         SDL_RenderPresent(renderer);
-        /* add a delay */
+        /* Add a delay */
         SDL_Delay( delay );
         
         /* If current player is ai, plays it! */

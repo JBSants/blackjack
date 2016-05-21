@@ -7,16 +7,15 @@
 #include "deck.h"
 #include "ai.h"
 
-const char STATISTICS_FILE_NAME[] = "stats.txt"; // stats file name
 
 /**
- * reads: Reads a string from stdin, trimming \n from the end
+ * reads: Reads a string from stdin, removing the \n from the end
  * \param buffer
  * \param max
  */
 void reads(char *buffer, int max) {
     fgets(buffer, max, stdin);
-    buffer[strlen(buffer) - 1] = '\0';
+    buffer[strlen(buffer) - 1] = '\0'; // Removes \n from the end
 }
 
 /**
@@ -25,8 +24,8 @@ void reads(char *buffer, int max) {
  * \param head players list
  */
 void GetBankroll_GameResults(Player* house, Player_node **head) {
-    Player_node *walk = *head; // auxiliary variable used to walk the list
-    int i = 0; // iterator
+    Player_node *walk = *head; // Auxiliary variable used to walk the list
+    int i = 0; // Iterator
     
     /* Walks players list and updates each players money and stats */
     while(walk != NULL) {
@@ -109,9 +108,9 @@ void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_
  */
 void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks, int *hilo, int *cardsDealt)
 {
-    int numberOfAces = 0; // number of aces in house hand
-    Card_node *card_aux = NULL; // auxiliary variable for walking house card list
-    house->hand_size = 2; // shows the card face down
+    int numberOfAces = 0; // Number of aces in house hand
+    Card_node *card_aux = NULL; // Auxiliary variable for walking house card list
+    house->hand_size = 2; // Shows the card face down
 
     /* At least once and while house has less than 16 points
      * hits a card only if house points is less than 16, or is 17
@@ -152,9 +151,9 @@ void PlayHouse(Player *house, Card_node **deck_head, int numberOfDecks, int *hil
  * \param cardsDealt number of dealt cards
  */
 void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Player_node **removedPlayers, Player_node **currentPlayerNode, Player *house, int *hilo, int *cardsDealt) {
-    Player_node *player_node_aux = *players; // auxiliary variable used for walking players list
-    Player_node *tmp_player = NULL; // auxiliary variable
-    int i = 0; // iterator
+    Player_node *player_node_aux = *players; // Auxiliary variable used for walking players list
+    Player_node *tmp_player = NULL; // Auxiliary variable
+    int i = 0; // Iterator
     
     /* Walks each player, resetting it for the new turn, updates ai bet and removes non active players */
     while (player_node_aux != NULL) {
@@ -199,7 +198,7 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
         /* If player has no more money removes it */
         if (player_node_aux->player.money <= 0) {
             tmp_player = player_node_aux->next;
-            join_player_node(removedPlayers, take_player_node(players, i), 0); // remove !
+            join_player_node(removedPlayers, take_player_node(players, i), 0); // Remove !
             player_node_aux = tmp_player;
         } else {
             player_node_aux->player.money -= player_node_aux->player.bet;
@@ -214,9 +213,9 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
     erase_card_list(house->cards);
     house->cards = NULL;
     
-    DealCards(deck_head, *players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS, hilo, cardsDealt); // deals cards
+    DealCards(deck_head, *players, house, numberOfDecks, BLACKJACK_INITIAL_CARDS, hilo, cardsDealt);
     
-    *currentPlayerNode = *players;
+    *currentPlayerNode = *players; // Resets current player to the first player
 }
 
 /**
@@ -229,9 +228,9 @@ void NewTurn(Card_node **deck_head, int numberOfDecks, Player_node **players, Pl
  * \param cardsDealt number of dealt cards
  */
 Player_node* Hit(Card_node** deck_head, Player_node* current_player, int numberOfDecks, int *hilo, int *cardsDealt) {
-    Card_node *n = NextCard(deck_head, numberOfDecks, hilo, cardsDealt); // gets deck next card
+    Card_node *n = NextCard(deck_head, numberOfDecks, hilo, cardsDealt); // Gets deck next card
     
-    push_card_node(&(current_player->player.cards), n); // adds it
+    push_card_node(&(current_player->player.cards), n); // Adds it
     current_player->player.hand_size += 1;
 
 	GetScore(&(current_player->player));
@@ -262,7 +261,7 @@ Player_node* Stand(Player_node* current_player) {
  * \param cardsDealt number of dealt cards
  */
 Player_node* Double(Card_node **deck_head, int numberOfDecks, Player *house, Player_node *current_player, int *hilo, int *cardsDealt) {
-    float bet = (current_player->player).bet; // current player bet
+    float bet = (current_player->player).bet; // Current player bet
     
     /* Checks if double is allowed, if so doubles it! */
     if (bet <= current_player->player.money && current_player->player.hand_size == BLACKJACK_INITIAL_CARDS) {
@@ -299,11 +298,11 @@ Player_node* Surrender(Player_node *current_player) {
  * \param head players list
  */
 void Bet(Player_node *head) {
-	Player_node *tmp = NULL; // auxiliary variable
-    char *buf = (char *) malloc((MAX_NAME + 1) * sizeof(char)); // buffer for storing player name and bet
-	float bet = 0; // new bet
-    int err = 0; // error check variable
-    bool playerSelected = false; // true if player has been selected
+	Player_node *tmp = NULL; // Auxiliary variable
+    char *buf = (char *) malloc((MAX_NAME + 1) * sizeof(char)); // Buffer for storing player name and bet
+	float bet = 0; // New bet
+    int err = 0; // Error check variable
+    bool playerSelected = false; // True if player has been selected
 
 	do {
 		tmp = head;
@@ -330,7 +329,7 @@ void Bet(Player_node *head) {
                     err = sscanf(buf, "%f", &bet);
 
                     if(err != 1 || bet < MIN_BET_VALUE || bet > tmp->player.money)
-                        printf("Bet value not valid!\n"); // verifies new bet
+                        printf("Bet value not valid!\n"); // Verifies new bet
                     
                 } while(err != 1 || bet < MIN_BET_VALUE || bet > tmp->player.money);
 
@@ -340,7 +339,7 @@ void Bet(Player_node *head) {
             tmp = tmp->next;
         }
         
-        /* if no player error ! */
+        /* If no player error ! */
         if (!playerSelected) {
             printf("There's no player with such name.\n");
         }
@@ -365,29 +364,31 @@ void Bet(Player_node *head) {
  * \param cards_dealt number of dealt cards
  */
 void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numberOfDecks, int numberOfCardsToDeal, int *hilo, int *cardsDealt) {
+    Player_node *walk = NULL;
+    
     /* Checks errors */
     if(house != NULL && !empty(head)) {
-        Player_node *walk = head;
+        walk = head;
         
         /* Deals number of cards to each player and the house */
 		for(int i = 0; i < numberOfCardsToDeal; i++) {
 
             /* Deals a card to each player */
 			while (walk != NULL) {
-				push_card_node(&(walk->player.cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt)); // deals a card to the player
+				push_card_node(&(walk->player.cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt)); // Deals a card to the player
 				walk->player.hand_size += 1;
                 
 				walk = walk->next;
 			}
 
-			push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt)); // deals a card to the house
-			house->hand_size = 1; // house hand_size is only one because it has a card faced down
+			push_card_node(&(house->cards), NextCard(deck_head, numberOfDecks, hilo, cardsDealt)); // Deals a card to the house
+			house->hand_size = 1; // House hand_size is only one because it has a card faced down
             		
             walk = head;
 		}
 	}
 
-    GetPlayerListScore(head); // updates players score
+    GetPlayerListScore(head); // Updates players score
 }
 
 /**
@@ -397,7 +398,7 @@ void DealCards(Card_node** deck_head, Player_node* head, Player* house, int numb
  * \param turn_ended true if turn has ended
  */
 void WriteMoneyAndStatsToFile(Player_node *players, Player *house, bool turn_ended) {
-    FILE *statsFile = NULL; // pointer to be used for stats file access
+    FILE *statsFile = NULL; // Pointer to be used for stats file access
     
     /* Opens the statistics file */
     statsFile = fopen(STATISTICS_FILE_NAME, "w");

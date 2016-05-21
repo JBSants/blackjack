@@ -8,6 +8,7 @@
 #define BLACKJACK_MAX_SCORE 21  // max score
 #define Bust(player) player.score > BLACKJACK_MAX_SCORE  // bust check macro
 #define Blackjack(player) (player.score == BLACKJACK_MAX_SCORE && player.hand_size == BLACKJACK_INITIAL_CARDS)  // blackjack check macro
+#define STATISTICS_FILE_NAME "stats.txt" // Stats file name
 
 void GetBankroll_GameResults(Player* house, Player_node **head);
 void FinishTurn(Card_node **deck_head, int numberOfDecks, Player* house, Player_node **head, int *hilo, int *cardsDealt);

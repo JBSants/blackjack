@@ -4,10 +4,10 @@
 #include "players.h"
 #include "cards.h"
 
-#define AIACTIONS_COLUMNS 10
-#define AIACTIONS_ROWS 17
-#define AI "EA"
-#define NOT_AI "HU"
+#define AIACTIONS_COLUMNS 10 // Columns of ai actions matrix
+#define AIACTIONS_ROWS 17 // Rows of ai actions matrix
+#define AI "EA" // String representing ai player
+#define NOT_AI "HU" // String representing human player
 
 typedef enum { ActionHit = 0, ActionStand = 1, ActionDoubleOrHit = 2, ActionDoubleOrStand = 3, ActionSurrenderOrHit = 4 } AIAction;
 
