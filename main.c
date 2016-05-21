@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     newPlayerPos = GetPlayerPositionFromXY(event.button.x, event.button.y);
                     
-                    if (newPlayerPos > 0 && newPlayerPos < 4) {
+                    if (newPlayerPos >= (MIN_PLAYERS - 1) && newPlayerPos < MAX_PLAYERS) {
                         AddNewPlayer(&players, newPlayerPos);
                     }
                     

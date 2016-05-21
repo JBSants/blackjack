@@ -118,6 +118,7 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
     short notValid = 1; // used for parameter value check
     char buffer[MAX_LINE] = { 0 }; // buffer for fgets
     char aux = 0;
+    Player_node *player_node_aux = players; // auxiliary
     
     /* While the parameter entered is not valid prompt for it */
     while (notValid) {
@@ -126,16 +127,18 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
         
         notValid = fgets(buffer, MAX_LINE, stdin) == NULL || strlen(buffer) > MAX_NAME;
         
-        while (players != NULL) {
-            if (strcmp(players->player.name, buffer)) {
+        buffer[strlen(buffer) - 1] = '\0'; // Removes \n
+        
+        player_node_aux = players;
+        
+        while (player_node_aux != NULL) {
+            if (strcmp(player_node_aux->player.name, buffer) == 0) {
                 notValid = 1;
             }
             
-            players = players->next;
+            player_node_aux = player_node_aux->next;
         }
     }
-    
-    buffer[strlen(buffer) - 1] = '\0';
     
     strcpy(newPlayer->name, buffer);
     
@@ -227,6 +230,7 @@ void AddNewPlayer(Player_node **players, int position) {
     newPlayer->games_result.lost = 0;
     newPlayer->surrender = false;
     newPlayer->position = position;
+    newPlayer->initialBet = newPlayer->bet;
     
     insert_sorted_player_node(players, *newPlayer);
     
