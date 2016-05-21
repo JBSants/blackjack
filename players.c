@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include "players.h"
 
-/* FUNCTION NAME:GetPlayerListScore
-*  DESCRIPTION: Calculates the score of all players in the list */
+/** GetPlayerListScore: Calculates the score of all players in the list 
+ * \param head pointer to the head of a list
+ */
 void GetPlayerListScore(Player_node *head) {
 	Player_node *walk = head;
 
@@ -15,8 +16,9 @@ void GetPlayerListScore(Player_node *head) {
 	}
 }
 
-/* FUNCTION NAME:GetScore
-*  DESCRIPTION: Calculates the player's score */
+/** GetScore: Calculates the player's score 
+ * \param pointer to the player to calculate the score
+ */
 void GetScore(Player* player) {
     short score = 0, aces = 0;
     Card_node *cardnode_ptr = NULL;
@@ -48,8 +50,10 @@ void GetScore(Player* player) {
     player->score = score;
 }
 
-/* FUNCTION NAME:add_player
-*  DESCRIPTION: Adds a player to the head of the players' list */
+/** add_player: Adds a player to the head of the players' list
+ * \param pointer to the head of a list passed by reference
+ * \param data
+ */
 void add_player(Player_node** head, Player data) {
 	Player_node *new_node = NULL;
 	
@@ -64,8 +68,10 @@ void add_player(Player_node** head, Player data) {
 	*head = new_node;
 }
 
-/* FUNCTION NAME:insert_player_node
-*  DESCRIPTION: Adds a card to the tail of the list */
+/** insert_player_node: Adds a card to the tail of the list 
+ * \param head pointer to the head of a list passed by reference
+ * \param tail pointer to the tail of a list passed by reference
+ */
 void insert_player_node(Player_node **head, Player_node **tail, Player data) {
 	
 	/* Allocates memory for a new node to hold the card, and 
@@ -88,9 +94,11 @@ void insert_player_node(Player_node **head, Player_node **tail, Player data) {
     	}
 }
 
-/* FUNCTION NAME:take_player_node
-*  DESCRIPTION: Takes the node (if possible) from the selected 
-*  position of the list and returns a pointer to it*/
+/** take_player_node: Takes the node (if possible) from the selected 
+ * position of the list and returns a pointer to it
+ * \param head pointer to the head of a list passed by reference
+ * \param position position in the list to take the node (starting on 0)
+ */
 Player_node *take_player_node(Player_node** head, int position) {
     Player_node *tmp = NULL;
     Player_node *curr = *head;
@@ -132,9 +140,12 @@ Player_node *take_player_node(Player_node** head, int position) {
     return NULL;
 }
 
-/* FUNCTION NAME:join_player_node
-*  DESCRIPTION: Joins a node (if possible) in the 
-selected position, else doesn't do anything*/
+/** join_player_node: Joins a node (if possible) in the 
+ * selected position, else doesn't do anything
+ * \param head pointer to the head of a list passed by reference
+ * \param jointo jointo node to join the list
+ * \param position position in the list to join the node (starting on 0)
+ */
 void join_player_node(Player_node** head, Player_node* jointo, int position) {
     Player_node *curr = *head;
    
@@ -172,8 +183,10 @@ void join_player_node(Player_node** head, Player_node* jointo, int position) {
     }
 }
 
-/* FUNCTION NAME:insert_sorted_player_node
-*  DESCRIPTION: */
+/** insert_sorted_player_node: Insert a node in ordered position ascending order list
+ * \param head pointer to the head of a list passed by reference
+ * \param data
+ */
 void insert_sorted_player_node(Player_node **head, Player data) {
     Player_node *tmp = NULL;
     Player_node *curr = *head;
@@ -211,8 +224,7 @@ void insert_sorted_player_node(Player_node **head, Player data) {
         }
     }
 }
-/* FUNCTION NAME:create_player_node
-*  DESCRIPTION: Creates a node */
+/** create_player_node: Creates a node */
 Player_node *create_player_node() {
 	
 	/*Allocates memory for a new node and 
@@ -226,8 +238,9 @@ Player_node *create_player_node() {
     return new_node; //returns a pointer to the created node
 }
 
-/* FUNCTION NAME:erase_player_list
-*  DESCRIPTION: Erases a list */
+/** erase_player_list: Erases a list 
+ * \param head pointer to the head of a list
+ */
 void erase_player_list(Player_node* head) {
 	Player_node *tmp;
 	
