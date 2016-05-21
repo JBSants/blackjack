@@ -9,9 +9,11 @@
 #define MAX_LINE 35
 #define CONFIG_SEPARATOR "-"
 
+/** ConfigurationFileError: Shows an error message on the terminal window
+ * and exits the main program
+ */
 void ConfigurationFileError() {
     printf("Error reading configuration file!\n");
-    
     exit(EXIT_FAILURE);
 }
 
