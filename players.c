@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include "players.h"
 
-/** GetPlayerListScore: Calculates the score of all players in the list 
+/** 
+ * GetPlayerListScore: Calculates the score of all players in the list 
  * \param head pointer to the head of a list
  */
 void GetPlayerListScore(Player_node *head) {
@@ -16,7 +17,8 @@ void GetPlayerListScore(Player_node *head) {
 	}
 }
 
-/** GetScore: Calculates the player's score 
+/** 
+ * GetScore: Calculates the player's score 
  * \param pointer to the player to calculate the score
  */
 void GetScore(Player* player) {
@@ -50,7 +52,8 @@ void GetScore(Player* player) {
     player->score = score;
 }
 
-/** add_player: Adds a player to the head of the players' list
+/** 
+ * add_player: Adds a player to the head of the players' list
  * \param pointer to the head of a list passed by reference
  * \param data
  */
@@ -68,7 +71,8 @@ void add_player(Player_node** head, Player data) {
 	*head = new_node;
 }
 
-/** insert_player_node: Adds a card to the tail of the list 
+/** 
+ * insert_player_node: Adds a card to the tail of the list 
  * \param head pointer to the head of a list passed by reference
  * \param tail pointer to the tail of a list passed by reference
  */
@@ -94,7 +98,8 @@ void insert_player_node(Player_node **head, Player_node **tail, Player data) {
     	}
 }
 
-/** take_player_node: Takes the node (if possible) from the selected 
+/** 
+ * take_player_node: Takes the node (if possible) from the selected 
  * position of the list and returns a pointer to it
  * \param head pointer to the head of a list passed by reference
  * \param position position in the list to take the node (starting on 0)
@@ -140,7 +145,8 @@ Player_node *take_player_node(Player_node** head, int position) {
     return NULL;
 }
 
-/** join_player_node: Joins a node (if possible) in the 
+/** 
+ * join_player_node: Joins a node (if possible) in the 
  * selected position, else doesn't do anything
  * \param head pointer to the head of a list passed by reference
  * \param jointo jointo node to join the list
@@ -183,7 +189,8 @@ void join_player_node(Player_node** head, Player_node* jointo, int position) {
     }
 }
 
-/** insert_sorted_player_node: Insert a node in ordered position ascending order list
+/** 
+ * insert_sorted_player_node: Insert a node in ordered position ascending order list
  * \param head pointer to the head of a list passed by reference
  * \param data
  */
@@ -238,7 +245,8 @@ Player_node *create_player_node() {
     return new_node; //returns a pointer to the created node
 }
 
-/** erase_player_list: Erases a list 
+/** 
+ * erase_player_list: Erases a list 
  * \param head pointer to the head of a list
  */
 void erase_player_list(Player_node* head) {
