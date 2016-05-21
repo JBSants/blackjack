@@ -245,7 +245,7 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     in a "2 dimensional matrix" the number of elements of a row corresponds to its number of
     columns, and if its not capable to allocate the memory exits the main program */
     for (int i = 0; i < AIACTIONS_ROWS; i++) {
-        (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS); // (*ai_actions)[i] is the pointer to the the first element of each row
+        (*ai_actions)[i] = (AIAction *) malloc(sizeof(AIAction) * AIACTIONS_COLUMNS); // (*ai_actions)[i] is the pointer to the the first element of the ith row
         if ((*ai_actions)[i] == NULL) {
             ALLOCATION_ERROR_MESSAGE();
             exit(EXIT_FAILURE);
