@@ -173,7 +173,7 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
         printf("Bet amount: ");
         fgets(buffer, MAX_LINE, stdin);
         
-        notValid = sscanf(buffer, "%f", &(newPlayer->bet)) != 1 || newPlayer->bet > newPlayer->money || newPlayer->bet < 0;
+        notValid = sscanf(buffer, "%f", &(newPlayer->bet)) != 1 || newPlayer->bet > MAX_BET_PERCENTAGE * newPlayer->money || newPlayer->bet < 0;
         
         /* If not valid show error */
         if (notValid) {

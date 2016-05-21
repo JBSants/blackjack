@@ -172,7 +172,7 @@ void DisplayAddPlayerHover(int x, int y, Player_node *players, SDL_Renderer *_re
     SDL_Rect *playerRect = NULL; // Rectangle to be rendered
     
     /* Checks if player position is valid  (between min and max) */
-    if (playerPosition >= (MIN_PLAYERS - 1) && playerPosition < (MAX_PLAYERS - 1)) {
+    if (playerPosition >= (MIN_PLAYERS - 1) && playerPosition < MAX_PLAYERS) {
         /* Walks player list */
         while (player_node_aux != NULL) {
             /* If position is already taken return, not rendering the rect */

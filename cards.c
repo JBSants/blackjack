@@ -185,8 +185,7 @@ void push_card(Card_node** head, Card data) {
 	
         /* Push of the card into the stack */
         new_node->card = data;
-        new_node->next = *head;
-        *head = new_node;
+        push_card_node(head, new_node);
 }
 
 
@@ -215,13 +214,6 @@ Card_node *pop_card(Card_node** head) {
 	}
 
 	return tmp; //returns a pointer to the popped node
-}
-
-/* FUNCTION NAME:card_stack_top
-*  DESCRIPTION: Returns the card on the stack's top, 
-*  without changing the stack */
-Card card_stack_top(Card_node* head) {
-    return head->card;
 }
 
 /* FUNCTION NAME:CountAces
