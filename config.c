@@ -16,8 +16,10 @@ void ConfigurationFileError() {
 }
 
 
-/* FUNCTION NAME:ReadGameSettingsPlayer
-*  DESCRIPTION: Reads players parameters from the configuration file */
+/** ReadGameSettingsPlayer: Reads players parameters from the configuration file 
+ * \param config_file pointer to the file of game configuration
+ * \param player pointer to a player
+ */
 void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     char line[MAX_LINE] = { 0 };
     char *aux = NULL;
@@ -106,6 +108,10 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     player->surrender = false;
 }
 
+/** PromptNewPlayer: Prompts for information to create a new customized player
+ * \param newPlayer pointer to the player to customize
+ * \param players pointer to a list of players
+ */
 void PromptNewPlayer(Player *newPlayer, Player_node *players) {
     short notValid = 1; // used for parameter value check
     char buffer[MAX_LINE] = { 0 }; // buffer for fgets
@@ -182,9 +188,11 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
     }
 }
 
-/* FUNCTION NAME:AddNewPlayer
-*  DESCRIPTION: Adds new player with information provided by 
-*  the user to list in a specified position */
+/** AddNewPlayer: Adds new player with information provided by 
+ *  the user to list in a specified position
+ * \param players pointer to alist of players passed by reference
+ * \param position position field of the player to add
+ */
 void AddNewPlayer(Player_node **players, int position) {
     Player_node *aux = *players;
     Player *newPlayer = NULL;
@@ -224,9 +232,11 @@ void AddNewPlayer(Player_node **players, int position) {
     
 }
 
-/* FUNCTION NAME:ReadAIActions
-*  DESCRIPTION: Reads AI strategy from a file and saves it into
-*  "2 dimensional vector"*/
+/** ReadAIActions: Reads AI strategy from a file and saves it into
+ *  "2 dimensional vector"
+ * \param ai_strategy pointer to AI strategy file
+ * \param ai_actions pointer to pointer to AIAction's passed by reference
+ */
 void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     int currentColumn = 0, currentRow = 0;
     char c;
@@ -280,8 +290,13 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     }
 }
 
-/* FUNCTION NAME:GameSettings
-*  DESCRIPTION: Reads the game settings from two files and treats the data */
+/** GameSettings: Reads the game settings from two files and treats the data 
+ * \param config_file name of the game configuration file
+ * \param ai name of the AI strategy file
+ * \param decks integer passed by reference to receive the number of decks
+ * \param resultPlayers pointer to list of players passed by reference
+ * \param ai_actions pointer to pointer to AIAction's passed by reference
+ */
 void GameSettings(char *config_file, char *ai, int *decks, Player_node **resultPlayers, AIAction ***ai_actions) {
     FILE* game_file = NULL;
     FILE* ai_strategy = NULL;
