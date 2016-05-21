@@ -2,8 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* FUNCTION NAME:add_card
-*  DESCRIPTION: Adds a card to the head of the list */
+/** 
+ * add_card: Adds a card to the head of the list 
+ * \param head pointer to the head of a list passed by reference
+ * \param data
+ */
 void add_card(Card_node** head, Card data) {
 	
 	/* Allocates memory for a new node to hold the card, and 
@@ -18,8 +21,12 @@ void add_card(Card_node** head, Card data) {
 
 }
 
-/* FUNCTION NAME:insert_card
-*  DESCRIPTION: Inserts a card in a specified position on the list */
+/**
+ * insert_card: Inserts a card in a specified position on the list
+ * \param head pointer to the head of a list passed by reference
+ * \param data
+ * \param position position in the list (starting on 0) to insert the node yet to create
+ */
 void insert_card(Card_node** head, Card data, int position) {
     Card_node* curr = *head;
     
@@ -61,9 +68,12 @@ void insert_card(Card_node** head, Card data, int position) {
     }
 }
 
-/* FUNCTION NAME:take_card_node
-*  DESCRIPTION: Takes the node (if possible) from the selected 
-*position of the list and returns a pointer to it */
+/**
+ * take_card_node: Takes the node (if possible) from the selected 
+ * position of the list and returns a pointer to it
+ * \param head pointer to the head of a list passed by reference
+ * \param position position in the list to take the node (starting on 0)
+ */
 Card_node* take_card_node(Card_node** head, int position) {
     Card_node* tmp = NULL;
     Card_node* curr = *head;
@@ -105,9 +115,12 @@ Card_node* take_card_node(Card_node** head, int position) {
     return NULL;
 }
 
-/* FUNCTION NAME:join_card_node
-*  DESCRIPTION: Joins a node (if possible) in the selected,
-*  else doesn't do anything */
+/** join_card_node: Joins a node (if possible) in the selected,
+ *  else doesn't do anything
+ * \param head head pointer to the head of a list passed by reference
+ * \param jointo node to join the list
+ * \param position in the list to join the node (starting on 0)
+ */
 void join_card_node(Card_node** head, Card_node* jointo, int position) {
     Card_node* curr = *head;
 	
@@ -146,8 +159,7 @@ void join_card_node(Card_node** head, Card_node* jointo, int position) {
 	}
 }
 
-/* FUNCTION NAME:create_card_node
-*  DESCRIPTION: Creates a node */
+/** create_card_node: Creates a node */
 Card_node* create_card_node() {
 	
 	/* Allocates memory for a new node and 
@@ -161,8 +173,9 @@ Card_node* create_card_node() {
 	return new_node; //returns a pointer to the created node
 }
 
-/* FUNCTION NAME:erase_card_list
-*  DESCRIPTION: Erases a list */
+/** erase_card_list: Erases a list 
+ * \param head head pointer to the head of a list
+ */
 void erase_card_list(Card_node* head) {
     Card_node* tmp;
     
@@ -175,8 +188,7 @@ void erase_card_list(Card_node* head) {
 
 ///Stack
 
-/* FUNCTION NAME:push_card
-*  DESCRIPTION: Performs a push into the stack of a card */
+/* push_card: Performs a push into the stack of a card */
 void push_card(Card_node** head, Card data) {
        	
        	/* Allocates memory for a new node to hold the card, and 
@@ -189,8 +201,7 @@ void push_card(Card_node** head, Card data) {
 }
 
 
-/* FUNCTION NAME:push_card_node
-*  DESCRIPTION: Performs a push into the stack of a node */
+/* push_card_node: Performs a push into the stack of a node */
 void push_card_node(Card_node** head, Card_node* node){
 	
 	/* If there is a node (node pointer doesn't point to NULL)
@@ -201,8 +212,7 @@ void push_card_node(Card_node** head, Card_node* node){
 	}
 }
 
-/* FUNCTION NAME:pop_card
-*  DESCRIPTION: Performs a pop onto the stack */
+/* pop_card: Performs a pop onto the stack */
 Card_node *pop_card(Card_node** head) {
 	Card_node* tmp = NULL;
 	
@@ -216,8 +226,9 @@ Card_node *pop_card(Card_node** head) {
 	return tmp; //returns a pointer to the popped node
 }
 
-/* FUNCTION NAME:CountAces
-*  DESCRIPTION: Counts the aces in a card's list/stack */
+/** CountAces: Counts the aces in a card's list/stack 
+ * \param head pointer to the head of a list
+ */
 int CountAces(Card_node *head) {
     Card_node *walk = head;
     int result = 0;
