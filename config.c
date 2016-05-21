@@ -9,7 +9,8 @@
 #define MAX_LINE 35
 #define CONFIG_SEPARATOR "-"
 
-/** ConfigurationFileError: Shows an error message on the terminal window
+/** 
+ * ConfigurationFileError: Shows an error message on the terminal window
  * and exits the main program
  */
 void ConfigurationFileError() {
@@ -18,7 +19,8 @@ void ConfigurationFileError() {
 }
 
 
-/** ReadGameSettingsPlayer: Reads players parameters from the configuration file 
+/** 
+ * ReadGameSettingsPlayer: Reads players parameters from the configuration file 
  * \param config_file pointer to the file of game configuration
  * \param player pointer to a player
  */
@@ -110,7 +112,8 @@ void ReadGameSettingsPlayer(FILE *config_file, Player *player) {
     player->surrender = false;
 }
 
-/** PromptNewPlayer: Prompts for information to create a new customized player
+/** 
+ * PromptNewPlayer: Prompts for information to create a new customized player
  * \param newPlayer pointer to the player to customize
  * \param players pointer to a list of players
  */
@@ -190,7 +193,8 @@ void PromptNewPlayer(Player *newPlayer, Player_node *players) {
     }
 }
 
-/** AddNewPlayer: Adds new player with information provided by 
+/** 
+ * AddNewPlayer: Adds new player with information provided by 
  *  the user to list in a specified position
  * \param players pointer to alist of players passed by reference
  * \param position position field of the player to add
@@ -234,7 +238,8 @@ void AddNewPlayer(Player_node **players, int position) {
     
 }
 
-/** ReadAIActions: Reads AI strategy from a file and saves it into
+/** 
+ * ReadAIActions: Reads AI strategy from a file and saves it into
  *  "2 dimensional vector"
  * \param ai_strategy pointer to AI strategy file
  * \param ai_actions pointer to pointer to AIAction's passed by reference
@@ -292,7 +297,8 @@ void ReadAIActions(FILE *ai_strategy, AIAction ***ai_actions) {
     }
 }
 
-/** GameSettings: Reads the game settings from two files and treats the data 
+/** 
+ * GameSettings: Reads the game settings from two files and treats the data 
  * \param config_file name of the game configuration file
  * \param ai name of the AI strategy file
  * \param decks integer passed by reference to receive the number of decks
